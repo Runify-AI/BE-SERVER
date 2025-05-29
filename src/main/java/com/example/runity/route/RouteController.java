@@ -1,5 +1,6 @@
 package com.example.runity.route;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@Tag(name = "경로 API", description = "컨트롤러에 대한 설명입니다.")
 @RequestMapping("/running-path")
 @RequiredArgsConstructor
 public class RouteController {
