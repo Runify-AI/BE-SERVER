@@ -1,8 +1,6 @@
 package com.example.runity.route;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Time;
@@ -10,9 +8,10 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-public class RouteEntity {
+@Table(name = "route")
+public class Route {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long routeId;
 
     private Long userId;

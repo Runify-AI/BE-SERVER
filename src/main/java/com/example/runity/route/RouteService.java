@@ -2,7 +2,6 @@ package com.example.runity.route;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.example.runity.route.RouteEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;

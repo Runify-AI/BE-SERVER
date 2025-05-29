@@ -1,15 +1,16 @@
 package com.example.runity.tracking;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-public class RealTimeTrackingEntity {
+@Table(name = "real_time_tracking")
+public class RealTimeTracking {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long trackingId;
 
     private Long routeId;

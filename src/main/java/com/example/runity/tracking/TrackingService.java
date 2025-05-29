@@ -12,7 +12,7 @@ public class TrackingService {
     private final RealTimeTrackingRepository trackingRepository;
 
     public void saveLiveLocation(LiveLocationRequest request) {
-        RealTimeTrackingEntity tracking = new RealTimeTrackingEntity();
+        RealTimeTracking tracking = new RealTimeTracking();
         tracking.setRouteId(request.getRouteId());
         tracking.setCurrentLocation(request.getCurrentLocation());
         tracking.setSpeed(request.getSpeed());

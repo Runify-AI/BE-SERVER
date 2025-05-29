@@ -19,7 +19,7 @@ public class RouteResponse {
     private LocalDateTime createAt;
 
 
-    public static RouteResponse fromEntity(RouteEntity route) {
+    public static RouteResponse fromEntity(Route route) {
         return new RouteResponse(
                 route.getRouteId(),
                 route.getUserId(),
