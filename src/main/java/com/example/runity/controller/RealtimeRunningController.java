@@ -15,6 +15,7 @@ public class RealtimeRunningController {
 
     private final RealtimeRunningService realtimeRunningService;
 
+    // 5분 주기로 사용자 러닝 정보를 저장
     @PostMapping("/state")
     public ResponseEntity<Void> saveRunningState(@RequestBody RunningPathDTO dto) {
         realtimeRunningService.saveRunningState(dto);

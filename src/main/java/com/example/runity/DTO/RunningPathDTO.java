@@ -11,5 +11,5 @@ public class RunningPathDTO {
     private Double pace;                 // 페이스 (/km)
     private Double distance;             // 누적 거리 (km)
     private Double speed;                // 속도 (km/h)
-    private String coordinate;       // GPS 좌표 (별도 클래스)
+    private String coordinate;       // GPS 좌표
 }
