@@ -5,13 +5,15 @@ import com.example.runity.domain.RealTimeRunning;
 //import com.example.runity.domain.RunningPathTS;
 import com.example.runity.DTO.RunningPathDTO;
 import com.example.runity.DTO.RunningCompleteRequest;
+import com.example.runity.domain.RunningPathTS;
 import com.example.runity.repository.DailyRunningRecordRepository;
 import com.example.runity.repository.RealTimeRunningRepository;
-//import com.example.runity.repository.RunningPathRepository;
+import com.example.runity.repository.RunningPathTSRepository;
 import com.example.runity.service.RealtimeRunningService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
-    //private final RunningPathRepository runningPathRepository;
+    private final RunningPathTSRepository runningPathRepository;
     private final RealTimeRunningRepository realTimeRunningRepository;
     private final DailyRunningRecordRepository dailyRunningRecordRepository;
 
@@ -30,18 +32,25 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
      */
     @Override
     public void saveRunningState(RunningPathDTO dto) {
-        /*
+
+        String coordinateStr = dto.getCoordinate(); // "37.1234,127.5678"
+        String[] parts = coordinateStr.split(",");
+        double latitude = Double.parseDouble(parts[0].trim());
+        double longitude = Double.parseDouble(parts[1].trim());
+        //Instant timestamp = Instant.ofEpochMilli(Long.parseLong(dto.getTimestamp()));
+
+
         RunningPathTS path = RunningPathTS.builder()
-                .timestamp(dto.getTimestamp())
                 .pace(dto.getPace().floatValue())
                 .distance(dto.getDistance().floatValue())
                 .speed(dto.getSpeed().floatValue())
-                .latitude(dto.getCoordinate().getLatitude())
-                .longitude(dto.getCoordinate().getLongitude())
+                .latitude(latitude)
+                .longitude(longitude)
                 .build();
 
-        runningPathRepository.save(path);
-        */
+
+        runningPathRepository.saveRunningPoint(dto.getUserId(), path);
+
     }
 
     /**
