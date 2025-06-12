@@ -3,6 +3,7 @@ package com.example.runity.service;
 import com.example.runity.DTO.RealTimeRunningDTO;
 import com.example.runity.DTO.RunningHistoryDTO;
 import com.example.runity.DTO.RunningHistoryDetailDTO;
+import com.example.runity.DTO.WeatherDTO;
 import com.example.runity.domain.DailyRunningRecord;
 import com.example.runity.domain.RealTimeRunning;
 import com.example.runity.domain.RunningPathTS;

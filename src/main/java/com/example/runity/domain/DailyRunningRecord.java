@@ -35,4 +35,13 @@ public class DailyRunningRecord {
 
     @Column
     private Float avgSpeed;
+
+    @Column(name = "weather")
+    private String weather;
+
+    @Column(name = "temperature")
+    private Float temperature;
+
+    @Column(name = "humidity")
+    private Float humidity;
 }

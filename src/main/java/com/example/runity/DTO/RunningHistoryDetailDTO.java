@@ -18,4 +18,9 @@ public class RunningHistoryDetailDTO {
     private Integer runCount;
     private Float avgSpeed;
     private List<RealTimeRunningDTO> runningSessions;
+
+    // 날씨
+    private String weather;    // 예: "Cloudy"
+    private Double temperature; // 예: 23.5도
+    private Double humidity;   // 예: 70%
 }

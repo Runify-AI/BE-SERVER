@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/running")
@@ -25,9 +27,11 @@ public class RealtimeRunningController {
     @PostMapping("/complete")
     public ResponseEntity<Void> completeRunning(@RequestBody RunningCompleteRequest request) {
         realtimeRunningService.completeRunning(request);
+        realtimeRunningService.updateDailyRunningRecord(request.getUserId(), LocalDate.now());
         return ResponseEntity.ok().build();
     }
 
+    // TODO: 통계 AI와 연결
     @PostMapping("/evaluate")
     public ResponseEntity<Void> evaluateRunning(
             @RequestParam Double pace,

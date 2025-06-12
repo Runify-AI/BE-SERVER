@@ -1,5 +1,6 @@
 package com.example.runity.service;
 
+import com.example.runity.DTO.WeatherDTO;
 import com.example.runity.domain.DailyRunningRecord;
 import com.example.runity.domain.RealTimeRunning;
 //import com.example.runity.domain.RunningPathTS;
@@ -26,6 +27,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
     private final RealTimeRunningRepository realTimeRunningRepository;
     private final DailyRunningRecordRepository dailyRunningRecordRepository;
     private final StatisticsRepository statisticsRepository;
+    private final WeatherService weatherService;
 
     /**
      * 실시간 러닝 상태 저장
@@ -169,6 +171,10 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         float avgSpeed = totalSpeed / count;
 
         // 3. DailyRunningRecord 저장 또는 업데이트
+
+        // 5. 오늘의 날씨 정보 가져오기
+        WeatherDTO weather = weatherService.getWeather("Seoul");
+
         DailyRunningRecord dailyRecord = dailyRunningRecordRepository
                 .findByUserIdAndDate(userId, date)
                 .orElse(DailyRunningRecord.builder()
@@ -185,6 +191,9 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .totalRunTime(totalRunTime)
                 .runCount(count)
                 .avgSpeed(avgSpeed)
+                .weather(weather.getWeather())
+                .temperature(weather.getTemperature().floatValue())
+                .humidity(weather.getHumidity().floatValue())
                 .build();
 
         dailyRunningRecordRepository.save(dailyRecord);
@@ -205,5 +214,4 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
         statisticsRepository.save(statistics);
     }
-
 }
