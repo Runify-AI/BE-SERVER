@@ -16,4 +16,5 @@ public interface RealTimeRunningRepository extends JpaRepository<RealTimeRunning
     """)
     List<RealTimeRunning> findByUserIdAndDate(@Param("userId") Long userId, @Param("date") LocalDate date);
 
+    List<RealTimeRunning> findByRecordId(Long recordId);
 }

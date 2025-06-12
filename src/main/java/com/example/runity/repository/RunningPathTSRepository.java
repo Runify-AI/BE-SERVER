@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ public class RunningPathTSRepository {
     private final InfluxDBClient influxDBClient;
     private final String org = "myorg";        // application.properties 또는 config에서 관리하는 게 좋음
     private final String bucket = "running_data";
+
 
     public RunningPathTSRepository(InfluxDBClient influxDBClient) {
         this.influxDBClient = influxDBClient;
@@ -55,46 +57,6 @@ public class RunningPathTSRepository {
         }
     }
 
-    // 해당 날짜의 실 러닝 기록을 가져오기
-    public Map<Instant, RunningPathTS> influxQueryUserData(Long userId, LocalDate date) {
-        QueryApi queryApi = influxDBClient.getQueryApi();
-
-        String start = date.atStartOfDay().toString() + "Z";
-        String stop = date.plusDays(1).atStartOfDay().toString() + "Z";
-
-        String flux = String.format("""
-        from(bucket: "running_data")
-        |> range(start: %s, stop: %s)
-        |> filter(fn: (r) => r._measurement == "running_path")
-        |> filter(fn: (r) => r["user"] == "%s")
-        |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-        |> sort(columns: ["_time"])
-    """, start, stop, userId);
-
-        List<FluxTable> tables = queryApi.query(flux);
-
-        Map<Instant, RunningPathTS> result = new HashMap<>();
-
-        for (FluxTable table : tables) {
-            for (FluxRecord record : table.getRecords()) {
-                Instant timestamp = record.getTime();
-                Map<String, Object> values = record.getValues();
-
-                double latitude = ((Number) values.get("latitude")).doubleValue();
-                double longitude = ((Number) values.get("longitude")).doubleValue();
-                double pace = ((Number) values.get("pace")).doubleValue();
-                float distance = ((Number) values.get("distance")).floatValue();
-                float speed = ((Number) values.get("speed")).floatValue();
-
-                RunningPathTS point = new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed);
-                result.put(timestamp, point);
-            }
-        }
-
-        return result;
-    }
-
-
     private Map<Instant, RunningPathTS> influxQueryUserData(Long userId) {
         QueryApi queryApi = influxDBClient.getQueryApi();
 
@@ -127,5 +89,34 @@ public class RunningPathTSRepository {
         }
 
         return resultMap;
+    }
+
+    public List<RunningPathTS> findByRecordId(Long recordId) {
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        String flux = String.format("""
+                from(bucket: "%s")
+                    |> range(start: -7d)
+                    |> filter(fn: (r) => r._measurement == "running_path_ts" and r.recordId == "%d")
+                    |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+                    |> sort(columns: ["_time"])
+                """, bucket, recordId);
+
+        List<FluxTable> tables = queryApi.query(flux);
+        List<RunningPathTS> result = new ArrayList<>();
+
+        for (FluxTable table : tables) {
+            for (FluxRecord record : table.getRecords()) {
+                Instant timestamp = record.getTime();
+                double latitude = ((Number) record.getValueByKey("latitude")).doubleValue();
+                double longitude = ((Number) record.getValueByKey("longitude")).doubleValue();
+                double pace = ((Number) record.getValueByKey("pace")).doubleValue();
+                float distance = ((Number) record.getValueByKey("distance")).floatValue();
+                float speed = ((Number) record.getValueByKey("speed")).floatValue();
+
+                result.add(new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed));
+            }
+        }
+
+        return result;
     }
 }

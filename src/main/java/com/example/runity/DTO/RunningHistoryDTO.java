@@ -16,6 +16,6 @@ public class RunningHistoryDTO {
     private Float totalDistance;                    // 총 거리
     private LocalTime totalRunTime;
     private Float avgSpeed;                         // 평균 속도
-    private Integer runCount;                        // 횟수
-    //private List<RunningHistory> runningHistories;   // 세션별 상세 기록 리스트
+    private Integer runCount;                        // 횟
+
 }
