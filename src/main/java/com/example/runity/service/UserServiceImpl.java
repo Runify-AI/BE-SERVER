@@ -1,5 +1,6 @@
 package com.example.runity.service;
 
+import com.example.runity.enums.RunningType;
 import com.example.runity.DTO.UserProfileResponseDTO;
 import com.example.runity.constants.ErrorCode;
 import com.example.runity.domain.User;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+
     @Override
     public UserProfileResponseDTO getUserProfile(String token) {
         Long userId = jwtUtil.getUserId(token); // JWT에서 userId 추출
@@ -25,6 +27,9 @@ public class UserServiceImpl implements UserService {
         return UserProfileResponseDTO.builder()
                 .name(user.getName())
                 .nickName(user.getNickName())
+                .height(user.getHeight())
+                .weight(user.getWeight())
+                .runningType(user.getRunningType())
                 .build();
     }
     @Override
@@ -36,19 +41,38 @@ public class UserServiceImpl implements UserService {
 
         String updatedName = updateRequestDTO.getName();
         String updatedNickName = updateRequestDTO.getNickName();
+        Double updatedHeight = updateRequestDTO.getHeight();
+        Double updatedWeight = updateRequestDTO.getWeight();
+        RunningType updatedRunningType = updateRequestDTO.getRunningType();
 
         // 기존 프로필이랑 변경 사항이 있는지 확인
         boolean isUpdated = false;
+        // 엔터티의 일부만 변경하도록
+        User.UserBuilder userBuilder = user.toBuilder();
 
-        User.UserBuilder userBuilder = user.toBuilder(); // 엔터티의 일부(이름, 닉네임)만 변경하도록
-
-        if (updatedName != null && !updatedName.equals(user.getName())) { // 사용자의 이름을 수정하는 로직
+        // 사용자의 이름을 수정하는 로직
+        if (updatedName != null && !updatedName.equals(user.getName())) {
             userBuilder.name(updatedName);
             isUpdated = true;
         }
-
-        if (updatedNickName != null && !updatedNickName.equals(user.getNickName())) { // 사용자의 닉네임을 수정하는 로직
+        // 사용자의 닉네임을 수정하는 로직
+        if (updatedNickName != null && !updatedNickName.equals(user.getNickName())) {
             userBuilder.nickName(updatedNickName);
+            isUpdated = true;
+        }
+        // 사용자의 키를 수정하는 로직
+        if (updatedHeight != null && !updatedHeight.equals(user.getHeight())){
+            userBuilder.height(updatedHeight);
+            isUpdated = true;
+        }
+        // 사용자의 체중을 수정하는 로직
+        if (updatedWeight != null && !updatedWeight.equals(user.getWeight())){
+            userBuilder.weight(updatedWeight);
+            isUpdated = true;
+        }
+        // 사용자의 러닝 타입을 수정하는 로직
+        if (updatedRunningType != null && !updatedRunningType.equals(user.getRunningType())) {
+            userBuilder.runningType(updatedRunningType);
             isUpdated = true;
         }
 
@@ -56,6 +80,9 @@ public class UserServiceImpl implements UserService {
             return UserProfileResponseDTO.builder()
                     .name(user.getName())
                     .nickName(user.getNickName())
+                    .height(user.getHeight())
+                    .weight(user.getWeight())
+                    .runningType(user.getRunningType())
                     .build();
         }
 
@@ -65,6 +92,9 @@ public class UserServiceImpl implements UserService {
         return UserProfileResponseDTO.builder()
                 .name(updatedUser.getName())
                 .nickName(updatedUser.getNickName())
+                .height(updatedUser.getHeight())
+                .weight(updatedUser.getWeight())
+                .runningType(updatedUser.getRunningType())
                 .build();
     }
 }

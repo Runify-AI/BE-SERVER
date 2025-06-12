@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="route")
+@Table(name="routes")
 @Getter
 @Builder(toBuilder=true)
 @NoArgsConstructor

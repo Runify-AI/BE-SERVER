@@ -12,4 +12,11 @@ import lombok.NoArgsConstructor;
 public class ReturnCodeDTO {
     private int status;
     private String message;
+    private Object data;
+
+    public ReturnCodeDTO(int status, String message) {
+        this.status = status;
+        this.message = message;
+    }
+
 }

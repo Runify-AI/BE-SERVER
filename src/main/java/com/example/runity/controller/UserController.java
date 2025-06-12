@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "사용자 정보", description = "< 프로필 > API")
 public class UserController {
     private final UserService userService;
-    //* 프로필 정보 조회
+    // 프로필 정보 조회
     @Operation(summary = "유저의 프로필 정보를 반환하는 API 입니다. [담당자] : 정현아",
-            description = "프로필 정보는 이름과 닉네임입니다. 'nickName' << 대-소문자 구별에 주의해 주세요!")
+            description = "프로필 정보는 이름, 닉네임, 키, 체중, 러닝 타입이 포함됩니다. 'nickName' << 대-소문자 구별에 주의해 주세요!")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = ReturnCodeDTO.class))}),
@@ -35,9 +35,9 @@ public class UserController {
         return ResponseEntity.ok(profile);
     }
 
-    //* 프로필 정보 수정
+    // 프로필 정보 수정
     @Operation(summary = "유저의 프로필 정보를 업데이트하는 API 입니다. [담당자] : 정현아",
-            description = "프로필 정보는 이름과 닉네임입니다. 'nickName' << 대-소문자 구별에 주의해 주세요!")
+            description = "업데이트 가능한 프로필 항목은 이름, 닉네임, 키, 체중, 러닝 타입 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "업데이트 성공", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = ReturnCodeDTO.class))}),

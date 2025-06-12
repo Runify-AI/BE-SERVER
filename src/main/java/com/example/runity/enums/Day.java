@@ -14,5 +14,18 @@ public enum Day {
     SATURDAY("토"),
     SUNDAY("일");
 
-    private final String routineDay;
+    private final String days;
+    // 한글 -> 영어
+    public static Day fromString(String days) {
+        for (Day day : Day.values()) {
+            if (day.getDays().equalsIgnoreCase(days)) {
+                return day;
+            }
+        }
+        return null;
+    }
+    // 영어 -> 한글
+    public static String toString(Day day){
+        return day.getDays();
+    }
 }
