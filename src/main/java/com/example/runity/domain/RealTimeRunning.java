@@ -3,6 +3,7 @@ package com.example.runity.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -22,7 +23,7 @@ public class RealTimeRunning {
     private Long recordId;
 
     @Column
-    private LocalDateTime endTime;
+    private Instant endTime;
 
     @Column(nullable = false)
     private Boolean isCompleted;
@@ -50,4 +51,11 @@ public class RealTimeRunning {
 
     @Column
     private Float avgSpeed;
+
+    @Column
+    private float distance;
+
+    @Column
+    private LocalTime runTime;
+
 }
