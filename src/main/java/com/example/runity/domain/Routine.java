@@ -8,7 +8,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Entity
-@Table(name="routine")
+@Table(name="routines")
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor(access=AccessLevel.PROTECTED)

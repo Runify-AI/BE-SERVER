@@ -6,7 +6,7 @@ import lombok.*;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "route_choice")
+@Table(name = "route_choices")
 @Getter
 @Setter
 @Builder(toBuilder = true)

@@ -16,16 +16,22 @@ public enum ErrorCode {
     INVALID_PLACE(400,"유효하지 않은 장소 값입니다."),
     INVALID_DAY(400,"유효하지 않은 요일 값입니다."),
     INVALID_TIME_FORMAT(400,"시간 형식이 잘못되었습니다. (HH:mm)"),
+    INVALID_ROUTE_PARAMETER(400,"경로 요청 값이 올바르지 않습니다."),
     INVALID_ROUTINE_PARAMETER(400,"루틴 요청 값이 올바르지 않습니다."),
+    INVALID_PREFERENCE_ENUM_VALUE(400,"유효하지 않은 선호도 값입니다."),
+    DUPLICATE_PREFERENCE_EXISTS(400,"이미 등록된 선호도 정보가 존재합니다."),
 
     //404 NOT_FOUND 잘못된 리소스 접근
     USER_NOT_FOUND(404, "존재하지 않는 회원 ID 입니다."),
     VERIFICATION_CODE_NOT_FOUND(404, "인증 코드가 존재하지 않습니다."),
     PASSWORD_MISMATCH(400, "비밀번호가 일치하지 않습니다."),
+    ROUTE_NOT_FOUND(404,"경로를 찾을 수 없습니다."),
     ROUTINE_NOT_FOUND(404, "루틴 정보를 찾을 수 없습니다."),
+    PREFERENCE_NOT_FOUND(404,"선호도 정보를 찾을 수 없습니다."),
 
     // 409 CONFLICT 중복된 리소스
     EMAIL_CONFLICT(409, "해당 이메일은 이미 등록되어 있습니다."),
+    PREFERENCE_CONFLICT(409, "해당 유저의 선호도 정보가 이미 존재합니다."),
 
     //500 INTERNAL SERVER ERROR
     INTERNAL_SERVER_ERROR(500, "서버 에러입니다. 서버 팀에 연락주세요!"),

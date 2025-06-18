@@ -1,19 +1,22 @@
 package com.example.runity.service;
 
+import com.example.runity.constants.ErrorCode;
+import com.example.runity.error.CustomException;
 import com.example.runity.domain.Route;
 import com.example.runity.domain.RouteChoice;
 import com.example.runity.DTO.RouteChoiceRequestDTO;
 import com.example.runity.repository.RouteChoiceRepository;
 import com.example.runity.repository.RouteRepository;
-import com.example.runity.service.RouteChoiceService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RouteChoiceServiceImpl implements RouteChoiceService {
     private final RouteChoiceRepository routeChoiceRepository;
     private final RouteRepository routeRepository;
@@ -21,7 +24,7 @@ public class RouteChoiceServiceImpl implements RouteChoiceService {
     @Override
     public RouteChoice saveChoice(Long routeId, RouteChoiceRequestDTO routeChoiceRequestDTO) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new EntityNotFoundException("경로를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROUTE_NOT_FOUND, ErrorCode.ROUTE_NOT_FOUND.getMessage()));
 
         RouteChoice routeChoice = RouteChoice.builder()
                 .route(route)

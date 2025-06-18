@@ -26,7 +26,7 @@ public class LoginController {
     private final LoginService loginService;
     private final JwtUtil jwtUtil;
     //** 서비스 자체 이메일 로그인
-    @Operation(summary = "이메일 로그인 시 필요한 API 입니다. [담당자] : 정현")
+    @Operation(summary = "이메일 로그인 시 필요한 API 입니다. [담당자] : 정현아")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = ReturnCodeDTO.class))}),
