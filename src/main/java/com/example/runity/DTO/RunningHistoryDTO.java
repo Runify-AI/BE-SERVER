@@ -11,7 +11,6 @@ import java.util.List;
 @Builder
 @Getter @Setter
 public class RunningHistoryDTO {
-    private Long userId;
     private LocalDate date;                          // 날짜
     private Float totalDistance;                    // 총 거리
     private LocalTime totalRunTime;
