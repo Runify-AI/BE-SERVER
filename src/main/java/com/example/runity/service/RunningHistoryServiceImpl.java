@@ -62,7 +62,6 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
         // 4. 최종 DTO 구성
         return RunningHistoryDetailDTO.builder()
                 .recordId(record.getRecordId())
-                .userId(record.getUserId())
                 .totalDistance(record.getTotalDistance())
                 .totalRunTime(record.getTotalRunTime())
                 .date(record.getDate())
@@ -91,7 +90,6 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     @Override
     public RunningHistoryDTO convertToDto(DailyRunningRecord record) {
         return RunningHistoryDTO.builder()
-                .userId(record.getUserId())
                 .date(record.getDate())
                 .totalDistance(record.getTotalDistance())
                 .totalRunTime(record.getTotalRunTime())
