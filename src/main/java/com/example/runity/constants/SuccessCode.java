@@ -16,10 +16,15 @@ public enum SuccessCode {
     SUCCESS_PASSWORD_CONFIRM(200, "비밀번호 확인이 완료되었습니다."),
     SUCCESS_ROUTINE_UPDATE(200, "루틴 수정이 완료되었습니다."),
     SUCCESS_ROUTINE_LIST(200,"루틴 조회가 완료되었습니다."),
+    SUCCESS_ROUTE_LIST(200,"경로 목록 조회가 완료되었습니다."),
+    SUCCESS_ROUTE_DETAIL(200, "단일 경로 조회가 완료되었습니다."),
+    SUCCESS_ROUTE_UPDATE(200, "경로 수정이 완료되었습니다."),
     // 201
     SUCCESS_ROUTINE_CREATE(201,"루틴 생성이 완료되었습니다."),
+    SUCCESS_ROUTE_CREATE(201, "경로 생성이 완료되었습니다."),
     // 204
-    SUCCESS_ROUTINE_DELETE(204,"루틴 삭제가 완료되었습니다.");
+    SUCCESS_ROUTINE_DELETE(204,"루틴 삭제가 완료되었습니다."),
+    SUCCESS_ROUTE_DELETE(204, "경로 삭제가 완료되었습니다.");
 
     private final int status;
     private final String message;
