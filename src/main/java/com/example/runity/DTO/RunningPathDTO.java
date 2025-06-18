@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 @Getter @Setter
 public class RunningPathDTO {
-    private Long userId;
     private Long timestamp;              // 측정 시각, 밀리초 단위 epoch
     private Double pace;                 // 페이스 (/km)
     private Double distance;             // 누적 거리 (km)

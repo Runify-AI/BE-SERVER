@@ -25,6 +25,7 @@ public class RealtimeRunningController {
         return ResponseEntity.ok().build();
     }
 
+    // 러닝 완료 후 모든 정보를 저장
     @PostMapping("/complete")
     public ResponseEntity<Void> completeRunning(@RequestHeader("Authorization") String token,
                                                 @RequestBody RunningCompleteRequest request) {
@@ -32,6 +33,8 @@ public class RealtimeRunningController {
         realtimeRunningService.updateDailyRunningRecord(token, LocalDate.now());
         return ResponseEntity.ok().build();
     }
+
+    //러닝 세팅값 가져오기
 
     // TODO: 통계 AI와 연결
     @PostMapping("/evaluate")

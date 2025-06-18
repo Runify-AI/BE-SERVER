@@ -8,41 +8,59 @@ import com.example.runity.repository.RoutineRepository;
 //import com.example.runity.repository.AIRecommendRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.RouteMatcher;
+
+import java.sql.Time;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RunningSettingServiceImpl implements RunningSettingService {
+    /*
+        private final RouteRepository routeRepository;
+        private final RouteChoiceRepository routeChoiceRepository;
+        private final AiPaceService aiPaceService; // AI 호출하는 서비스
 
-    //private final RouteRepository routeRepository;
-    private final RoutineRepository routineRepository;
-    //private final AIRecommendRepository aiRecommendRepository;
+        public RunningSettingsResponse getRunningSetting(Long routeId) {
+            RouteMatcher.Route route = routeRepository.findById(routeId)
+                    .orElseThrow(() -> new RuntimeException("Route not found"));
 
+            List<String> routePoints = routeChoiceRepository
+                    .findAllByRoute_RouteId(routeId)
+                    .stream()
+                    .map(RouteChoice::getCoordinate)
+                    .collect(Collectors.toList());
+
+            String duration = formatDuration(route.getEstimatedTime());
+            String startTime = LocalTime.now().toString();
+            String estimatedEndTime = LocalTime.now().plusSeconds(route.getEstimatedTime().toSecondOfDay()).toString();
+
+            // AI 호출하여 페이스 생성
+            String pace = aiPaceService.generatePace(route); // 예: "5:30/km"
+
+            // (선택) 생성한 pace를 Route에 저장하고 업데이트
+            route.setPace(pace);
+            routeRepository.save(route);
+
+            return new RunningSettingsResponse(
+                    routePoints,
+                    duration,
+                    startTime,
+                    estimatedEndTime,
+                    route.getStartPoint(),
+                    route.getEndPoint(),
+                    pace
+            );
+        }
+
+        private String formatDuration(Time time) {
+            return time.toString(); // 혹은 원하는 형식으로 포맷
+        }
+     */
     @Override
-    public RunningSettingsResponse getRunningSettings(Long userId) {
-        /*
-        Route route = routeRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 경로 정보가 존재하지 않습니다."));
-         */
-
-        Routine routine = routineRepository.findByUserId(userId)
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당 사용자의 루틴 정보가 존재하지 않습니다."));
-        /*
-        Double recommendedPace = aiRecommendRepository.findByUserId(userId)
-                .map(ai -> ai.getPace())
-                .orElse(6.0); // 기본 페이스: 6분/km
-
-         */
-
-        /*
-        return RunningSettingsResponse.builder()
-                .route(route)
-                .routine(routine)
-                .recommendedPace(recommendedPace)
-                .build();
-
-         */
-        return RunningSettingsResponse.builder().build();
+    public RunningSettingsResponse getRunningSettings(Long routeId) {
+        return null;
     }
 }
