@@ -8,16 +8,18 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
+
     @Bean
-    public OpenAPI openAPI(){
+    public OpenAPI openAPI() {
         return new OpenAPI()
                 .components(new Components())
                 .info(apiInfo());
     }
-    private Info apiInfo(){
+
+    private Info apiInfo() {
         return new Info()
-                .title("Run")
-                .description("REST API")
+                .title("CodeArena Swagger")
+                .description("CodeArena 유저 및 인증 , ps, 알림에 관한 REST API")
                 .version("1.0.0");
     }
 }
