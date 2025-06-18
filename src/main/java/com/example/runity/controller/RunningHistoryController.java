@@ -20,20 +20,20 @@ public class RunningHistoryController {
     private final RunningHistoryService runningHistoryService;
 
     @GetMapping("/daily")
-    public ResponseEntity<RunningHistoryDetailDTO> getDailyRecord(@RequestParam Long userId,
+    public ResponseEntity<RunningHistoryDetailDTO> getDailyRecord(@RequestHeader("Authorization") String token,
                                                                   @RequestParam LocalDate date) {
-        return ResponseEntity.ok(runningHistoryService.getDailyRecord(userId, date));
+        return ResponseEntity.ok(runningHistoryService.getDailyRecord(token, date));
     }
 
     @GetMapping("/period")
-    public ResponseEntity<List<RunningHistoryDetailDTO>> getPeriodRecord(@RequestParam Long userId,
-                                                                   @RequestParam LocalDate start,
+    public ResponseEntity<List<RunningHistoryDetailDTO>> getPeriodRecord(@RequestHeader("Authorization") String token,
+                                                                         @RequestParam LocalDate start,
                                                                    @RequestParam LocalDate end) {
         List<RunningHistoryDetailDTO> result = new ArrayList<>();
 
         for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
             try {
-                RunningHistoryDetailDTO dto = runningHistoryService.getDailyRecord(userId, date);
+                RunningHistoryDetailDTO dto = runningHistoryService.getDailyRecord(token, date);
                 result.add(dto);
             } catch (RuntimeException e) {
                 // 기록 없는 날짜는 무시

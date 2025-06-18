@@ -19,15 +19,17 @@ public class RealtimeRunningController {
 
     // 5분 주기로 사용자 러닝 정보를 저장
     @PostMapping("/state")
-    public ResponseEntity<Void> saveRunningState(@RequestBody RunningPathDTO dto) {
-        realtimeRunningService.saveRunningState(dto);
+    public ResponseEntity<Void> saveRunningState(@RequestHeader("Authorization") String token,
+                                                 @RequestBody RunningPathDTO dto) {
+        realtimeRunningService.saveRunningState(token, dto);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/complete")
-    public ResponseEntity<Void> completeRunning(@RequestBody RunningCompleteRequest request) {
-        realtimeRunningService.completeRunning(request);
-        realtimeRunningService.updateDailyRunningRecord(request.getUserId(), LocalDate.now());
+    public ResponseEntity<Void> completeRunning(@RequestHeader("Authorization") String token,
+                                                @RequestBody RunningCompleteRequest request) {
+        realtimeRunningService.completeRunning(token, request);
+        realtimeRunningService.updateDailyRunningRecord(token, LocalDate.now());
         return ResponseEntity.ok().build();
     }
 

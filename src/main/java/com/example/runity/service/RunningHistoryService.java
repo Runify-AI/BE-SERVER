@@ -10,8 +10,8 @@ import java.util.List;
 
 @Service
 public interface RunningHistoryService {
-    RunningHistoryDetailDTO getDailyRecord(Long userId, LocalDate date);
-    List<RunningHistoryDTO> getPeriodRecord(Long userId, LocalDate start, LocalDate end);
+    RunningHistoryDetailDTO getDailyRecord(String token, LocalDate date);
+    List<RunningHistoryDTO> getPeriodRecord(String token, LocalDate start, LocalDate end);
     RunningHistoryDTO convertToDto(DailyRunningRecord record);
-    List<RunningHistoryDTO> getUserRunningHistories(Long userId, LocalDate start, LocalDate end);
+    List<RunningHistoryDTO> getUserRunningHistories(String token, LocalDate start, LocalDate end);
 }

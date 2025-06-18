@@ -12,12 +12,12 @@ import java.util.List;
 public class RunningHistoryDetailDTO {
     private Long recordId;
     private Long userId;
-    private Float totalDistance;
-    private LocalTime totalRunTime;
+    private Float totalDistance;      // 총 거리
+    private LocalTime totalRunTime;   // 총 러닝 시간
     private LocalDate date;
-    private Integer runCount;
-    private Float avgSpeed;
-    private List<RealTimeRunningDTO> runningSessions;
+    private Integer runCount;         // 러닝 횟수
+    private Float avgSpeed;           // 평균 속도
+    private List<RealTimeRunningDTO> runningSessions;  // 러닝 기록 리스트
 
     // 날씨
     private String weather;    // 예: "Cloudy"

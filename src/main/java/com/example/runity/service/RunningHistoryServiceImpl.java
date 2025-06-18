@@ -10,6 +10,7 @@ import com.example.runity.domain.RunningPathTS;
 import com.example.runity.repository.DailyRunningRecordRepository;
 import com.example.runity.repository.RealTimeRunningRepository;
 import com.example.runity.repository.RunningPathTSRepository;
+import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +27,14 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     private final DailyRunningRecordRepository dailyRunningRecordRepository;
     private final RealTimeRunningRepository realTimeRunningRepository;
     private final RunningPathTSRepository runningPathTSRepository;
+    private final JwtUtil jwtUtil;
 
     /**
      * 특정 날짜의 러닝 기록 조회
      */
     @Override
-    public RunningHistoryDetailDTO getDailyRecord(Long userId, LocalDate date) {
+    public RunningHistoryDetailDTO getDailyRecord(String token, LocalDate date) {
+        Long userId = jwtUtil.getUserId(token);
         // 1. DailyRunningRecord 조회
         DailyRunningRecord record = dailyRunningRecordRepository
                 .findByUserIdAndDate(userId, date)
@@ -75,7 +78,8 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
      * 시작~종료 날짜 구간의 기록 전체 조회 (전체 사용자 기준)
      */
     @Override
-    public List<RunningHistoryDTO> getPeriodRecord(Long userId, LocalDate start, LocalDate end) {
+    public List<RunningHistoryDTO> getPeriodRecord(String token, LocalDate start, LocalDate end) {
+        Long userId = jwtUtil.getUserId(token);
         return dailyRunningRecordRepository.findByUserIdAndDateBetween(userId, start, end).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -100,7 +104,8 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
      * 사용자 기준으로 날짜 구간에 해당하는 기록 조회
      */
     @Override
-    public List<RunningHistoryDTO> getUserRunningHistories(Long userId, LocalDate start, LocalDate end) {
+    public List<RunningHistoryDTO> getUserRunningHistories(String token, LocalDate start, LocalDate end) {
+        Long userId = jwtUtil.getUserId(token);
         return dailyRunningRecordRepository.findByUserIdAndDateBetween(userId, start, end).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
