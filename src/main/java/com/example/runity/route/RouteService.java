@@ -1,5 +1,5 @@
 package com.example.runity.route;
-
+/*
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,3 +18,4 @@ public class RouteService {
                 .collect(Collectors.toList());
     }
 }
+*/

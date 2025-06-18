@@ -1,5 +1,5 @@
 package com.example.runity.route;
-
+/*
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,3 +24,4 @@ public class Route {
 
     // Getter/Setter 생략
 }
+*/

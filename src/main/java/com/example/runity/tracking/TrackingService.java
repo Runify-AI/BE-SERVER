@@ -1,5 +1,5 @@
 package com.example.runity.tracking;
-
+/*
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,3 +22,4 @@ public class TrackingService {
         trackingRepository.save(tracking);
     }
 }
+*/

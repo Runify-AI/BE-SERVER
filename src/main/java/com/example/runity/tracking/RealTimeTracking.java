@@ -1,5 +1,5 @@
 package com.example.runity.tracking;
-
+/*
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,3 +22,4 @@ public class RealTimeTracking {
 
     // getters, setters
 }
+*/

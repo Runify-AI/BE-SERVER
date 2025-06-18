@@ -1,5 +1,5 @@
 package com.example.runity.tracking;
-
+/*
 import lombok.Data;
 
 @Data
@@ -10,3 +10,4 @@ public class LiveLocationRequest {
     private Integer heartbeat;
     private boolean outOfRoute;
 }
+*/

@@ -1,5 +1,5 @@
 package com.example.runity.route;
-
+/*
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,3 +24,4 @@ public class RouteController {
         return ResponseEntity.ok(Map.of("routes", routes));
     }
 }
+*/
