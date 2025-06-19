@@ -9,6 +9,9 @@ import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -32,43 +35,46 @@ public class RunningPathTSRepository {
 
     // ----------------------러닝 좌표 저장 ---------------------- //
 
-    public void saveRunningPoint(Long userId, RunningPathTS pointData) {
+    public void saveRunningPoint(Long sessionId, RunningPathTS pointData) {
         try (WriteApi writeApi = influxDBClient.getWriteApi()) {
             Point point = Point.measurement("running_path")
-                    .addTag("user", userId.toString())
+                    .addTag("sessionId", sessionId.toString())
                     .addField("latitude", pointData.getLatitude())
                     .addField("longitude", pointData.getLongitude())
                     .addField("distance", pointData.getDistance())
                     .addField("pace", pointData.getPace())
                     .addField("speed", pointData.getSpeed())
                     .addField("elapsedTime", pointData.getElapsedTime().toSecondOfDay())
+                    .addField("type", pointData.getType())
+                    .addField("semiType", pointData.getSemiType())
+                    .addField("message", pointData.getMessage())
                     .time(pointData.getTimestamp(), WritePrecision.MS);
             writeApi.writePoint(point);
         }
     }
 
 
-    public void saveAllWithCheck(Long userId, List<RunningPathTS> fullPaths) {
-        Map<Instant, RunningPathTS> existingData = influxQueryUserData(userId);
+    public void saveAllWithCheck(Long sessionId, List<RunningPathTS> fullPaths) {
+        Map<Instant, RunningPathTS> existingData = influxQuerySessionData(sessionId);
 
         for (RunningPathTS path : fullPaths) {
             RunningPathTS existing = existingData.get(path.getTimestamp());
             if (existing == null || !existing.equals(path)) {
-                saveRunningPoint(userId, path);
+                saveRunningPoint(sessionId, path);
             }
         }
     }
 
-    private Map<Instant, RunningPathTS> influxQueryUserData(Long userId) {
+    private Map<Instant, RunningPathTS> influxQuerySessionData(Long sessionId) {
         QueryApi queryApi = influxDBClient.getQueryApi();
 
         String flux = String.format("""
                 from(bucket:"%s")
                   |> range(start: 0)
                   |> filter(fn: (r) => r["_measurement"] == "running_path")
-                  |> filter(fn: (r) => r["user"] == "%d")
+                  |> filter(fn: (r) => r["sessionId"] == "%d")
                   |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-                """, bucket, userId);
+                """, bucket, sessionId);
 
         List<FluxTable> tables = queryApi.query(flux);
         Map<Instant, RunningPathTS> resultMap = new HashMap<>();
@@ -81,9 +87,12 @@ public class RunningPathTSRepository {
                 double pace = ((Number) record.getValueByKey("pace")).doubleValue();
                 float distance = ((Number) record.getValueByKey("distance")).floatValue();
                 float speed = ((Number) record.getValueByKey("speed")).floatValue();
-                LocalTime elapsedTime = LocalTime.ofSecondOfDay(timestamp.toEpochMilli());
+                LocalTime elapsedTime = LocalTime.ofSecondOfDay(10);
+                String type = (String) record.getValueByKey("type");
+                String semiType = (String) record.getValueByKey("semiType");
+                String message = (String) record.getValueByKey("message");
 
-                RunningPathTS runningPathTS = new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime);
+                RunningPathTS runningPathTS = new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime, type, semiType, message);
                 resultMap.put(timestamp, runningPathTS);
             }
         }
@@ -91,15 +100,15 @@ public class RunningPathTSRepository {
         return resultMap;
     }
 
-    public List<RunningPathTS> findBySessionId(Long recordId) {
+    public List<RunningPathTS> findBySessionId(Long sessionId) {
         QueryApi queryApi = influxDBClient.getQueryApi();
         String flux = String.format("""
-                from(bucket: "%s")
-                    |> range(start: -7d)
-                    |> filter(fn: (r) => r._measurement == "running_path_ts" and r.recordId == "%d")
-                    |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-                    |> sort(columns: ["_time"])
-                """, bucket, recordId);
+        from(bucket: "%s")
+            |> range(start: -7d)
+            |> filter(fn: (r) => r._measurement == "running_path" and r.sessionId == "%d")
+            |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+            |> sort(columns: ["_time"])
+        """, bucket, sessionId);
 
         List<FluxTable> tables = queryApi.query(flux);
         List<RunningPathTS> result = new ArrayList<>();
@@ -113,12 +122,14 @@ public class RunningPathTSRepository {
                 float distance = ((Number) record.getValueByKey("distance")).floatValue();
                 float speed = ((Number) record.getValueByKey("speed")).floatValue();
                 int elapsedSeconds = ((Number) record.getValueByKey("elapsedTime")).intValue();
-                LocalTime elapsedTime = LocalTime.ofSecondOfDay(elapsedSeconds); // ✅
+                LocalTime elapsedTime = LocalTime.ofSecondOfDay(elapsedSeconds);
+                String type = (String) record.getValueByKey("type");
+                String semiType = (String) record.getValueByKey("semiType");
+                String message = (String) record.getValueByKey("message");
 
-                result.add(new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime));
+                result.add(new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime, type, semiType, message));
             }
         }
-
 
         return result;
     }
@@ -133,7 +144,7 @@ public class RunningPathTSRepository {
                     .addTag("type", feedback.getType())
                     .addField("semiType", feedback.getSemiType())
                     .addField("message", feedback.getMessage())
-                    .time(feedback.getTimeStamp().atDate(LocalDate.now()).atZone(java.time.ZoneId.systemDefault()).toInstant(), WritePrecision.S);
+                    .time(feedback.getTimeStamp(), WritePrecision.MS);
             writeApi.writePoint(point);
         }
     }
@@ -166,7 +177,7 @@ public class RunningPathTSRepository {
                 String message = (String) record.getValueByKey("message");
 
                 FeedbackDTO dto = FeedbackDTO.builder()
-                        .timeStamp(timestamp.atZone(java.time.ZoneId.systemDefault()).toLocalTime())
+                        .timeStamp(timestamp)
                         .type(type)
                         .semiType(semiType)
                         .message(message)

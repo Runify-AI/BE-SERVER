@@ -4,14 +4,17 @@ import com.example.runity.DTO.*;
 import com.example.runity.domain.DailyRunningRecord;
 import com.example.runity.domain.RealTimeRunning;
 import com.example.runity.domain.RunningPathTS;
+import com.example.runity.domain.Route;
 import com.example.runity.repository.DailyRunningRecordRepository;
 import com.example.runity.repository.RealTimeRunningRepository;
+import com.example.runity.repository.RouteRepository;
 import com.example.runity.repository.RunningPathTSRepository;
 import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,14 +29,20 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     private final RealTimeRunningRepository realTimeRunningRepository;
     private final RunningPathTSRepository runningPathTSRepository;
     private final RunningSettingServiceImpl runningSettingServiceImpl;
+    private final RouteRepository routeRepository;
     private final JwtUtil jwtUtil;
 
     /**
      * 특정 날짜의 러닝 기록 조회
      */
     @Override
-    public List<RunningSessionDTO> getDailyRecord(String token, LocalDate date) {
-        Long userId = jwtUtil.getUserId(token);
+    public List<RunningSessionDTO> getDailyRecord(Long userId, LocalDate date) {
+        //Long userId = jwtUtil.getUserId(token);
+
+        System.out.println("🧪 All Routes:");
+        for (Route r : routeRepository.findAll()) {
+            System.out.println("routeId: " + r.getRouteId() + ", userId: " + r.getUser().getUserId());
+        }
 
         // 1. 날짜에 해당하는 DailyRunningRecord 조회
         Optional<DailyRunningRecord> dailyRecord = dailyRunningRecordRepository.findByUserIdAndDate(userId, date);
@@ -52,11 +61,26 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                 Long routeId = realTime.getRouteId();
 
                 // 3. 러닝 세팅 정보 가져오기
-                RunningSettingsResponse settings = runningSettingServiceImpl.getRunningSetting(routeId);
+                if (routeId == null) {
+                    throw new RuntimeException("routeId is null for RealTimeRunning.sessionId = " + sessionId);
+                }
+
+                RunningSettingsResponse settings = null;
+                try {
+                    settings = runningSettingServiceImpl.getRunningSettings(routeId);
+                } catch (RuntimeException e) {
+                    System.out.println("⚠ Route not found for routeId: " + routeId + ", sessionId: " + sessionId);
+                    e.printStackTrace();
+                    continue;
+                }
 
                 // 4. 경로 시간 기반 세부 이력 정보 조회
                 List<RunningPathTS> pathList = runningPathTSRepository.findBySessionId(sessionId);
                 List<RunningHistoryDetailDTO> detailDTOList = new ArrayList<>();
+
+                for (RunningPathTS path : pathList) {
+                    System.out.println("Lat: " + path.getLatitude() + ", Lon: " + path.getLongitude());
+                }
 
                 for (RunningPathTS path : pathList) {
                     LocasionDTO location = LocasionDTO.builder()
@@ -64,8 +88,6 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                             .lon(path.getLongitude())
                             .build();
 
-                    // TODO: 필요 시 세션 ID 기반 Feedback 목록도 함께 조회하여 아래에 넣기
-                    List<FeedbackDTO> feedbackList = new ArrayList<>();
 
                     RunningHistoryDetailDTO detail = RunningHistoryDetailDTO.builder()
                             .distance(path.getDistance())
@@ -73,7 +95,9 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                             .pace((float) path.getPace())
                             .timeStamp(path.getTimestamp().atZone(java.time.ZoneId.systemDefault()).toLocalTime())
                             .location(location)
-                            .feadback(feedbackList)
+                            .type(path.getType())
+                            .semiType(path.getSemiType())
+                            .message(path.getMessage())
                             .build();
 
                     detailDTOList.add(detail);

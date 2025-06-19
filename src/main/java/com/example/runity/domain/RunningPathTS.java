@@ -15,9 +15,12 @@ public class RunningPathTS {
     private float distance;
     private float speed;
     private LocalTime elapsedTime;
+    private String type;
+    private String semiType;
+    private String message;
 
     // 생성자, getter, setter
-    public RunningPathTS(Instant timestamp, double latitude, double longitude, double pace, float distance, float speed, LocalTime elapsedTime) {
+    public RunningPathTS(Instant timestamp, double latitude, double longitude, double pace, float distance, float speed, LocalTime elapsedTime, String type, String semiType, String message) {
         this.timestamp = timestamp;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -25,6 +28,9 @@ public class RunningPathTS {
         this.distance = distance;
         this.speed = speed;
         this.elapsedTime = elapsedTime;
+        this.type = type;
+        this.semiType = semiType;
+        this.message = message;
     }
 
     public Instant getTimestamp() { return timestamp; }
@@ -34,4 +40,7 @@ public class RunningPathTS {
     public float getDistance() { return distance; }
     public float getSpeed() { return speed; }
     public LocalTime getElapsedTime() { return elapsedTime; }
+    public String getType() { return type; }
+    public String getSemiType() { return semiType; }
+    public String getMessage() { return message; }
 }

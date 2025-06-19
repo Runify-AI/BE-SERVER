@@ -21,9 +21,9 @@ public class RunningHistoryController {
     private final RunningHistoryService runningHistoryService;
 
     @GetMapping("/daily")
-    public ResponseEntity<List<RunningSessionDTO>> getDailyRecord(@RequestHeader("Authorization") String token,
+    public ResponseEntity<List<RunningSessionDTO>> getDailyRecord(@RequestParam Long userId,
                                                             @RequestParam LocalDate date) {
-        return ResponseEntity.ok(runningHistoryService.getDailyRecord(token, date));
+        return ResponseEntity.ok(runningHistoryService.getDailyRecord(userId, date));
     }
 
     /*
