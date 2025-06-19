@@ -1,8 +1,11 @@
 package com.example.runity.service;
 
+import com.example.runity.DTO.RouteCoordinateDTO;
 import com.example.runity.DTO.RunningSettingsResponse;
 import com.example.runity.domain.Route;
+import com.example.runity.domain.RouteCoordinate;
 import com.example.runity.repository.RouteChoiceRepository;
+import com.example.runity.repository.RouteCoordinateRepository;
 import com.example.runity.repository.RouteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -12,13 +15,14 @@ import java.sql.Time;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RunningSettingServiceImpl implements RunningSettingService {
 
     private final RouteRepository routeRepository;
-    private final RouteChoiceRepository routeChoiceRepository;
+    private final RouteCoordinateRepository routeCoordinateRepository;
     //private final AiPaceService aiPaceService; // TODO: AI 호출하는 서비스
 
     @Override
@@ -27,17 +31,11 @@ public class RunningSettingServiceImpl implements RunningSettingService {
         Route route = routeRepository.findByRouteId(routeId)
                 .orElseThrow(() -> new RuntimeException("Route not found"));
 
-
-            /* TODO: 좌표 리스트 불러오기
-            List<String> routePoints = routeChoiceRepository
-                    .findAllByRoute_RouteId(routeId)
-                    .stream()
-                    .map(RouteChoice::getCoordinate)
-                    .collect(Collectors.toList());
-
-             */
-
-        List<String> routePoints = new ArrayList<>();
+        List<RouteCoordinateDTO> routePoints = routeCoordinateRepository
+                .findByRoute_RouteId(routeId)
+                .stream()
+                .map(coord -> new RouteCoordinateDTO(coord.getLatitude(), coord.getLongitude()))
+                .collect(Collectors.toList());
 
         String duration = formatDuration(route.getEstimatedTime());
         String startTime = LocalTime.now().toString();

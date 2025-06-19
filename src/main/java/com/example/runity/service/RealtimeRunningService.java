@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public interface RealtimeRunningService {
 
-    void saveRunningState(String token, RunningPathDTO dto);  // 실시간 러닝 중 위치/속도 등 기록 저장
+    void saveRunningState(Long userId, RunningPathDTO dto);  // 실시간 러닝 중 위치/속도 등 기록 저장
 
     void saveRunningStates(Long userId, Long routeId, List<RunningPathDTO> dto);
 

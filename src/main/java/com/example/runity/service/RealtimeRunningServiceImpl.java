@@ -3,10 +3,7 @@ package com.example.runity.service;
 import com.example.runity.DTO.*;
 import com.example.runity.domain.*;
 //import com.example.runity.domain.RunningPathTS;
-import com.example.runity.repository.DailyRunningRecordRepository;
-import com.example.runity.repository.RealTimeRunningRepository;
-import com.example.runity.repository.RunningPathTSRepository;
-import com.example.runity.repository.StatisticsRepository;
+import com.example.runity.repository.*;
 import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,8 +28,8 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
      * 실시간 러닝 상태 저장
      */
     @Override
-    public void saveRunningState(String token, RunningPathDTO dto) {
-        Long userId = jwtUtil.getUserId(token);
+    public void saveRunningState(Long userId, RunningPathDTO dto) {
+        //Long userId = jwtUtil.getUserId(token);
 
         String coordinateStr = dto.getCoordinate(); // 예: "37.1234,127.5678"
         String[] parts = coordinateStr.split(",");
@@ -47,6 +44,10 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .speed(dto.getSpeed().floatValue())
                 .latitude(latitude)
                 .longitude(longitude)
+                .elapsedTime(dto.getElapsedTime())
+                .type(dto.getType())
+                .semiType(dto.getSemiType())
+                .message(dto.getMessage())
                 .build();
 
 

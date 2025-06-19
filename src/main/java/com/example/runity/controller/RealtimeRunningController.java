@@ -20,9 +20,9 @@ public class RealtimeRunningController {
 
     // 5분 주기로 사용자 러닝 정보를 저장
     @PostMapping("/state")
-    public ResponseEntity<Void> saveRunningState(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Void> saveRunningState(@RequestHeader("userId") Long userId,
                                                  @RequestBody RunningPathDTO dto) {
-        realtimeRunningService.saveRunningState(token, dto);
+        realtimeRunningService.saveRunningState(userId, dto);
         return ResponseEntity.ok().build();
     }
 
