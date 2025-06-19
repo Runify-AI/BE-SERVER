@@ -196,6 +196,14 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .map(RunningPathTS::getDistance)
                 .reduce(0f, Float::sum);
 
+        // 하루 러닝 기록에 합계
+        // 기존 값 누적 반영
+        float updatedTotalDistance = record.getTotalDistance() + totalDistance;
+        DailyRunningRecord updated = record.toBuilder()
+                .totalDistance(updatedTotalDistance)
+                .build();
+        dailyRunningRecordRepository.save(updated);
+
         // 러닝 시작/종료 시간 기반 시간 계산
         Instant start = paths.stream()
                 .map(RunningPathTS::getTimestamp)

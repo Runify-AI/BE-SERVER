@@ -14,11 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.time.YearMonth;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +28,37 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     private final RunningSettingServiceImpl runningSettingServiceImpl;
     private final RouteRepository routeRepository;
     private final JwtUtil jwtUtil;
+
+    /**
+     * 해당 달의 km 리스트 조회
+     */
+    @Override
+    public List<Float> getMonthlyDistances(Long userId, YearMonth yearMonth) {
+        LocalDate startOfMonth = yearMonth.atDay(1);
+        LocalDate endOfMonth = yearMonth.atEndOfMonth();
+
+        // 1. 해당 월의 기록을 조회
+        List<DailyRunningRecord> records = dailyRunningRecordRepository
+                .findByUserIdAndDateBetween(userId, startOfMonth, endOfMonth);
+
+        // 2. 날짜별 거리 Map 생성 (기록 있는 날만)
+        Map<LocalDate, Float> dateToDistanceMap = records.stream()
+                .collect(Collectors.toMap(
+                        DailyRunningRecord::getDate,
+                        DailyRunningRecord::getTotalDistance
+                ));
+
+        // 3. 월 전체 날짜 돌면서 거리 채우기
+        int daysInMonth = yearMonth.lengthOfMonth();
+        List<Float> result = new ArrayList<>();
+        for (int day = 1; day <= daysInMonth; day++) {
+            LocalDate date = yearMonth.atDay(day);
+            result.add(dateToDistanceMap.getOrDefault(date, 0f));
+        }
+
+        return result;
+    }
+
 
     /**
      * 특정 날짜의 러닝 기록 조회

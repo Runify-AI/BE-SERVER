@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,15 @@ import java.util.List;
 public class RunningHistoryController {
 
     private final RunningHistoryService runningHistoryService;
+
+    @GetMapping("/monthly-distances")
+    public List<Float> getMonthlyDistances(
+            @RequestParam Long userId,
+            @RequestParam String yearMonth // e.g. "2025-06"
+    ) {
+        YearMonth ym = YearMonth.parse(yearMonth); // ISO-8601 기본 포맷
+        return runningHistoryService.getMonthlyDistances(userId, ym);
+    }
 
     @GetMapping("/daily")
     public ResponseEntity<List<RunningSessionDTO>> getDailyRecord(@RequestParam Long userId,
