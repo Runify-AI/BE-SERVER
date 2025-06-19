@@ -46,6 +46,7 @@ public class RouteChoiceController {
                 .usePublicTransport(saved.isUsePublicTransport())
                 .preferSafePath(saved.isPreferSafePath())
                 .avoidCrowdedAreas(saved.isAvoidCrowdedAreas())
+                .cycle(saved.isCycle())
                 .build();
 
         return ResponseEntity.status(SuccessCode.SUCCESS_PREFERENCE_CREATE.getStatus())
@@ -73,6 +74,7 @@ public class RouteChoiceController {
                         .usePublicTransport(pref.isUsePublicTransport())
                         .preferSafePath(pref.isPreferSafePath())
                         .avoidCrowdedAreas(pref.isAvoidCrowdedAreas())
+                        .cycle(pref.isCycle())
                         .build())
                 .collect(Collectors.toList());
 

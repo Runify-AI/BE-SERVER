@@ -31,4 +31,7 @@ public class RouteChoice {
     // 붐비지 않는 곳
     @Column(nullable = false)
     private boolean avoidCrowdedAreas;
+    // 순환
+    @Column(nullable = false)
+    private boolean cycle;
 }

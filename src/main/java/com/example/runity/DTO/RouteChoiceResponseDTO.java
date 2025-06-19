@@ -14,4 +14,5 @@ public class RouteChoiceResponseDTO {
     private Boolean usePublicTransport;
     private Boolean preferSafePath;
     private Boolean avoidCrowdedAreas;
+    private Boolean cycle;
 }
