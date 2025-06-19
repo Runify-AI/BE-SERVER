@@ -22,6 +22,9 @@ public class RealTimeRunning {
     @Column(nullable = false)
     private Long recordId;
 
+    @Column(nullable = false)
+    private Long routeId;
+
     @Column
     private Instant endTime;
 

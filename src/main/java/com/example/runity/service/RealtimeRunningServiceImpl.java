@@ -63,8 +63,8 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
      * 러닝 종료 시 전체 데이터 저장
      */
     @Override
-    public void completeRunning(String token, RunningCompleteRequest request) {
-        Long userId = jwtUtil.getUserId(token);
+    public void completeRunning(Long userId, RunningCompleteRequest request) {
+        //Long userId = jwtUtil.getUserId(token);
         List<RunningPathTS> paths = request.getRunningPaths().stream()
                 .map(dto -> {
                     String[] parts = dto.getCoordinate().split(",");
@@ -79,6 +79,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                             .pace(dto.getPace().floatValue())
                             .distance(dto.getDistance().floatValue())
                             .speed(dto.getSpeed().floatValue())
+                            .elapsedTime(dto.getElapsedTime())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -92,7 +93,22 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         LocalDate runDate = request.getCompleteTime().toLocalDate(); // 날짜만 추출
         DailyRunningRecord record = dailyRunningRecordRepository
                 .findByUserIdAndDate(userId, runDate)
-                .orElseThrow(() -> new RuntimeException("해당 날짜의 DailyRunningRecord가 존재하지 않습니다."));
+                .orElseGet(() -> {
+                    // 새 기록 생성
+                    DailyRunningRecord newRecord = DailyRunningRecord.builder()
+                            .userId(userId)
+                            .totalDistance(0f)
+                            .totalRunTime(LocalTime.of(0, 0))
+                            .date(runDate)
+                            .runCount(1)
+                            .avgSpeed(0f)
+                            .weather("Unknown")         // nullable, 임시값
+                            .temperature(0f)            // nullable, 임시값
+                            .humidity(0f)               // nullable, 임시값
+                            .build();
+
+                    return dailyRunningRecordRepository.save(newRecord);
+                });
 
         // 3. 통계 계산
         float totalPace = 0f;

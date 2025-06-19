@@ -1,9 +1,6 @@
 package com.example.runity.service;
 
-import com.example.runity.DTO.RealTimeRunningDTO;
-import com.example.runity.DTO.RunningHistoryDTO;
-import com.example.runity.DTO.RunningHistoryDetailDTO;
-import com.example.runity.DTO.WeatherDTO;
+import com.example.runity.DTO.*;
 import com.example.runity.domain.DailyRunningRecord;
 import com.example.runity.domain.RealTimeRunning;
 import com.example.runity.domain.RunningPathTS;
@@ -15,9 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,47 +25,93 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     private final DailyRunningRecordRepository dailyRunningRecordRepository;
     private final RealTimeRunningRepository realTimeRunningRepository;
     private final RunningPathTSRepository runningPathTSRepository;
+    private final RunningSettingServiceImpl runningSettingServiceImpl;
     private final JwtUtil jwtUtil;
 
     /**
      * 특정 날짜의 러닝 기록 조회
      */
     @Override
-    public RunningHistoryDetailDTO getDailyRecord(String token, LocalDate date) {
+    public List<RunningSessionDTO> getDailyRecord(String token, LocalDate date) {
         Long userId = jwtUtil.getUserId(token);
-        // 1. DailyRunningRecord 조회
-        DailyRunningRecord record = dailyRunningRecordRepository
-                .findByUserIdAndDate(userId, date)
-                .orElseThrow(() -> new RuntimeException("해당 날짜의 기록이 없습니다."));
 
-        // 2. RealTimeRunning 리스트 조회
-        List<RealTimeRunning> sessions = realTimeRunningRepository.findByRecordId(record.getRecordId());
+        // 1. 날짜에 해당하는 DailyRunningRecord 조회
+        Optional<DailyRunningRecord> dailyRecord = dailyRunningRecordRepository.findByUserIdAndDate(userId, date);
+        DailyRunningRecord record = dailyRecord
+                .orElseThrow(() -> new RuntimeException("해당 날짜의 DailyRunningRecord가 존재하지 않습니다."));
 
-        // 3. 각 세션마다 RunningPathTS 리스트 조회 후 DTO 구성
-        List<RealTimeRunningDTO> runningSessionDTOs = sessions.stream()
-                .map(session -> {
-                    List<RunningPathTS> pathList = runningPathTSRepository.findByRecordId(session.getRecordId());
+        List<RunningSessionDTO> sessions = new ArrayList<>();
 
-                    return RealTimeRunningDTO.builder()
-                            .endTime(LocalDateTime.ofInstant(session.getEndTime(), ZoneId.systemDefault()))
-                            .isCompleted(session.getIsCompleted())
-                            .giveUpReason(session.getGiveUpReason())
-                            .effortLevel(session.getEffortLevel())
-                            .avgPace(session.getAvgPace())
-                            .avgSpeed(session.getAvgSpeed())
-                            .pathList(pathList)
+        Long recordId = record.getRecordId();
+
+        // 2. 해당 기록에 대한 실시간 러닝 데이터 조회
+            List<RealTimeRunning> realTimeList = realTimeRunningRepository.findByRecordId(recordId);
+
+            for (RealTimeRunning realTime : realTimeList) {
+                Long sessionId = realTime.getRunningSessionId();
+                Long routeId = realTime.getRouteId();
+
+                // 3. 러닝 세팅 정보 가져오기
+                RunningSettingsResponse settings = runningSettingServiceImpl.getRunningSetting(routeId);
+
+                // 4. 경로 시간 기반 세부 이력 정보 조회
+                List<RunningPathTS> pathList = runningPathTSRepository.findBySessionId(sessionId);
+                List<RunningHistoryDetailDTO> detailDTOList = new ArrayList<>();
+
+                for (RunningPathTS path : pathList) {
+                    LocasionDTO location = LocasionDTO.builder()
+                            .lat(path.getLatitude())
+                            .lon(path.getLongitude())
                             .build();
-                }).collect(Collectors.toList());
 
-        // 4. 최종 DTO 구성
-        return RunningHistoryDetailDTO.builder()
-                .recordId(record.getRecordId())
+                    // TODO: 필요 시 세션 ID 기반 Feedback 목록도 함께 조회하여 아래에 넣기
+                    List<FeedbackDTO> feedbackList = new ArrayList<>();
+
+                    RunningHistoryDetailDTO detail = RunningHistoryDetailDTO.builder()
+                            .distance(path.getDistance())
+                            .elapsedTime(path.getElapsedTime())
+                            .pace((float) path.getPace())
+                            .timeStamp(path.getTimestamp().atZone(java.time.ZoneId.systemDefault()).toLocalTime())
+                            .location(location)
+                            .feadback(feedbackList)
+                            .build();
+
+                    detailDTOList.add(detail);
+                }
+
+                // 5. 러닝 이력 DTO 생성
+                RunningHistoryDTO history = RunningHistoryDTO.builder()
+                        .averagePace(realTime.getAvgPace())
+                        .comment(realTime.getComment())
+                        .completedTime(realTime.getEndTime() != null
+                                ? realTime.getEndTime().atZone(java.time.ZoneId.systemDefault()).toLocalTime()
+                                : null)
+                        .effortLevel(realTime.getEffortLevel())
+                        .elapsedTime(realTime.getRunTime())
+                        .routeId(routeId)
+                        .totalDistance(realTime.getDistance())
+                        .runningTrackPoint(detailDTOList)
+                        .build();
+
+                // 6. 최종 세션 DTO 구성
+                RunningSessionDTO sessionDTO = RunningSessionDTO.builder()
+                        .runningSettingsResponse(settings)
+                        .runningHistoryDTO(history)
+                        .build();
+
+                sessions.add(sessionDTO);
+            }
+
+        return sessions;
+    }
+
+
+
+    public RunningHistoryDTO convertToDto(DailyRunningRecord record) {
+        return RunningHistoryDTO.builder()
+                .elapsedTime(record.getTotalRunTime())
                 .totalDistance(record.getTotalDistance())
-                .totalRunTime(record.getTotalRunTime())
-                .date(record.getDate())
-                .runCount(record.getRunCount())
-                .avgSpeed(record.getAvgSpeed())
-                .runningSessions(runningSessionDTOs)
+                .runningTrackPoint(Collections.emptyList())
                 .build();
     }
 
@@ -85,21 +129,8 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     }
 
     /**
-     * 하나의 DailyRunningRecord → DTO 변환
-     */
-    @Override
-    public RunningHistoryDTO convertToDto(DailyRunningRecord record) {
-        return RunningHistoryDTO.builder()
-                .date(record.getDate())
-                .totalDistance(record.getTotalDistance())
-                .totalRunTime(record.getTotalRunTime())
-                .avgSpeed(record.getAvgSpeed())
-                .runCount(record.getRunCount())
-                .build();
-    }
-
-    /**
      * 사용자 기준으로 날짜 구간에 해당하는 기록 조회
+     * TODO: AI 사용 통계 반환
      */
     @Override
     public List<RunningHistoryDTO> getUserRunningHistories(String token, LocalDate start, LocalDate end) {

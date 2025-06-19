@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter @Setter
 public class RunningPathDTO {
@@ -12,4 +13,5 @@ public class RunningPathDTO {
     private Double distance;             // 누적 거리 (km)
     private Double speed;                // 속도 (km/h)
     private String coordinate;           // GPS 좌표
+    private LocalTime elapsedTime;
 }

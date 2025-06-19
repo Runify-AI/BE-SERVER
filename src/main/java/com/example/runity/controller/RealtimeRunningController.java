@@ -2,7 +2,6 @@ package com.example.runity.controller;
 
 import com.example.runity.DTO.RunningCompleteRequest;
 import com.example.runity.DTO.RunningPathDTO;
-//import com.example.runity.DTO.EvaluationResult;
 import com.example.runity.service.RealtimeRunningService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +26,13 @@ public class RealtimeRunningController {
 
     // 러닝 완료 후 모든 정보를 저장
     @PostMapping("/complete")
-    public ResponseEntity<Void> completeRunning(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Void> completeRunning(@RequestHeader("userId") Long userId,
                                                 @RequestBody RunningCompleteRequest request) {
-        realtimeRunningService.completeRunning(token, request);
-        realtimeRunningService.updateDailyRunningRecord(token, LocalDate.now());
+        //realtimeRunningService.completeRunning(token, request);
+        realtimeRunningService.completeRunning(userId, request);
+        //realtimeRunningService.updateDailyRunningRecord(token, LocalDate.now());
         return ResponseEntity.ok().build();
     }
-
-    //러닝 세팅값 가져오기
 
     // TODO: 통계 AI와 연결
     @PostMapping("/evaluate")

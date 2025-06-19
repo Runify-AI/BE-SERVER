@@ -83,8 +83,10 @@ public class SignupServiceImpl implements SignupService {
     @Transactional
     public String signupUser(SignupRequestDTO signupRequestDTO) {
         // 인증된 이메일인지 확인
+
         VerificationCode verificationCode = verificationCodeRepository.findByEmail(signupRequestDTO.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.EMAIL_VERIFY_NEED,ErrorCode.EMAIL_VERIFY_NEED.getMessage()));
+
         // 회원가입 로직
         User user = User.builder()
                 .email(signupRequestDTO.getEmail())
@@ -94,8 +96,10 @@ public class SignupServiceImpl implements SignupService {
                 .enabled(true)
                 .build();
         userRepository.save(user);
+
         // 인증 코드 삭제
         verificationCodeRepository.delete(verificationCode);
+
         return SuccessCode.SUCCESS_SIGNUP.getMessage();
     }
     @Override

@@ -54,12 +54,12 @@ public class RunningSettingServiceImpl implements RunningSettingService {
                     .estimatedEndTime(estimatedEndTime)
                     .startPoint(route.getStartPoint())
                     .endPoint(route.getEndPoint())
-                    .pace(String.valueOf(pace))
+                    .targetPace(String.valueOf(pace))
                     .build();
         }
 
         private String formatDuration(Time time) {
-            return time.toString(); // 혹은 원하는 형식으로 포맷
+            return time.toString(); // 원하는 형식으로 포맷
         }
 
     @Override

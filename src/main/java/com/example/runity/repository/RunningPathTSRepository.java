@@ -1,5 +1,6 @@
 package com.example.runity.repository;
 
+import com.example.runity.DTO.FeedbackDTO;
 import com.example.runity.domain.RunningPathTS;
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.QueryApi;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +23,14 @@ import java.util.Map;
 public class RunningPathTSRepository {
 
     private final InfluxDBClient influxDBClient;
-    private final String org = "myorg";        // application.properties 또는 config에서 관리하는 게 좋음
+    private final String org = "myorg";
     private final String bucket = "running_data";
-
 
     public RunningPathTSRepository(InfluxDBClient influxDBClient) {
         this.influxDBClient = influxDBClient;
     }
+
+    // ----------------------러닝 좌표 저장 ---------------------- //
 
     public void saveRunningPoint(Long userId, RunningPathTS pointData) {
         try (WriteApi writeApi = influxDBClient.getWriteApi()) {
@@ -38,20 +41,19 @@ public class RunningPathTSRepository {
                     .addField("distance", pointData.getDistance())
                     .addField("pace", pointData.getPace())
                     .addField("speed", pointData.getSpeed())
+                    .addField("elapsedTime", pointData.getElapsedTime().toSecondOfDay())
                     .time(pointData.getTimestamp(), WritePrecision.MS);
             writeApi.writePoint(point);
         }
     }
 
+
     public void saveAllWithCheck(Long userId, List<RunningPathTS> fullPaths) {
-        // 1. 인플럭스DB에서 userId 해당 데이터 모두 조회
         Map<Instant, RunningPathTS> existingData = influxQueryUserData(userId);
 
-        // 2. 전체 경로 돌면서 비교
         for (RunningPathTS path : fullPaths) {
             RunningPathTS existing = existingData.get(path.getTimestamp());
             if (existing == null || !existing.equals(path)) {
-                // 누락됐거나 값이 다르면 저장
                 saveRunningPoint(userId, path);
             }
         }
@@ -69,21 +71,19 @@ public class RunningPathTSRepository {
                 """, bucket, userId);
 
         List<FluxTable> tables = queryApi.query(flux);
-
         Map<Instant, RunningPathTS> resultMap = new HashMap<>();
 
         for (FluxTable table : tables) {
             for (FluxRecord record : table.getRecords()) {
                 Instant timestamp = record.getTime();
+                double latitude = ((Number) record.getValueByKey("latitude")).doubleValue();
+                double longitude = ((Number) record.getValueByKey("longitude")).doubleValue();
+                double pace = ((Number) record.getValueByKey("pace")).doubleValue();
+                float distance = ((Number) record.getValueByKey("distance")).floatValue();
+                float speed = ((Number) record.getValueByKey("speed")).floatValue();
+                LocalTime elapsedTime = LocalTime.ofSecondOfDay(timestamp.toEpochMilli());
 
-                double latitude = ((Number)record.getValueByKey("latitude")).doubleValue();
-                double longitude = ((Number)record.getValueByKey("longitude")).doubleValue();
-                double pace = ((Number)record.getValueByKey("pace")).doubleValue();
-                float distance = ((Number)record.getValueByKey("distance")).floatValue();
-                float speed = ((Number)record.getValueByKey("speed")).floatValue();
-
-                RunningPathTS runningPathTS = new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed);
-
+                RunningPathTS runningPathTS = new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime);
                 resultMap.put(timestamp, runningPathTS);
             }
         }
@@ -91,7 +91,7 @@ public class RunningPathTSRepository {
         return resultMap;
     }
 
-    public List<RunningPathTS> findByRecordId(Long recordId) {
+    public List<RunningPathTS> findBySessionId(Long recordId) {
         QueryApi queryApi = influxDBClient.getQueryApi();
         String flux = String.format("""
                 from(bucket: "%s")
@@ -112,11 +112,71 @@ public class RunningPathTSRepository {
                 double pace = ((Number) record.getValueByKey("pace")).doubleValue();
                 float distance = ((Number) record.getValueByKey("distance")).floatValue();
                 float speed = ((Number) record.getValueByKey("speed")).floatValue();
+                int elapsedSeconds = ((Number) record.getValueByKey("elapsedTime")).intValue();
+                LocalTime elapsedTime = LocalTime.ofSecondOfDay(elapsedSeconds); // ✅
 
-                result.add(new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed));
+                result.add(new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime));
+            }
+        }
+
+
+        return result;
+    }
+
+    // ---------------------- 피드백 저장---------------------- //
+
+    public void saveFeedbackPoint(Long userId, Long sessionId, FeedbackDTO feedback) {
+        try (WriteApi writeApi = influxDBClient.getWriteApi()) {
+            Point point = Point.measurement("running_feedback")
+                    .addTag("user", userId.toString())
+                    .addTag("sessionId", sessionId.toString())
+                    .addTag("type", feedback.getType())
+                    .addField("semiType", feedback.getSemiType())
+                    .addField("message", feedback.getMessage())
+                    .time(feedback.getTimeStamp().atDate(LocalDate.now()).atZone(java.time.ZoneId.systemDefault()).toInstant(), WritePrecision.S);
+            writeApi.writePoint(point);
+        }
+    }
+
+    public void saveAllFeedback(Long userId, Long sessionId, List<FeedbackDTO> feedbacks) {
+        for (FeedbackDTO fb : feedbacks) {
+            saveFeedbackPoint(userId, sessionId, fb);
+        }
+    }
+
+    public List<FeedbackDTO> findFeedbackByUserAndSession(Long userId, Long sessionId) {
+        QueryApi queryApi = influxDBClient.getQueryApi();
+        String flux = String.format("""
+                from(bucket: "%s")
+                    |> range(start: -7d)
+                    |> filter(fn: (r) => r._measurement == "running_feedback")
+                    |> filter(fn: (r) => r["user"] == "%d" and r["sessionId"] == "%d")
+                    |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+                    |> sort(columns: ["_time"])
+                """, bucket, userId, sessionId);
+
+        List<FluxTable> tables = queryApi.query(flux);
+        List<FeedbackDTO> result = new ArrayList<>();
+
+        for (FluxTable table : tables) {
+            for (FluxRecord record : table.getRecords()) {
+                Instant timestamp = record.getTime();
+                String type = (String) record.getValueByKey("type");
+                String semiType = (String) record.getValueByKey("semiType");
+                String message = (String) record.getValueByKey("message");
+
+                FeedbackDTO dto = FeedbackDTO.builder()
+                        .timeStamp(timestamp.atZone(java.time.ZoneId.systemDefault()).toLocalTime())
+                        .type(type)
+                        .semiType(semiType)
+                        .message(message)
+                        .build();
+
+                result.add(dto);
             }
         }
 
         return result;
     }
 }
+
