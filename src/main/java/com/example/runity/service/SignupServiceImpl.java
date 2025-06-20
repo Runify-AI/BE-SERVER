@@ -91,6 +91,9 @@ public class SignupServiceImpl implements SignupService {
                 .password(passwordEncoder.encode(signupRequestDTO.getPassword()))
                 .name(signupRequestDTO.getName())
                 .nickName(signupRequestDTO.getNickName())
+                .height(signupRequestDTO.getHeight())
+                .weight(signupRequestDTO.getWeight())
+                .runningType(signupRequestDTO.getRunningType())
                 .enabled(true)
                 .build();
         userRepository.save(user);

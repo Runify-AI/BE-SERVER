@@ -15,9 +15,6 @@ import java.util.List;
 @Setter
 public class PreferenceRequestDTO {
     @NotNull
-    private Long userId;
-
-    @NotNull
     private List<PreferencePlace> preferencePlaces;
 
     @NotNull

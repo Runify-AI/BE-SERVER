@@ -1,5 +1,6 @@
 package com.example.runity.DTO;
 
+import com.example.runity.domain.Routine;
 import com.example.runity.enums.Day;
 import com.example.runity.enums.Place;
 import lombok.AllArgsConstructor;
@@ -15,16 +16,24 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoutineRequestDTO {
-    // 유저 ID
-    @NotNull(message = "UserID cannot be null")
-    private Long userId;
     // 장소
-    @NotNull(message = "Place cannot be null")
+    @NotNull
     private Place place;
     // 시간
-    @NotNull(message = "Time cannot be null")
+    @NotNull
     private String time;
     // 요일
-    @NotNull(message = "Day list cannot be null")
+    @NotNull
     private List<Day> day;
+    // 좌표 리스트
+    private List<CoordinateDTO> coordinates;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CoordinateDTO {
+        private double latitude;
+        private double longitude;
+    }
 }

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/routines")
+@RequestMapping("/api")
 @Tag(name="루틴",description=" < 루틴 설정 > API")
 public class RoutineController {
     private final RoutineService routineService;
@@ -34,15 +35,18 @@ public class RoutineController {
             @ApiResponse(responseCode = "400", description = "요청 오류", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @PostMapping
-    public ResponseEntity<ReturnCodeDTO> createRoutine(@RequestBody RoutineRequestDTO routineRequestDTO, BindingResult bindingResult) {
+    @PostMapping("/routines-create")
+    public ResponseEntity<ReturnCodeDTO> createRoutine(
+            @RequestHeader("Authorization") String token,
+            @RequestBody @Valid RoutineRequestDTO routineRequestDTO,
+            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(
                     new ReturnCodeDTO(400, "유효하지 않은 요청입니다.")
             );
         }
 
-        routineService.createRoutine(routineRequestDTO);
+        routineService.createRoutine(token, routineRequestDTO);
         return ResponseEntity.status(SuccessCode.SUCCESS_ROUTINE_CREATE.getStatus())
                 .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTINE_CREATE.getStatus(), SuccessCode.SUCCESS_ROUTINE_CREATE.getMessage()));
     }
@@ -54,9 +58,9 @@ public class RoutineController {
             @ApiResponse(responseCode = "404", description = "루틴 없음", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @GetMapping("/{userId}")
-    public ResponseEntity<ReturnCodeDTO> getRoutines(@PathVariable Long userId) {
-        List<RoutineResponseDTO> routines = routineService.getRoutines(userId);
+    @GetMapping("/routines-list")
+    public ResponseEntity<ReturnCodeDTO> getRoutines(@RequestHeader("Authorization") String token) {
+        List<RoutineResponseDTO> routines = routineService.getRoutines(token);
         return ResponseEntity.ok(new ReturnCodeDTO(
                 SuccessCode.SUCCESS_ROUTINE_LIST.getStatus(),
                 SuccessCode.SUCCESS_ROUTINE_LIST.getMessage(),
@@ -71,9 +75,9 @@ public class RoutineController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @PutMapping("/{userId}/{routineId}")
+    @PutMapping("/routines-update/{routineId}")
     public ResponseEntity<ReturnCodeDTO> updateRoutine(
-            @PathVariable Long userId,
+            @RequestHeader("Authorization") String token,
             @PathVariable Long routineId,
             @RequestBody RoutineRequestDTO routineRequestDTO,
             BindingResult bindingResult) {
@@ -84,7 +88,7 @@ public class RoutineController {
             );
         }
 
-        routineService.updateRoutine(userId, routineId, routineRequestDTO);
+        routineService.updateRoutine(token, routineId, routineRequestDTO);
         return ResponseEntity.ok(new ReturnCodeDTO(
                 SuccessCode.SUCCESS_ROUTINE_UPDATE.getStatus(),
                 SuccessCode.SUCCESS_ROUTINE_UPDATE.getMessage()
@@ -97,11 +101,11 @@ public class RoutineController {
             @ApiResponse(responseCode = "404", description = "루틴 없음", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @DeleteMapping("/{userId}/{routineId}")
+    @DeleteMapping("/routines-delete/{routineId}")
     public ResponseEntity<ReturnCodeDTO> deleteRoutine(
-            @PathVariable Long userId,
+            @RequestHeader ("Authorization") String token,
             @PathVariable Long routineId) {
-        routineService.deleteRoutine(userId, routineId);
+        routineService.deleteRoutine(token, routineId);
         return ResponseEntity.status(SuccessCode.SUCCESS_ROUTINE_DELETE.getStatus())
                 .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTINE_DELETE.getStatus(), SuccessCode.SUCCESS_ROUTINE_DELETE.getMessage()));
     }

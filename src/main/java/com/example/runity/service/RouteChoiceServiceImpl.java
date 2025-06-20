@@ -31,6 +31,7 @@ public class RouteChoiceServiceImpl implements RouteChoiceService {
                 .usePublicTransport(routeChoiceRequestDTO.getUsePublicTransport())
                 .preferSafePath(routeChoiceRequestDTO.getPreferSafePath())
                 .avoidCrowdedAreas(routeChoiceRequestDTO.getAvoidCrowdedAreas())
+                .cycle(routeChoiceRequestDTO.getCycle())
                 .build();
 
         return  routeChoiceRepository.save(routeChoice);
