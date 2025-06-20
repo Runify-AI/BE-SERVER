@@ -48,7 +48,7 @@ public class RealTimeRunning {
     private String paceFeedback;
 
     @Column
-    private LocalTime avgStopTime;
+    private Float avgStopTime;
 
     @Column
     private Float avgPace;

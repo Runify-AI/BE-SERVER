@@ -18,6 +18,4 @@ public interface RealtimeRunningService {
     void completeRunning(Long userId, RunningCompleteRequest request);  // 러닝 완료 시 전체 데이터 저장
 
     void updateDailyRunningRecord(Long userId, LocalDate date);  // 하루 요약 러닝 기록 저장
-
-    //EvaluationResult evaluateRunningPerformance(Double pace, int time, double distance, int stopCount);  // 러닝 평가
 }

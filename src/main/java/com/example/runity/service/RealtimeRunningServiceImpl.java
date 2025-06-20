@@ -225,6 +225,23 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .max(Instant::compareTo)
                 .orElse(request.getCompleteTime().atZone(ZoneId.systemDefault()).toInstant());
 
+        // 4-1. 평균 정지 시간 계산
+        float totalStopTime = 0f;
+
+        for (int i = 1; i < paths.size(); i++) {
+            RunningPathTS prev = paths.get(i - 1);
+            RunningPathTS curr = paths.get(i);
+
+            boolean sameLocation = prev.getLatitude() == curr.getLatitude()
+                    && prev.getLongitude() == curr.getLongitude();
+
+            if (sameLocation) {
+                long stopSeconds = Duration.between(prev.getTimestamp(), curr.getTimestamp()).getSeconds();
+                totalStopTime += stopSeconds;
+            }
+        }
+
+        float avgStopTime = count > 0 ? totalStopTime / seconds : 0f;
 
         // 5. 실시간 러닝 세션 저장
         Long routeId = request.getRouteId();
@@ -248,6 +265,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .avgSpeed(avgSpeed)
                 .distance(totalDistance)
                 .runTime(runTime)
+                .avgStopTime(avgStopTime)
                 .build();
 
         // 실시간 경로 저장
@@ -292,7 +310,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         // 3. DailyRunningRecord 저장 또는 업데이트
 
         // 오늘의 날씨 정보 가져오기
-        WeatherDTO weather = weatherService.getWeather("Seoul");
+        WeatherDTO weather = weatherService.getWeather("Daegu");
 
         DailyRunningRecord dailyRecord = dailyRunningRecordRepository
                 .findByUserIdAndDate(userId, date)
