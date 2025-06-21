@@ -64,7 +64,7 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
      * 특정 날짜의 러닝 기록 조회
      */
     @Override
-    public List<RunningSessionDTO> getDailyRecord(Long userId, LocalDate date) {
+    public RunningSessionSummaryDTO getDailyRecord(Long userId, LocalDate date) {
         //Long userId = jwtUtil.getUserId(token);
 
         System.out.println("🧪 All Routes:");
@@ -76,6 +76,18 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
         Optional<DailyRunningRecord> dailyRecord = dailyRunningRecordRepository.findByUserIdAndDate(userId, date);
         DailyRunningRecord record = dailyRecord
                 .orElseThrow(() -> new RuntimeException("해당 날짜의 DailyRunningRecord가 존재하지 않습니다."));
+
+        // 1-1. 하루 전 DailyRunningRecord와 비교
+        LocalDate previousDate = date.minusDays(1);
+        Optional<DailyRunningRecord> yesterdayRecord = dailyRunningRecordRepository.findByUserIdAndDate(userId, previousDate);
+
+        Float yDistance = yesterdayRecord.map(DailyRunningRecord::getTotalDistance).orElse(0f);
+        Float distance = record.getTotalDistance();
+
+        // 거리 차이 계산
+        Float distanceDiff = distance - yDistance;
+
+
 
         List<RunningSessionDTO> sessions = new ArrayList<>();
 
@@ -103,7 +115,9 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                 }
 
                 // 4. 경로 시간 기반 세부 이력 정보 조회
+                System.out.println("sessionId: " + sessionId);
                 List<RunningPathTS> pathList = runningPathTSRepository.findBySessionId(sessionId);
+                System.out.println("RunningPathTS 개수: " + pathList.size());
                 List<RunningHistoryDetailDTO> detailDTOList = new ArrayList<>();
 
                 for (RunningPathTS path : pathList) {
@@ -123,9 +137,9 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                             .pace((float) path.getPace())
                             .timeStamp(path.getTimestamp().atZone(java.time.ZoneId.systemDefault()).toLocalTime())
                             .location(location)
-                            .type(path.getType())
-                            .semiType(path.getSemiType())
-                            .message(path.getMessage())
+                            .typeEta(path.getTypeEta() != null ? path.getTypeEta() : 0)
+                            .typePace(path.getTypePace() != null ? path.getTypePace() : 0)
+                            .typeStop(path.getTypeStop() != null ? path.getTypeStop() : 0)
                             .build();
 
                     detailDTOList.add(detail);
@@ -152,9 +166,16 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                         .build();
 
                 sessions.add(sessionDTO);
-            }
 
-        return sessions;
+            }
+        return RunningSessionSummaryDTO.builder()
+                .runningSessionDTO(sessions)
+                .distanceDiff(distanceDiff)
+                .totalDistance(distance)
+                .runCount(record.getRunCount())
+                .totalRunTime(record.getTotalRunTime())
+                .avgSpeed(record.getAvgSpeed())
+                .build();
     }
 
 

@@ -3,6 +3,7 @@ package com.example.runity.controller;
 import com.example.runity.DTO.RunningHistoryDTO;
 import com.example.runity.DTO.RunningHistoryDetailDTO;
 import com.example.runity.DTO.RunningSessionDTO;
+import com.example.runity.DTO.RunningSessionSummaryDTO;
 import com.example.runity.domain.DailyRunningRecord;
 import com.example.runity.service.RunningHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +23,7 @@ import java.util.List;
 @Tag(name = "러닝 기록 가져오기")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/history")
+@RequestMapping("/api/history")
 public class RunningHistoryController {
 
     private final RunningHistoryService runningHistoryService;
@@ -48,7 +49,7 @@ public class RunningHistoryController {
     }
 
     @Operation(
-            summary = "일일 러닝 기록 조회",
+            summary = "[통합 확인 완료]일일 러닝 기록 조회",
             description = "특정 날짜에 해당하는 사용자의 러닝 기록, 원래 경로 좌표, 세션별 기록 및 좌표 리스트까지 포함하여 반환합니다."
     )
     @ApiResponses(value = {
@@ -56,10 +57,10 @@ public class RunningHistoryController {
             @ApiResponse(responseCode = "404", description = "해당 날짜의 기록 없음"),
     })
     @GetMapping("/daily")
-    public ResponseEntity<List<RunningSessionDTO>> getDailyRecord(@Parameter(description = "사용자 ID", required = true)
+    public ResponseEntity<RunningSessionSummaryDTO> getDailyRecord(@Parameter(description = "사용자 ID", required = true)
                                                                       @RequestParam Long userId,
 
-                                                                  @Parameter(description = "조회할 날짜 (예: 2025-06-20)", required = true)
+                                                                   @Parameter(description = "조회할 날짜 (예: 2025-06-20)", required = true)
                                                                       @RequestParam LocalDate date) {
         return ResponseEntity.ok(runningHistoryService.getDailyRecord(userId, date));
     }

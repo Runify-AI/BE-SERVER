@@ -14,7 +14,7 @@ public class RunningHistoryDetailDTO {
     private Float pace;               // 페이스
     private LocalTime timeStamp;      // 타임스탬프
     private LocasionDTO location;     // 좌표
-    private String type;
-    private String semiType;
-    private String message;
+    private Float typeEta;
+    private Float typePace;
+    private Float typeStop;
 }

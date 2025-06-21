@@ -45,9 +45,9 @@ public class RunningPathTSRepository {
                     .addField("pace", pointData.getPace())
                     .addField("speed", pointData.getSpeed())
                     .addField("elapsedTime", pointData.getElapsedTime().toSecondOfDay())
-                    .addField("type", pointData.getType())
-                    .addField("semiType", pointData.getSemiType())
-                    .addField("message", pointData.getMessage())
+                    .addField("typeEta", pointData.getTypeEta())
+                    .addField("typePace", pointData.getTypePace())
+                    .addField("typeStop", pointData.getTypeStop())
                     .time(pointData.getTimestamp(), WritePrecision.MS);
             writeApi.writePoint(point);
         }
@@ -72,7 +72,7 @@ public class RunningPathTSRepository {
                 from(bucket:"%s")
                   |> range(start: 0)
                   |> filter(fn: (r) => r["_measurement"] == "running_path")
-                  |> filter(fn: (r) => r["sessionId"] == "%d")
+                  |> filter(fn: (r) => r["sessionId"] == "%s")
                   |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
                 """, bucket, sessionId);
 
@@ -88,11 +88,11 @@ public class RunningPathTSRepository {
                 float distance = ((Number) record.getValueByKey("distance")).floatValue();
                 float speed = ((Number) record.getValueByKey("speed")).floatValue();
                 LocalTime elapsedTime = LocalTime.ofSecondOfDay(10);
-                String type = (String) record.getValueByKey("type");
-                String semiType = (String) record.getValueByKey("semiType");
-                String message = (String) record.getValueByKey("message");
+                Float typeEta = ((Number) record.getValueByKey("typeEta")).floatValue();
+                Float typePace = ((Number) record.getValueByKey("typePace")).floatValue();
+                Float typeStop = ((Number) record.getValueByKey("typeStop")).floatValue();
 
-                RunningPathTS runningPathTS = new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime, type, semiType, message);
+                RunningPathTS runningPathTS = new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime, typeEta, typePace, typeStop);
                 resultMap.put(timestamp, runningPathTS);
             }
         }
@@ -103,12 +103,13 @@ public class RunningPathTSRepository {
     public List<RunningPathTS> findBySessionId(Long sessionId) {
         QueryApi queryApi = influxDBClient.getQueryApi();
         String flux = String.format("""
-        from(bucket: "%s")
-            |> range(start: -7d)
-            |> filter(fn: (r) => r._measurement == "running_path" and r.sessionId == "%d")
-            |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-            |> sort(columns: ["_time"])
-        """, bucket, sessionId);
+from(bucket: "%s")
+    |> range(start: 0)
+    |> filter(fn: (r) => r._measurement == "running_path" and r["sessionId"] == "%s")
+    |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+    |> sort(columns: ["_time"])
+""", bucket, sessionId.toString());
+
 
         List<FluxTable> tables = queryApi.query(flux);
         List<RunningPathTS> result = new ArrayList<>();
@@ -123,11 +124,11 @@ public class RunningPathTSRepository {
                 float speed = ((Number) record.getValueByKey("speed")).floatValue();
                 int elapsedSeconds = ((Number) record.getValueByKey("elapsedTime")).intValue();
                 LocalTime elapsedTime = LocalTime.ofSecondOfDay(elapsedSeconds);
-                String type = (String) record.getValueByKey("type");
-                String semiType = (String) record.getValueByKey("semiType");
-                String message = (String) record.getValueByKey("message");
+                Float typeEta = ((Number) record.getValueByKey("typeEta")).floatValue();
+                Float typePace = ((Number) record.getValueByKey("typePace")).floatValue();
+                Float typeStop = ((Number) record.getValueByKey("typeStop")).floatValue();
 
-                result.add(new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime, type, semiType, message));
+                result.add(new RunningPathTS(timestamp, latitude, longitude, pace, distance, speed, elapsedTime, typeEta, typePace, typeStop));
             }
         }
 

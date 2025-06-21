@@ -17,7 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RunningRecommendationServiceImpl {
+public class RunningRecommendationServiceImpl implements RunningRecommendationService{
 
     private final UserRepository userRepository;
     private final DailyRunningRecordRepository dailyRecordRepository;
@@ -25,6 +25,7 @@ public class RunningRecommendationServiceImpl {
     private final RouteRepository routeRepository;
     private final WeatherService weatherService;
 
+    @Override
     public RunningPerformanceDTO evaluateRunningPerformance(Long userId) {
         // 1. 사용자 정보 조회
         User user = userRepository.findById(userId)
@@ -45,8 +46,11 @@ public class RunningRecommendationServiceImpl {
 
             for (RealTimeRunning run : runList) {
                 // Feedback 수집
-                feedbackHistory.add(new UserFeedbackDTO(record.getDate(), run.getComment(), run.getEffortLevel()));
-
+                feedbackHistory.add(new UserFeedbackDTO(
+                        record.getDate(),
+                        run.getComment() != null ? run.getComment() : "",
+                        run.getEffortLevel() != null ? run.getEffortLevel() : 0
+                ));
                 // 평균 pace/speed 수집
                 if (run.getAvgPace() != null) paceList.add(run.getAvgPace());
                 if (run.getAvgSpeed() != null) speedList.add(run.getAvgSpeed());
@@ -57,6 +61,17 @@ public class RunningRecommendationServiceImpl {
         }
 
         float avgPauseTime = recentRecords.size() > 0 ? totalStopTime / recentRecords.size() : 0;
+
+        // 리스트 자르기: 최신 3개만
+        if (feedbackHistory.size() > 3) {
+            feedbackHistory = feedbackHistory.subList(0, 3);
+        }
+        if (paceList.size() > 3) {
+            paceList = paceList.subList(0, 3);
+        }
+        if (speedList.size() > 3) {
+            speedList = speedList.subList(0, 3);
+        }
 
         // 3. 루트 정보 수집 (가정: 유저가 선택한 루트를 저장했다고 가정)
         /*

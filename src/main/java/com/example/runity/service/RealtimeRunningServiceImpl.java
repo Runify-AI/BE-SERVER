@@ -45,9 +45,9 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .latitude(latitude)
                 .longitude(longitude)
                 .elapsedTime(dto.getElapsedTime())
-                .type(dto.getType())
-                .semiType(dto.getSemiType())
-                .message(dto.getMessage())
+                .typeEta(dto.getTypeEta())
+                .typePace(dto.getTypePace())
+                .typeStop(dto.getTypeStop())
                 .build();
 
 
@@ -74,9 +74,9 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                             .distance(dto.getDistance().floatValue())
                             .speed(dto.getSpeed().floatValue())
                             .elapsedTime(dto.getElapsedTime())
-                            .type(dto.getType())
-                            .semiType(dto.getSemiType())
-                            .message(dto.getMessage())
+                            .typeEta(dto.getTypeEta())
+                            .typePace(dto.getTypePace())
+                            .typeStop(dto.getTypeStop())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -147,9 +147,9 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                             .distance(dto.getDistance().floatValue())
                             .speed(dto.getSpeed().floatValue())
                             .elapsedTime(dto.getElapsedTime())
-                            .type(dto.getType())
-                            .semiType(dto.getSemiType())
-                            .message(dto.getMessage())
+                            .typeEta(dto.getTypeEta())
+                            .typePace(dto.getTypePace())
+                            .typeStop(dto.getTypeStop())
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -188,23 +188,16 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
             count++;
         }
 
-        float avgPace = totalPace / count;
-        float avgSpeed = totalSpeed / count;
+        // 3-1. 페이스, 속도
+        float avgPace = count > 0 ? totalPace / count : 0f;
+        float avgSpeed = count > 0 ? totalSpeed / count : 0f;
 
-        // 거리 합계
+        // 3-2. 거리 합계
         float totalDistance = paths.stream()
                 .map(RunningPathTS::getDistance)
                 .reduce(0f, Float::sum);
 
-        // 하루 러닝 기록에 합계
-        // 기존 값 누적 반영
-        float updatedTotalDistance = record.getTotalDistance() + totalDistance;
-        DailyRunningRecord updated = record.toBuilder()
-                .totalDistance(updatedTotalDistance)
-                .build();
-        dailyRunningRecordRepository.save(updated);
-
-        // 러닝 시작/종료 시간 기반 시간 계산
+        // 3-3. 러닝 시작/종료 시간 기반 시간 계산
         Instant start = paths.stream()
                 .map(RunningPathTS::getTimestamp)
                 .min(Instant::compareTo)
@@ -217,6 +210,16 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
         long seconds = Duration.between(start, end).getSeconds();
         LocalTime runTime = LocalTime.ofSecondOfDay(seconds);
+
+        // 하루 러닝 기록에 합계
+        // 기존 값 누적 반영
+        float updatedTotalDistance = record.getTotalDistance() + totalDistance;
+        DailyRunningRecord updated = record.toBuilder()
+                .totalDistance(updatedTotalDistance)
+                .avgSpeed(avgSpeed)
+                .totalRunTime(runTime)
+                .build();
+        dailyRunningRecordRepository.save(updated);
 
 
         // 4. 종료 시간: 가장 마지막 timestamp
@@ -241,7 +244,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
             }
         }
 
-        float avgStopTime = count > 0 ? totalStopTime / seconds : 0f;
+        float avgStopTime = (seconds > 0) ? totalStopTime / seconds : 0f;
 
         // 5. 실시간 러닝 세션 저장
         Long routeId = request.getRouteId();
@@ -300,7 +303,9 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
         for (RealTimeRunning run : todayRuns) {
             totalDistance += run.getDistance();
-            totalRunTime = totalRunTime.plusSeconds(run.getRunTime().toSecondOfDay());
+            if (run.getRunTime() != null) {
+                totalRunTime = totalRunTime.plusSeconds(run.getRunTime().toSecondOfDay());
+            }
             totalSpeed += run.getAvgSpeed();
             count++;
         }

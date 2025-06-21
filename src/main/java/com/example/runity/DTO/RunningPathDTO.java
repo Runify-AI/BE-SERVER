@@ -16,7 +16,7 @@ public class RunningPathDTO {
     private Double speed;                // 속도 (km/h)
     private String coordinate;           // GPS 좌표
     private LocalTime elapsedTime;
-    private String type;
-    private String semiType;
-    private String message;
+    private Float typeEta;
+    private Float typePace;
+    private Float typeStop;
 }

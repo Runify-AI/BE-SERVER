@@ -19,7 +19,7 @@ import java.util.List;
 @CrossOrigin(origins = "*") // 또는 정확한 origin만
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/running")
+@RequestMapping("/api/running")
 public class RealtimeRunningController {
 
     private final RealtimeRunningService realtimeRunningService;
