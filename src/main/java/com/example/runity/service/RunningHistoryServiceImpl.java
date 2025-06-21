@@ -67,11 +67,6 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     public RunningSessionSummaryDTO getDailyRecord(Long userId, LocalDate date) {
         //Long userId = jwtUtil.getUserId(token);
 
-        System.out.println("🧪 All Routes:");
-        for (Route r : routeRepository.findAll()) {
-            System.out.println("routeId: " + r.getRouteId() + ", userId: " + r.getUser().getUserId());
-        }
-
         // 1. 날짜에 해당하는 DailyRunningRecord 조회
         Optional<DailyRunningRecord> dailyRecord = dailyRunningRecordRepository.findByUserIdAndDate(userId, date);
         DailyRunningRecord record = dailyRecord

@@ -10,10 +10,6 @@ import java.util.Optional;
 public interface DailyRunningRecordRepository extends JpaRepository<DailyRunningRecord, Long> {
     Optional<DailyRunningRecord> findByUserIdAndDate(Long userId, LocalDate date);
 
-    Optional<DailyRunningRecord> findByDate(LocalDate date);
-
-    List<DailyRunningRecord> findAllByDateBetween(LocalDate start, LocalDate end);
-
     List<DailyRunningRecord> findByUserIdAndDateBetween(Long userId, LocalDate start, LocalDate end);
 
     List<DailyRunningRecord> findTop3ByUserIdOrderByDateDesc(Long userId);
