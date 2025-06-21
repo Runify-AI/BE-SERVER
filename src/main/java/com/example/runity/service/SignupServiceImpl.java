@@ -66,6 +66,7 @@ public class SignupServiceImpl implements SignupService {
             throw new CustomException(ErrorCode.EMAIL_VERIFY_FAIL,ErrorCode.EMAIL_VERIFY_FAIL.getMessage());
         }
     }
+    /*
     @Override
     @Transactional
     public String confirmPassword(String token, PasswordConfirmDTO passwordConfirmDTO) {
@@ -79,6 +80,26 @@ public class SignupServiceImpl implements SignupService {
         // if 문 통과하면 성공
         return SuccessCode.SUCCESS_PASSWORD_CONFIRM.getMessage();
     }
+
+     */
+    @Override
+    @Transactional
+    public String confirmPassword(String token, PasswordConfirmDTO passwordConfirmDTO) {
+        Long userId = jwtUtil.getUserId(token);
+        Optional<User> user = userRepository.findByUserId(userId);
+
+        User myUser = user.orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND, ErrorCode.USER_NOT_FOUND.getMessage())
+        );
+
+        if (!passwordEncoder.matches(passwordConfirmDTO.getConfirmPassword(), myUser.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH, ErrorCode.PASSWORD_MISMATCH.getMessage());
+        }
+
+        return SuccessCode.SUCCESS_PASSWORD_CONFIRM.getMessage();
+    }
+
+
     @Override
     @Transactional
     public String signupUser(SignupRequestDTO signupRequestDTO) {

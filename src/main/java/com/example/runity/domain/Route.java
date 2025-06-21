@@ -54,10 +54,12 @@ public class Route {
     @Column(nullable = false)
     private LocalDateTime createdAt;
     // 중복 저장 허용
+    @Builder.Default
     @Setter
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RouteChoice> routeChoices = new ArrayList<>();
     // 좌표 리스트
+    @Builder.Default
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "route_coordinates", joinColumns = @JoinColumn(name = "route_id"))
     private Set<Coordinate> coordinates = new HashSet<>();
@@ -107,5 +109,19 @@ public class Route {
         this.endPoint = endPoint;
         this.estimatedTime = estimatedTime;
         this.distance = distance;
+    }
+
+    public List<RouteChoice> getRouteChoices() {
+        if (routeChoices == null) {
+            routeChoices = new ArrayList<>();
+        }
+        return routeChoices;
+    }
+
+    public Set<Coordinate> getCoordinates() {
+        if (coordinates == null) {
+            coordinates = new HashSet<>();
+        }
+        return coordinates;
     }
 }

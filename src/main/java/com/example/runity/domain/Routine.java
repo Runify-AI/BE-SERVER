@@ -26,6 +26,9 @@ public class Routine {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Place place;
+    // 도착지
+    @Column(nullable = false)
+    private String destination;
     // 시간
     @Column(nullable = false)
     private LocalTime time;
@@ -35,7 +38,12 @@ public class Routine {
     @Enumerated(EnumType.STRING)
     @Column(name = "day", nullable = false)
     private List<Day> day;
+
+
+
+    /*
     // 좌표 목록
+    @Builder.Default
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "routine_coordinates", joinColumns = @JoinColumn(name = "routine_id"))
     private Set<Routine.Coordinate> coordinates = new HashSet<>();
@@ -84,4 +92,13 @@ public class Routine {
             this.coordinates.addAll(coordinates);
         }
     }
+
+    public Set<Coordinate> getCoordinates() {
+        if (coordinates == null) {
+            coordinates = new HashSet<>();
+        }
+        return coordinates;
+    }
+
+     */
 }
