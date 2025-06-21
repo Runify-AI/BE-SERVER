@@ -1,5 +1,6 @@
 package com.example.runity.DTO;
 
+import com.example.runity.domain.RouteCoordinate;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,11 +10,11 @@ import java.util.List;
 @Builder
 @Getter @Setter
 public class RunningSettingsResponse {
-    private List<String> routePoints;
+    private List<RouteCoordinateDTO> routePoints;
     private String duration;
     private String startTime;
     private String estimatedEndTime;
     private String startPoint;
     private String endPoint;
-    private String pace;   // 추천 페이스 (/km)
+    private String targetPace;   // 추천 페이스 (/km)
 }

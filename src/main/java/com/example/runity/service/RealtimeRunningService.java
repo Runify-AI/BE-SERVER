@@ -10,11 +10,12 @@ import java.util.List;
 @Service
 public interface RealtimeRunningService {
 
-    void saveRunningState(String token, RunningPathDTO dto);  // 실시간 러닝 중 위치/속도 등 기록 저장
+    void saveRunningState(Long userId, RunningPathDTO dto);  // 실시간 러닝 중 위치/속도 등 기록 저장
 
-    void completeRunning(String token, RunningCompleteRequest request);  // 러닝 완료 시 전체 데이터 저장
+    void saveRunningStates(Long userId, Long routeId, List<RunningPathDTO> dto);
 
-    void updateDailyRunningRecord(String token, LocalDate date);  // 하루 요약 러닝 기록 저장
+    //void completeRunning(String token, RunningCompleteRequest request);  // 러닝 완료 시 전체 데이터 저장
+    void completeRunning(Long userId, RunningCompleteRequest request);  // 러닝 완료 시 전체 데이터 저장
 
-    //EvaluationResult evaluateRunningPerformance(Double pace, int time, double distance, int stopCount);  // 러닝 평가
+    void updateDailyRunningRecord(Long userId, LocalDate date);  // 하루 요약 러닝 기록 저장
 }

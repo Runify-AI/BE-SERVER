@@ -31,6 +31,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final KakaoOAuth2UserService kakaoOAuth2UserService;
 
+    /*
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -54,11 +55,12 @@ public class SecurityConfig {
 
         return http.build();
     }
+    */
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://3.37.214.150:8080", "http://localhost:5173", "http://127.0.0.1:5173")); // 허용할 도메인 설정
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://3.37.214.150:8080", "http://localhost:5173", "http://127.0.0.1:5173", "https://387d-165-229-250-144.ngrok-free.app/")); // 허용할 도메인 설정
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
@@ -81,4 +83,18 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests((requests) -> requests
+                        .anyRequest().permitAll() // 모든 요청 허용
+                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf((csrf) -> csrf.disable()); // CSRF 보호 비활성화
+
+        return http.build();
+    }
+
 }
+

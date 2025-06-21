@@ -1,25 +1,17 @@
 package com.example.runity.service;
 
-import com.example.runity.DTO.WeatherDTO;
-import com.example.runity.domain.DailyRunningRecord;
-import com.example.runity.domain.RealTimeRunning;
+import com.example.runity.DTO.*;
+import com.example.runity.domain.*;
 //import com.example.runity.domain.RunningPathTS;
-import com.example.runity.DTO.RunningPathDTO;
-import com.example.runity.DTO.RunningCompleteRequest;
-import com.example.runity.domain.RunningPathTS;
-import com.example.runity.domain.Statistics;
-import com.example.runity.repository.DailyRunningRecordRepository;
-import com.example.runity.repository.RealTimeRunningRepository;
-import com.example.runity.repository.RunningPathTSRepository;
-import com.example.runity.repository.StatisticsRepository;
+import com.example.runity.repository.*;
 import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.time.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -36,8 +28,8 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
      * 실시간 러닝 상태 저장
      */
     @Override
-    public void saveRunningState(String token, RunningPathDTO dto) {
-        Long userId = jwtUtil.getUserId(token);
+    public void saveRunningState(Long userId, RunningPathDTO dto) {
+        //Long userId = jwtUtil.getUserId(token);
 
         String coordinateStr = dto.getCoordinate(); // 예: "37.1234,127.5678"
         String[] parts = coordinateStr.split(",");
@@ -52,6 +44,10 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .speed(dto.getSpeed().floatValue())
                 .latitude(latitude)
                 .longitude(longitude)
+                .elapsedTime(dto.getElapsedTime())
+                .type(dto.getType())
+                .semiType(dto.getSemiType())
+                .message(dto.getMessage())
                 .build();
 
 
@@ -59,18 +55,16 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
     }
 
-    /**
-     * 러닝 종료 시 전체 데이터 저장
-     */
     @Override
-    public void completeRunning(String token, RunningCompleteRequest request) {
-        Long userId = jwtUtil.getUserId(token);
-        List<RunningPathTS> paths = request.getRunningPaths().stream()
+    public void saveRunningStates(Long userId, Long routeId, List<RunningPathDTO> runningPathsDTO) {
+        //Long userId = jwtUtil.getUserId(token);
+
+        List<RunningPathTS> paths = runningPathsDTO.stream()
                 .map(dto -> {
                     String[] parts = dto.getCoordinate().split(",");
                     double latitude = Double.parseDouble(parts[0].trim());
                     double longitude = Double.parseDouble(parts[1].trim());
-                    Instant ts = Instant.ofEpochMilli(dto.getTimestamp());
+                    Instant ts = dto.getTimestamp();
 
                     return RunningPathTS.builder()
                             .timestamp(ts)
@@ -79,12 +73,86 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                             .pace(dto.getPace().floatValue())
                             .distance(dto.getDistance().floatValue())
                             .speed(dto.getSpeed().floatValue())
+                            .elapsedTime(dto.getElapsedTime())
+                            .type(dto.getType())
+                            .semiType(dto.getSemiType())
+                            .message(dto.getMessage())
                             .build();
                 })
                 .collect(Collectors.toList());
 
-        // 1. 실시간 경로 저장
-        runningPathRepository.saveAllWithCheck(userId, paths);
+        // 2) 비어 있으면 종료
+        if (paths.isEmpty()) {
+            return;
+        }
+
+        // 2. 하루 러닝 기록 찾기 (recordId)
+        LocalDate runDate = LocalDate.now(); // 오늘 날짜
+        DailyRunningRecord record = dailyRunningRecordRepository
+                .findByUserIdAndDate(userId, runDate)
+                .orElseGet(() -> {
+                    // 새 기록 생성
+                    DailyRunningRecord newRecord = DailyRunningRecord.builder()
+                            .userId(userId)
+                            .totalDistance(0f)
+                            .totalRunTime(LocalTime.of(0, 0))
+                            .date(runDate)
+                            .runCount(1)
+                            .avgSpeed(0f)
+                            .weather("Unknown")         // nullable, 임시값
+                            .temperature(0f)            // nullable, 임시값
+                            .humidity(0f)               // nullable, 임시값
+                            .build();
+
+                    return dailyRunningRecordRepository.save(newRecord);
+                });
+
+        // routeid로 러닝 세션 조회 또는 생성
+        RealTimeRunning session = realTimeRunningRepository.findByRouteIdAndIsCompleted(routeId, false)
+                .orElseGet(() -> {
+                    RealTimeRunning newSession = RealTimeRunning.builder()
+                            .recordId(record.getRecordId())
+                            .routeId(routeId)
+                            .isCompleted(false)               // 기본 false
+                            .build();
+                    return realTimeRunningRepository.save(newSession);
+                });
+        // 실시간 경로 저장
+        Long sessionId = session.getRunningSessionId();
+        runningPathRepository.saveAllWithCheck(sessionId, paths);
+
+        System.out.println("sessionId: " + session.getRunningSessionId());
+    }
+
+
+
+    /**
+     * 러닝 종료 시 전체 데이터 저장
+     */
+    @Override
+    public void completeRunning(Long userId, RunningCompleteRequest request) {
+        //Long userId = jwtUtil.getUserId(token);
+        List<RunningPathTS> paths = request.getRunningPaths().stream()
+                .map(dto -> {
+                    String[] parts = dto.getCoordinate().split(",");
+                    double latitude = Double.parseDouble(parts[0].trim());
+                    double longitude = Double.parseDouble(parts[1].trim());
+                    Instant ts = dto.getTimestamp();
+
+                    return RunningPathTS.builder()
+                            .timestamp(ts)
+                            .latitude(latitude)
+                            .longitude(longitude)
+                            .pace(dto.getPace().floatValue())
+                            .distance(dto.getDistance().floatValue())
+                            .speed(dto.getSpeed().floatValue())
+                            .elapsedTime(dto.getElapsedTime())
+                            .type(dto.getType())
+                            .semiType(dto.getSemiType())
+                            .message(dto.getMessage())
+                            .build();
+                })
+                .collect(Collectors.toList());
 
         if (paths.isEmpty()) return;
 
@@ -92,7 +160,22 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         LocalDate runDate = request.getCompleteTime().toLocalDate(); // 날짜만 추출
         DailyRunningRecord record = dailyRunningRecordRepository
                 .findByUserIdAndDate(userId, runDate)
-                .orElseThrow(() -> new RuntimeException("해당 날짜의 DailyRunningRecord가 존재하지 않습니다."));
+                .orElseGet(() -> {
+                    // 새 기록 생성
+                    DailyRunningRecord newRecord = DailyRunningRecord.builder()
+                            .userId(userId)
+                            .totalDistance(0f)
+                            .totalRunTime(LocalTime.of(0, 0))
+                            .date(runDate)
+                            .runCount(1)
+                            .avgSpeed(0f)
+                            .weather("Unknown")         // nullable, 임시값
+                            .temperature(0f)            // nullable, 임시값
+                            .humidity(0f)               // nullable, 임시값
+                            .build();
+
+                    return dailyRunningRecordRepository.save(newRecord);
+                });
 
         // 3. 통계 계산
         float totalPace = 0f;
@@ -112,6 +195,14 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         float totalDistance = paths.stream()
                 .map(RunningPathTS::getDistance)
                 .reduce(0f, Float::sum);
+
+        // 하루 러닝 기록에 합계
+        // 기존 값 누적 반영
+        float updatedTotalDistance = record.getTotalDistance() + totalDistance;
+        DailyRunningRecord updated = record.toBuilder()
+                .totalDistance(updatedTotalDistance)
+                .build();
+        dailyRunningRecordRepository.save(updated);
 
         // 러닝 시작/종료 시간 기반 시간 계산
         Instant start = paths.stream()
@@ -134,18 +225,57 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .max(Instant::compareTo)
                 .orElse(request.getCompleteTime().atZone(ZoneId.systemDefault()).toInstant());
 
+        // 4-1. 평균 정지 시간 계산
+        float totalStopTime = 0f;
+
+        for (int i = 1; i < paths.size(); i++) {
+            RunningPathTS prev = paths.get(i - 1);
+            RunningPathTS curr = paths.get(i);
+
+            boolean sameLocation = prev.getLatitude() == curr.getLatitude()
+                    && prev.getLongitude() == curr.getLongitude();
+
+            if (sameLocation) {
+                long stopSeconds = Duration.between(prev.getTimestamp(), curr.getTimestamp()).getSeconds();
+                totalStopTime += stopSeconds;
+            }
+        }
+
+        float avgStopTime = count > 0 ? totalStopTime / seconds : 0f;
+
         // 5. 실시간 러닝 세션 저장
-        RealTimeRunning session = RealTimeRunning.builder()
-                .recordId(record.getRecordId()) // 외래키로 연결
+        Long routeId = request.getRouteId();
+        // routeId로 '미완료된' 러닝 세션 조회 또는 생성
+        RealTimeRunning session = realTimeRunningRepository.findByRouteIdAndIsCompleted(routeId, false)
+                .orElseGet(() -> {
+                    RealTimeRunning newSession = RealTimeRunning.builder()
+                            .recordId(record.getRecordId())
+                            .routeId(routeId)
+                            .isCompleted(false) // 처음에는 false로 생성
+                            .build();
+                    return realTimeRunningRepository.save(newSession);
+                });
+        // 기존 세션 객체를 갱신: toBuilder()를 사용해서 ID 유지
+        session = session.toBuilder()
+                .comment(request.getComment())
+                .effortLevel(request.getEffortLevel())
                 .endTime(endTime)
                 .isCompleted(true)
                 .avgPace(avgPace)
                 .avgSpeed(avgSpeed)
                 .distance(totalDistance)
                 .runTime(runTime)
+                .avgStopTime(avgStopTime)
                 .build();
 
+        // 실시간 경로 저장
         realTimeRunningRepository.save(session);
+
+        Long sessionId = session.getRunningSessionId();
+        runningPathRepository.saveAllWithCheck(sessionId, paths);
+
+        System.out.println("sessionId: " + session.getRunningSessionId());
+
     }
 
 
@@ -154,8 +284,8 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
      * 하루 누적 러닝 기록 저장/업데이트
      */
     @Override
-    public void updateDailyRunningRecord(String token, LocalDate date) {
-        Long userId = jwtUtil.getUserId(token);
+    public void updateDailyRunningRecord(Long userId, LocalDate date) {
+        //Long userId = jwtUtil.getUserId(token);
 
         // 1. 오늘 날짜의 러닝 기록 모두 조회
         List<RealTimeRunning> todayRuns = realTimeRunningRepository.findByUserIdAndDate(userId, date);
@@ -179,8 +309,8 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
         // 3. DailyRunningRecord 저장 또는 업데이트
 
-        // 5. 오늘의 날씨 정보 가져오기
-        WeatherDTO weather = weatherService.getWeather("Seoul");
+        // 오늘의 날씨 정보 가져오기
+        WeatherDTO weather = weatherService.getWeather("Daegu");
 
         DailyRunningRecord dailyRecord = dailyRunningRecordRepository
                 .findByUserIdAndDate(userId, date)
@@ -205,7 +335,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
         dailyRunningRecordRepository.save(dailyRecord);
 
-        // 4. Statistics 누적값 업데이트
+        // Statistics 누적값 업데이트
         Statistics statistics = statisticsRepository
                 .findByUserId(userId)
                 .orElse(Statistics.builder()

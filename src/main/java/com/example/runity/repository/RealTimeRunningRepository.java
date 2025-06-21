@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface RealTimeRunningRepository extends JpaRepository<RealTimeRunning, Long> {
     @Query("""
@@ -17,4 +18,6 @@ public interface RealTimeRunningRepository extends JpaRepository<RealTimeRunning
     List<RealTimeRunning> findByUserIdAndDate(@Param("userId") Long userId, @Param("date") LocalDate date);
 
     List<RealTimeRunning> findByRecordId(Long recordId);
+
+    Optional<RealTimeRunning> findByRouteIdAndIsCompleted(Long routeId, boolean isCompleted);
 }

@@ -11,10 +11,12 @@ import java.util.List;
 @Builder
 @Getter @Setter
 public class RunningHistoryDTO {
-    private LocalDate date;                          // 날짜
-    private Float totalDistance;                    // 총 거리
-    private LocalTime totalRunTime;
-    private Float avgSpeed;                         // 평균 속도
-    private Integer runCount;                        // 횟
-
+    private Float averagePace;                       // 평균 페이스
+    private String comment;
+    private LocalTime completedTime;                  // 완료 시간
+    private Integer effortLevel;                      // 힘듦 정도
+    private LocalTime elapsedTime;
+    private Long routeId;                             // 루트 아이디
+    private Float totalDistance;                      // 총 거리
+    private List<RunningHistoryDetailDTO> runningTrackPoint;
 }

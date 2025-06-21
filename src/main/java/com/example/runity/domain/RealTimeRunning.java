@@ -9,6 +9,7 @@ import java.time.LocalTime;
 
 @Entity
 @Getter
+@Setter
 @Builder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,6 +22,9 @@ public class RealTimeRunning {
 
     @Column(nullable = false)
     private Long recordId;
+
+    @Column(nullable = false)
+    private Long routeId;
 
     @Column
     private Instant endTime;
@@ -44,7 +48,7 @@ public class RealTimeRunning {
     private String paceFeedback;
 
     @Column
-    private LocalTime avgStopTime;
+    private Float avgStopTime;
 
     @Column
     private Float avgPace;
