@@ -12,16 +12,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RoutineService {
+
     private final RoutineRepository routineRepository;
     private final JwtUtil jwtUtil;
 
@@ -30,19 +29,12 @@ public class RoutineService {
         Long userId = jwtUtil.getUserId(token);
         LocalTime time = LocalTime.parse(routineRequestDTO.getTime());
 
-        Set<Routine.Coordinate> coordinateSet = new HashSet<>();
-        if (routineRequestDTO.getCoordinates() != null) {
-            for (RoutineRequestDTO.CoordinateDTO coordinateDTO : routineRequestDTO.getCoordinates()) {
-                coordinateSet.add(new Routine.Coordinate(coordinateDTO.getLatitude(), coordinateDTO.getLongitude()));
-            }
-        }
-
         Routine routine = Routine.builder()
                 .userId(userId)
                 .place(routineRequestDTO.getPlace())
+                .destination(routineRequestDTO.getDestination())
                 .time(time)
                 .day(routineRequestDTO.getDay())
-                .coordinates(coordinateSet)
                 .build();
         routineRepository.save(routine);
     }
@@ -56,7 +48,7 @@ public class RoutineService {
         }
 
         return routines.stream()
-                .map(RoutineResponseDTO::new)
+                .map(RoutineResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
@@ -69,22 +61,15 @@ public class RoutineService {
         try {
             LocalTime time = LocalTime.parse(routineRequestDTO.getTime());
 
-            Set<Routine.Coordinate> coordinateSet = new HashSet<>();
-            if (routineRequestDTO.getCoordinates() != null) {
-                for (RoutineRequestDTO.CoordinateDTO coordinateDTO : routineRequestDTO.getCoordinates()) {
-                    coordinateSet.add(new Routine.Coordinate(coordinateDTO.getLatitude(), coordinateDTO.getLongitude()));
-                }
-            }
-
             routine.update(
                     routineRequestDTO.getPlace(),
                     time,
                     routineRequestDTO.getDay(),
-                    new ArrayList<>(coordinateSet)
+                    routineRequestDTO.getDestination()
             );
             routineRepository.save(routine);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.INVALID_ROUTINE_PARAMETER, "루틴 요청 값이 유효하지 않습니다.");
+        } catch (DateTimeParseException e) {
+            throw new CustomException(ErrorCode.INVALID_ROUTINE_PARAMETER, "시간 형식이 올바르지 않습니다. HH:mm 형식으로 입력해주세요.");
         }
     }
 

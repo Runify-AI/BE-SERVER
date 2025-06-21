@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -19,9 +18,9 @@ import java.util.stream.Collectors;
 public class RoutineResponseDTO {
     private Long routineId;
     private Place place;
+    private String destination;
     private String time;
     private List<Day> day;
-    private List<CoordinateDTO> coordinates;
 
     public static RoutineResponseDTO from(Routine routine) {
         if (routine == null) return null;
@@ -29,30 +28,9 @@ public class RoutineResponseDTO {
         return RoutineResponseDTO.builder()
                 .routineId(routine.getRoutineId())
                 .place(routine.getPlace())
-                .time(routine.getTime() != null ? routine.getTime().format(DateTimeFormatter.ofPattern("HH:mm")) : null)
+                .destination(routine.getDestination())
+                .time(routine.getTime().format(DateTimeFormatter.ofPattern("HH:mm")))
                 .day(routine.getDay())
-                .coordinates(routine.getCoordinates().stream()
-                        .map(coord -> new CoordinateDTO(coord.getLatitude(), coord.getLongitude()))
-                        .collect(Collectors.toList()))
                 .build();
-    }
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class CoordinateDTO {
-        private double latitude;
-        private double longitude;
-    }
-
-    public RoutineResponseDTO(Routine routine) {
-        this.routineId = routine.getRoutineId();
-        this.place = routine.getPlace();
-        this.time = routine.getTime().format(DateTimeFormatter.ofPattern("HH:mm"));
-        this.day = routine.getDay();
-        this.coordinates = routine.getCoordinates().stream()
-                .map(coord -> new CoordinateDTO(coord.getLatitude(), coord.getLongitude()))
-                .collect(Collectors.toList());
     }
 }
