@@ -37,7 +37,9 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
      * 해당 달의 km 리스트 조회
      */
     @Override
-    public List<Float> getMonthlyDistances(Long userId, YearMonth yearMonth) {
+    public List<Float> getMonthlyDistances(String token, YearMonth yearMonth) {
+        Long userId = jwtUtil.getUserId(token);
+
         LocalDate startOfMonth = yearMonth.atDay(1);
         LocalDate endOfMonth = yearMonth.atEndOfMonth();
 
@@ -68,8 +70,8 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
      * 특정 날짜의 러닝 기록 조회
      */
     @Override
-    public RunningSessionSummaryDTO getDailyRecord(Long userId, LocalDate date) {
-        //Long userId = jwtUtil.getUserId(token);
+    public RunningSessionSummaryDTO getDailyRecord(String token, LocalDate date) {
+        Long userId = jwtUtil.getUserId(token);
 
         // 1. 날짜에 해당하는 DailyRunningRecord 조회
         Optional<DailyRunningRecord> dailyRecord = dailyRunningRecordRepository.findByUserIdAndDate(userId, date);

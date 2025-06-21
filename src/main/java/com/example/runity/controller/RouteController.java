@@ -43,7 +43,7 @@ public class RouteController {
                 .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_CREATE.getStatus(), SuccessCode.SUCCESS_ROUTE_CREATE.getMessage(), routeResponseDTO));
     }
 
-    @Operation(summary = "경로 목록을 조회하는 API 입니다. [담당자] : 정현아")
+    @Operation(summary = "경로 목록을 조회하는 API 입니다. [담당자] : 정현아, 최효정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "경로 조회 성공",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = Route.class)))),
@@ -57,7 +57,7 @@ public class RouteController {
                 .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_LIST.getStatus(), SuccessCode.SUCCESS_ROUTE_LIST.getMessage(), routes));
     }
 
-    @Operation(summary = "하나의 경로를 조회하는 API 입니다. [담당자] : 정현아", description = "경로 ID로 하나의 경로를 조회합니다.")
+    @Operation(summary = "하나의 경로를 조회하는 API 입니다. [담당자] : 정현아, 최효정", description = "경로 ID로 하나의 경로를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "하나의 경로 조회 성공",
                     content = @Content(schema = @Schema(implementation = Route.class))),

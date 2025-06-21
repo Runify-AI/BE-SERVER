@@ -3,5 +3,5 @@ package com.example.runity.service;
 import com.example.runity.DTO.runningTS.RunningPerformanceDTO;
 
 public interface RunningRecommendationService {
-    RunningPerformanceDTO evaluateRunningPerformance(Long userId);
+    RunningPerformanceDTO evaluateRunningPerformance(String token);
 }

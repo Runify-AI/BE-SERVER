@@ -9,6 +9,7 @@ import com.example.runity.repository.DailyRunningRecordRepository;
 import com.example.runity.repository.RealTimeRunningRepository;
 import com.example.runity.repository.RouteRepository;
 import com.example.runity.repository.UserRepository;
+import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +25,12 @@ public class RunningRecommendationServiceImpl implements RunningRecommendationSe
     private final RealTimeRunningRepository realTimeRunningRepository;
     private final RouteRepository routeRepository;
     private final WeatherService weatherService;
+    private final JwtUtil jwtUtil;
 
     @Override
-    public RunningPerformanceDTO evaluateRunningPerformance(Long userId) {
+    public RunningPerformanceDTO evaluateRunningPerformance(String token) {
+        Long userId = jwtUtil.getUserId(token);
+
         // 1. 사용자 정보 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자 정보 없음"));

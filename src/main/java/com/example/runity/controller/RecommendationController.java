@@ -23,8 +23,8 @@ public class RecommendationController {
             description = "AI 예측에 필요한 데이터를 반환하는 API 입니다. [담당자] : 최효정"
     )
     @PostMapping("/generate")
-    public ResponseEntity<RecommendationRequestDTO> generate(@RequestHeader Long routeId) {
-        RecommendationRequestDTO result = recommendationService.generateRecommendations(routeId);
+    public ResponseEntity<RecommendationRequestDTO> generate(@RequestHeader("Authorization")String token, @RequestHeader Long routeId) {
+        RecommendationRequestDTO result = recommendationService.generateRecommendations(token, routeId);
         return ResponseEntity.ok(result);
     }
 

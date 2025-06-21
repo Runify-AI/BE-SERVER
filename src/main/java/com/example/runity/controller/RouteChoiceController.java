@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class RouteChoiceController {
     private final RouteChoiceService routeChoiceService;
 
-    @Operation(summary = "경로 설정을 생성하는 API 입니다. [담당자] : 정현아, 최효정", description = "해당 경로 ID에 대해 사용자 경로 설정(대중교통 이용, 완만한 경사, 붐비지 않은 곳)을 설정합니다.")
+    @Operation(summary = "경로 설정을 생성하는 API 입니다. [담당자] : 정현아", description = "해당 경로 ID에 대해 사용자 경로 설정(대중교통 이용, 완만한 경사, 붐비지 않은 곳)을 설정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "경로 설정 생성 성공",
                     content = @Content(schema = @Schema(implementation = RouteChoiceResponseDTO.class))),

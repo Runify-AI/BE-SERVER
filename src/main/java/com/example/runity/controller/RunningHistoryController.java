@@ -33,18 +33,16 @@ public class RunningHistoryController {
     })
     @GetMapping("/monthly-distances")
     public List<Float> getMonthlyDistances(
-            @Parameter(description = "사용자 ID", required = true)
-            @RequestParam Long userId,
-
+            @RequestHeader("Authorization")String token,
             @Parameter(description = "조회할 년월 (예: 2025-06)", required = true)
             @RequestParam String yearMonth // e.g. "2025-06"
     ) {
         YearMonth ym = YearMonth.parse(yearMonth); // ISO-8601 기본 포맷
-        return runningHistoryService.getMonthlyDistances(userId, ym);
+        return runningHistoryService.getMonthlyDistances(token, ym);
     }
 
     @Operation(
-            summary = "[통합 확인 완료]일일 러닝 기록 조회",
+            summary = "일일 러닝 기록 조회",
             description = "특정 날짜에 해당하는 사용자의 러닝 기록, 원래 경로 좌표, 세션별 기록 및 좌표 리스트까지 포함하여 반환합니다."
     )
     @ApiResponses(value = {
@@ -52,12 +50,10 @@ public class RunningHistoryController {
             @ApiResponse(responseCode = "404", description = "해당 날짜의 기록 없음"),
     })
     @GetMapping("/daily")
-    public ResponseEntity<RunningSessionSummaryDTO> getDailyRecord(@Parameter(description = "사용자 ID", required = true)
-                                                                      @RequestParam Long userId,
-
+    public ResponseEntity<RunningSessionSummaryDTO> getDailyRecord(@RequestHeader("Authorization")String token,
                                                                    @Parameter(description = "조회할 날짜 (예: 2025-06-20)", required = true)
                                                                       @RequestParam LocalDate date) {
-        return ResponseEntity.ok(runningHistoryService.getDailyRecord(userId, date));
+        return ResponseEntity.ok(runningHistoryService.getDailyRecord(token, date));
     }
 
     /*

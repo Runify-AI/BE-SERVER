@@ -57,8 +57,8 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
     }
 
     @Override
-    public void saveRunningStates(Long userId, Long routeId, List<RunningPathDTO> runningPathsDTO) {
-        //Long userId = jwtUtil.getUserId(token);
+    public void saveRunningStates(String token, Long routeId, List<RunningPathDTO> runningPathsDTO) {
+        Long userId = jwtUtil.getUserId(token);
 
         List<RunningPathTS> paths = runningPathsDTO.stream()
                 .map(dto -> {
@@ -131,8 +131,9 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
      * 러닝 종료 시 전체 데이터 저장
      */
     @Override
-    public void completeRunning(Long userId, RunningCompleteRequest request) {
-        //Long userId = jwtUtil.getUserId(token);
+    public void completeRunning(String token, RunningCompleteRequest request) {
+        Long userId = jwtUtil.getUserId(token);
+
         List<RunningPathTS> paths = request.getRunningPaths().stream()
                 .map(dto -> {
                     String[] parts = dto.getCoordinate().split(",");
@@ -288,8 +289,8 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
      * 하루 누적 러닝 기록 저장/업데이트
      */
     @Override
-    public void updateDailyRunningRecord(Long userId, LocalDate date) {
-        //Long userId = jwtUtil.getUserId(token);
+    public void updateDailyRunningRecord(String token, LocalDate date) {
+        Long userId = jwtUtil.getUserId(token);
 
         // 1. 오늘 날짜의 러닝 기록 모두 조회
         List<RealTimeRunning> todayRuns = realTimeRunningRepository.findByUserIdAndDate(userId, date);

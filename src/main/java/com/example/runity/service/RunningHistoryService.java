@@ -11,9 +11,9 @@ import java.util.List;
 
 @Service
 public interface RunningHistoryService {
-    RunningSessionSummaryDTO getDailyRecord(Long userId, LocalDate date);
+    RunningSessionSummaryDTO getDailyRecord(String token, LocalDate date);
     List<RunningHistoryDTO> getPeriodRecord(String token, LocalDate start, LocalDate end);
     RunningHistoryDTO convertToDto(DailyRunningRecord record);
     List<RunningHistoryDTO> getUserRunningHistories(String token, LocalDate start, LocalDate end);
-    List<Float> getMonthlyDistances(Long userId, YearMonth yearMonth);
+    List<Float> getMonthlyDistances(String token, YearMonth yearMonth);
 }

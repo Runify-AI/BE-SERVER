@@ -96,7 +96,9 @@ public class RecommendationService {
         routeRepository.save(route);
     }
 
-    public RecommendationRequestDTO generateRecommendations(Long routeId) {
+    public RecommendationRequestDTO generateRecommendations(String token, Long routeId) {
+        //Long userId = jwtUtil.getUserId(token);
+
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid routeId: " + routeId));
         Long userId = route.getUser().getUserId();
@@ -120,7 +122,7 @@ public class RecommendationService {
         List<DailyRunningRecord> recentRecords = dailyRunningRecordRepository.findTop2ByUserIdOrderByDateDesc(userId);
         List<RecommendationRequestDTO.HistoryDTO> historyList = recentRecords.stream()
                 .flatMap(r -> {
-                    RunningSessionSummaryDTO summary = runningHistoryService.getDailyRecord(userId, r.getDate());
+                    RunningSessionSummaryDTO summary = runningHistoryService.getDailyRecord(token, r.getDate());
                     return summary.getRunningSessionDTO().stream()
                             .map(RunningSessionDTO::getRunningHistoryDTO)
                             .map(dto -> RecommendationRequestDTO.HistoryDTO.builder()

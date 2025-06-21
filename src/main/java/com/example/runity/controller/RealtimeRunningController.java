@@ -41,15 +41,13 @@ public class RealtimeRunningController {
             @ApiResponse(responseCode = "400", description = "요청 데이터 형식 오류")
     })
     @PostMapping("/states")
-    public ResponseEntity<Void> saveRunningStates(@Parameter(description = "사용자 ID", required = true)
-                                                      @RequestHeader("userId") Long userId,
-
+    public ResponseEntity<Void> saveRunningStates(@RequestHeader("Authorization")String token,
                                                   @Parameter(description = "경로 ID", required = true)
                                                       @RequestHeader("routeId") Long routeId,
 
                                                   @Parameter(description = "사용자의 러닝 경로 좌표 리스트", required = true)
                                                       @RequestBody List<RunningPathDTO> dto) {
-        realtimeRunningService.saveRunningStates(userId, routeId, dto);
+        realtimeRunningService.saveRunningStates(token, routeId, dto);
         return ResponseEntity.ok().build();
     }
 
@@ -63,14 +61,11 @@ public class RealtimeRunningController {
             @ApiResponse(responseCode = "404", description = "사용자 또는 경로 정보 없음"),
     })
     @PostMapping("/complete")
-    public ResponseEntity<Void> completeRunning(@Parameter(description = "사용자 ID", required = true)
-                                                    @RequestHeader("userId") Long userId,
-
+    public ResponseEntity<Void> completeRunning(@RequestHeader("Authorization")String token,
                                                 @Parameter(description = "러닝 완료 요청 데이터", required = true)
                                                     @RequestBody RunningCompleteRequest request) {
-        //realtimeRunningService.completeRunning(token, request);
-        realtimeRunningService.completeRunning(userId, request);
-        realtimeRunningService.updateDailyRunningRecord(userId, LocalDate.now());
+        realtimeRunningService.completeRunning(token, request);
+        realtimeRunningService.updateDailyRunningRecord(token, LocalDate.now());
         return ResponseEntity.ok().build();
     }
 }
