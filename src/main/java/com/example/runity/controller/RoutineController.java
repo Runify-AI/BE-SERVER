@@ -14,9 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +24,7 @@ import java.util.List;
 @RequestMapping("/api")
 @Tag(name="루틴",description=" < 루틴 설정 > API")
 public class RoutineController {
+
     private final RoutineService routineService;
 
     @Operation(summary = "고정 루틴을 생성하는 API 입니다. [담당자] : 정현아", description = "장소: COMPANY, GYM, SCHOOL, HOME, ETC / 요일: MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY")
@@ -38,13 +37,7 @@ public class RoutineController {
     @PostMapping("/routines-create")
     public ResponseEntity<ReturnCodeDTO> createRoutine(
             @RequestHeader("Authorization") String token,
-            @RequestBody @Valid RoutineRequestDTO routineRequestDTO,
-            BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body(
-                    new ReturnCodeDTO(400, "유효하지 않은 요청입니다.")
-            );
-        }
+            @RequestBody @Valid RoutineRequestDTO routineRequestDTO) {
 
         routineService.createRoutine(token, routineRequestDTO);
         return ResponseEntity.status(SuccessCode.SUCCESS_ROUTINE_CREATE.getStatus())
@@ -79,14 +72,7 @@ public class RoutineController {
     public ResponseEntity<ReturnCodeDTO> updateRoutine(
             @RequestHeader("Authorization") String token,
             @PathVariable Long routineId,
-            @RequestBody RoutineRequestDTO routineRequestDTO,
-            BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.badRequest().body(
-                    new ReturnCodeDTO(400,"유효하지 않은 요청입니다.")
-            );
-        }
+            @RequestBody @Valid RoutineRequestDTO routineRequestDTO) {
 
         routineService.updateRoutine(token, routineId, routineRequestDTO);
         return ResponseEntity.ok(new ReturnCodeDTO(

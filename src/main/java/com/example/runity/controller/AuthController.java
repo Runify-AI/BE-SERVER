@@ -5,6 +5,8 @@ import com.example.runity.constants.ErrorCode;
 import com.example.runity.constants.SuccessCode;
 import com.example.runity.error.CustomException;
 import com.example.runity.repository.VerificationCodeRepository;
+import com.example.runity.service.EmailLookupService;
+import com.example.runity.service.EmailService;
 import com.example.runity.service.SignupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public class AuthController {
     private final SignupService signupService;
     private final VerificationCodeRepository verificationCodeRepository;
+    private final EmailLookupService emailLookupService;
+
     //* 이메일 인증 코드 발송
     @Operation(summary = "회원가입 시 이메일로 인증코드 보내는 API 입니다. [담당자] : 정현아")
     @ApiResponses(value = {
@@ -83,7 +87,8 @@ public class AuthController {
         }
     }
     //* 회원가입 및 유저 등록
-    @Operation(summary = "회원가입 API 입니다. [담당자] : 정현아", description = "인증코드 확인 절차를 반드시 거쳐야 합니다.")
+    @Operation(summary = "회원가입 API 입니다. [담당자] : 정현아",
+            description = "회원가입 전 인증코드를 먼저 보내주세요! / 비밀번호: 영문+숫자+특수문자 8~15자 / 이름: 1~10자 / 닉네임: 1~10자 / 키: 50cm 이상 / 몸무게: 10kg 이상 / 러닝타입: JOGGING, HALF_MARATHON, RUNNING, TRAIL_RUNNING, INTERVAL_TRAINING")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원가입 성공", content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = ReturnCodeDTO.class))}),
@@ -98,6 +103,26 @@ public class AuthController {
             return ResponseEntity.badRequest().body(ErrorCode.EMAIL_CONFLICT.getMessage());
         }
     }
+    // 이메일 찾기
+    @Operation(summary = "닉네임과 러닝타입으로 가입된 이메일을 찾는 API 입니다. [담당자]: 정현아",
+            description = "회원가입 시 입력한 닉네임과 러닝타입을 기반으로 이메일을 찾아줍니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "이메일 조회 성공", content = {@Content(mediaType = "application/json",
+                    schema = @Schema(implementation = EmailLookupResponseDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "해당 정보로 가입된 이메일 없음", content = {@Content(mediaType = "string")}),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
+    })
+    @PostMapping("/find-email")
+    public ResponseEntity<?> findBynickNameAndRunningType(@RequestBody @Valid EmailLoookupRequestDTO emailLoookupRequestDTO) {
+        try {
+            EmailLookupResponseDTO emailLookupResponseDTO = emailLookupService.findBynickNameAndRunningType(
+                    emailLoookupRequestDTO.getNickName(), emailLoookupRequestDTO.getRunningType());
+            return ResponseEntity.ok(emailLookupResponseDTO);
+        } catch (CustomException e) {
+            return ResponseEntity.badRequest().body(ErrorCode.USER_NOT_FOUND.getMessage());
+        }
+    }
+
     //* 비밀번호 재설정 요청
     @Operation(summary = "비밀번호 재설정 시 이메일로 인증코드를 보내는 API 입니다. [담당자] : 정현아")
     @ApiResponses(value = {

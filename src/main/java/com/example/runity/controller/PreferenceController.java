@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.*;
 public class PreferenceController {
     private final PreferenceService preferenceService;
 
-    @Operation(summary = "유저의 선호도를 등록하는 API 입니다. [담당자] : 정현아")
+    @Operation(summary = "유저의 선호도를 등록하는 API 입니다. [담당자] : 정현아",
+            description = "선호 장소: NONE, PARK, CAFE, RIVER / 선호 경로: NONE, FASTEST, SCENIC, EXERCISE, QUIET / 피하고 싶은 경로: NONE, SLOPE, STAIRS, DARK, ISOLATED / 기타: NONE, PET, ACCESSIBLE, CONVENIENCE")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "선호도 생성 성공", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReturnCodeDTO.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),

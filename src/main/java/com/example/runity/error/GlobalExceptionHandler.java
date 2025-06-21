@@ -57,7 +57,9 @@ public class GlobalExceptionHandler { //** 예외 처리에 관한 Handler
                         ErrorCode.INTERNAL_SERVER_ERROR.getMessage()
                 ));
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    /*
     public ResponseEntity<Map<String,String>> dtoValidation(final MethodArgumentNotValidException e){
         Map<String ,String> errors=new HashMap<>();
         e.getBindingResult().getAllErrors().forEach((error)->{
@@ -66,5 +68,14 @@ public class GlobalExceptionHandler { //** 예외 처리에 관한 Handler
             errors.put(fieldName,errorMessage);
         });
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+     */
+    public ResponseEntity<ReturnCodeDTO> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage(); // 첫 번째 에러만 추출
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ReturnCodeDTO(400, errorMessage));
     }
 }

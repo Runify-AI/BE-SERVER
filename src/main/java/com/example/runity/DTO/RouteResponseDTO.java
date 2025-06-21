@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +21,7 @@ public class RouteResponseDTO {
     private Long routeId;
     private String startPoint;
     private String endPoint;
-    private String estimatedTime; // ex) "00:30:00"
+    private String estimatedTime;
     private Float distance;
     private String createdAt; // ex) "2025-06-09 00:00"
     private List<RouteChoiceResponseDTO> routeChoiceResponseDTO;
@@ -41,7 +42,7 @@ public class RouteResponseDTO {
         this.routeId = route.getRouteId();
         this.startPoint = route.getStartPoint();
         this.endPoint = route.getEndPoint();
-        this.estimatedTime = route.getEstimatedTime().toString();
+        this.estimatedTime = route.getEstimatedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         this.distance = route.getDistance();
         this.createdAt = route.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         this.routeChoiceResponseDTO = routeChoices.stream()
