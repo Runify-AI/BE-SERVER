@@ -1,4 +1,4 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.history;
 
 import lombok.Builder;
 import lombok.Getter;

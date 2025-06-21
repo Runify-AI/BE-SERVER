@@ -1,7 +1,7 @@
 package com.example.runity.service;
 
-import com.example.runity.DTO.RunningPathDTO;
-import com.example.runity.DTO.RunningCompleteRequest;
+import com.example.runity.DTO.runningTS.RunningPathDTO;
+import com.example.runity.DTO.runningTS.RunningCompleteRequest;
 import org.springframework.stereotype.Service;
 //import com.example.runity.DTO.EvaluationResult;
 import java.time.LocalDate;

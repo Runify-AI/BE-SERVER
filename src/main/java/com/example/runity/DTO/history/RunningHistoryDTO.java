@@ -1,10 +1,9 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.history;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 

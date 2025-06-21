@@ -1,12 +1,10 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.route;
 
 import com.example.runity.domain.RouteChoice;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor

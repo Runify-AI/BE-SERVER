@@ -1,10 +1,6 @@
 package com.example.runity.controller;
 
-import com.example.runity.DTO.RunningHistoryDTO;
-import com.example.runity.DTO.RunningHistoryDetailDTO;
-import com.example.runity.DTO.RunningSessionDTO;
-import com.example.runity.DTO.RunningSessionSummaryDTO;
-import com.example.runity.domain.DailyRunningRecord;
+import com.example.runity.DTO.history.RunningSessionSummaryDTO;
 import com.example.runity.service.RunningHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 
 @Tag(name = "러닝 기록 가져오기")

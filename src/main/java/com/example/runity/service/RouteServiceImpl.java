@@ -1,10 +1,10 @@
 package com.example.runity.service;
 
-import com.example.runity.DTO.RouteResponseDTO;
-import com.example.runity.DTO.RoutineResponseDTO;
+import com.example.runity.DTO.route.RouteResponseDTO;
+import com.example.runity.DTO.route.RoutineResponseDTO;
 import com.example.runity.util.JwtUtil;
-import com.example.runity.DTO.RouteRequestDTO;
-import com.example.runity.DTO.RouteChoiceRequestDTO;
+import com.example.runity.DTO.route.RouteRequestDTO;
+import com.example.runity.DTO.route.RouteChoiceRequestDTO;
 import com.example.runity.constants.ErrorCode;
 import com.example.runity.domain.Route;
 import com.example.runity.domain.RouteChoice;
@@ -13,11 +13,9 @@ import com.example.runity.error.CustomException;
 import com.example.runity.repository.RouteRepository;
 import com.example.runity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +53,7 @@ public class RouteServiceImpl implements RouteService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
+        /*
         Set<Route.Coordinate> coordinateSet = new HashSet<>();
         if (routeRequestDTO.getCoordinates() != null) {
             for (RouteRequestDTO.CoordinateDTO coordinateDTO : routeRequestDTO.getCoordinates()) {
@@ -63,6 +62,8 @@ public class RouteServiceImpl implements RouteService {
         }
 
         route.getCoordinates().addAll(coordinateSet);
+
+         */
 
         RouteChoice routeChoice = RouteChoice.builder()
                 .usePublicTransport(choiceDTO.getUsePublicTransport())

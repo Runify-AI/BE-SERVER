@@ -1,6 +1,5 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.route;
 
-import com.example.runity.domain.RouteCoordinate;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,7 +1,7 @@
 package com.example.runity.controller;
 
-import com.example.runity.DTO.RoutineRequestDTO;
-import com.example.runity.DTO.RoutineResponseDTO;
+import com.example.runity.DTO.route.RoutineRequestDTO;
+import com.example.runity.DTO.route.RoutineResponseDTO;
 import com.example.runity.DTO.ReturnCodeDTO;
 import com.example.runity.constants.SuccessCode;
 import com.example.runity.service.RoutineService;

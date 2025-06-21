@@ -1,4 +1,4 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.route;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

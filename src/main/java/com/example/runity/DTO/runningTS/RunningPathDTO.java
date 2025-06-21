@@ -1,12 +1,10 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.runningTS;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @Getter @Setter
 public class RunningPathDTO {

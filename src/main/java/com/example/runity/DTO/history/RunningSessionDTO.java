@@ -1,5 +1,6 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.history;
 
+import com.example.runity.DTO.route.RunningSettingsResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

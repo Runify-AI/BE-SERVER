@@ -1,6 +1,6 @@
 package com.example.runity.controller;
 
-import com.example.runity.DTO.RunningSettingsResponse;
+import com.example.runity.DTO.route.RunningSettingsResponse;
 import com.example.runity.service.RunningSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.runningTS;
 
 import lombok.Getter;
 import lombok.Setter;

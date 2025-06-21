@@ -4,10 +4,9 @@ import com.example.runity.constants.ErrorCode;
 import com.example.runity.error.CustomException;
 import com.example.runity.domain.Route;
 import com.example.runity.domain.RouteChoice;
-import com.example.runity.DTO.RouteChoiceRequestDTO;
+import com.example.runity.DTO.route.RouteChoiceRequestDTO;
 import com.example.runity.repository.RouteChoiceRepository;
 import com.example.runity.repository.RouteRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class RouteChoiceServiceImpl implements RouteChoiceService {
+
     private final RouteChoiceRepository routeChoiceRepository;
     private final RouteRepository routeRepository;
 

@@ -1,7 +1,7 @@
 package com.example.runity.controller;
 
-import com.example.runity.DTO.RunningCompleteRequest;
-import com.example.runity.DTO.RunningPathDTO;
+import com.example.runity.DTO.runningTS.RunningCompleteRequest;
+import com.example.runity.DTO.runningTS.RunningPathDTO;
 import com.example.runity.service.RealtimeRunningService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

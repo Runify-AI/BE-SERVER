@@ -1,7 +1,7 @@
 package com.example.runity.service;
 
-import com.example.runity.DTO.RouteCoordinateDTO;
-import com.example.runity.DTO.RunningSettingsResponse;
+import com.example.runity.DTO.route.RouteCoordinateDTO;
+import com.example.runity.DTO.route.RunningSettingsResponse;
 import com.example.runity.domain.Route;
 import com.example.runity.repository.RouteCoordinateRepository;
 import com.example.runity.repository.RouteRepository;

@@ -1,5 +1,8 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.runningTS;
 
+import com.example.runity.DTO.UserFeedbackDTO;
+import com.example.runity.DTO.UserProfileDTO;
+import com.example.runity.DTO.WeatherDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

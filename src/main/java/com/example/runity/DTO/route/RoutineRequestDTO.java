@@ -1,4 +1,4 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.route;
 
 import com.example.runity.enums.Day;
 import com.example.runity.enums.Place;

@@ -1,4 +1,4 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.route;
 
 import com.example.runity.domain.Route;
 import com.example.runity.domain.RouteChoice;
@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;

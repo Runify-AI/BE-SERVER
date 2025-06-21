@@ -1,8 +1,8 @@
 package com.example.runity.controller;
 
-import com.example.runity.DTO.RouteRequestDTO;
+import com.example.runity.DTO.route.RouteRequestDTO;
 import com.example.runity.DTO.ReturnCodeDTO;
-import com.example.runity.DTO.RouteResponseDTO;
+import com.example.runity.DTO.route.RouteResponseDTO;
 import com.example.runity.constants.SuccessCode;
 import com.example.runity.domain.Route;
 import com.example.runity.service.RouteService;
@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +26,7 @@ import java. util.List;
 public class RouteController {
     private final RouteService routeService;
 
-    @Operation(summary = "경로를 생성하는 API 입니다. [담당자] : 정현아")
+    @Operation(summary = "경로를 생성하는 API 입니다. [담당자] : 정현아, 최효정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "경로 생성 성공",
                     content = @Content(schema = @Schema(implementation = ReturnCodeDTO.class))),

@@ -1,6 +1,6 @@
 package com.example.runity.controller;
 
-import com.example.runity.DTO.RunningPerformanceDTO;
+import com.example.runity.DTO.runningTS.RunningPerformanceDTO;
 import com.example.runity.service.RunningRecommendationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -1,4 +1,4 @@
-package com.example.runity.DTO;
+package com.example.runity.DTO.route;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

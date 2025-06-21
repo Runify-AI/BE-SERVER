@@ -2,8 +2,8 @@ package com.example.runity.service;
 
 import com.example.runity.util.JwtUtil;
 import com.example.runity.domain.Routine;
-import com.example.runity.DTO.RoutineRequestDTO;
-import com.example.runity.DTO.RoutineResponseDTO;
+import com.example.runity.DTO.route.RoutineRequestDTO;
+import com.example.runity.DTO.route.RoutineResponseDTO;
 import com.example.runity.error.CustomException;
 import com.example.runity.constants.ErrorCode;
 import com.example.runity.repository.RoutineRepository;
@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,8 +35,9 @@ public class RoutineService {
                 .place(routineRequestDTO.getPlace())
                 .destination(routineRequestDTO.getDestination())
                 .time(time)
-                .day(routineRequestDTO.getDay())
+                .day(new ArrayList<>(routineRequestDTO.getDay()))
                 .build();
+
         routineRepository.save(routine);
     }
 

@@ -1,10 +1,14 @@
 package com.example.runity.service;
 
-import com.example.runity.DTO.*;
+import com.example.runity.DTO.history.RunningHistoryDTO;
+import com.example.runity.DTO.history.RunningHistoryDetailDTO;
+import com.example.runity.DTO.history.RunningSessionDTO;
+import com.example.runity.DTO.history.RunningSessionSummaryDTO;
+import com.example.runity.DTO.route.LocationDTO;
+import com.example.runity.DTO.route.RunningSettingsResponse;
 import com.example.runity.domain.DailyRunningRecord;
 import com.example.runity.domain.RealTimeRunning;
 import com.example.runity.domain.RunningPathTS;
-import com.example.runity.domain.Route;
 import com.example.runity.repository.DailyRunningRecordRepository;
 import com.example.runity.repository.RealTimeRunningRepository;
 import com.example.runity.repository.RouteRepository;
@@ -120,7 +124,7 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                 }
 
                 for (RunningPathTS path : pathList) {
-                    LocasionDTO location = LocasionDTO.builder()
+                    LocationDTO location = LocationDTO.builder()
                             .lat(path.getLatitude())
                             .lon(path.getLongitude())
                             .build();

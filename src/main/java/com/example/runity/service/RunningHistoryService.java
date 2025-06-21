@@ -1,8 +1,7 @@
 package com.example.runity.service;
 
-import com.example.runity.DTO.RunningHistoryDTO;
-import com.example.runity.DTO.RunningSessionDTO;
-import com.example.runity.DTO.RunningSessionSummaryDTO;
+import com.example.runity.DTO.history.RunningHistoryDTO;
+import com.example.runity.DTO.history.RunningSessionSummaryDTO;
 import com.example.runity.domain.DailyRunningRecord;
 import org.springframework.stereotype.Service;
 

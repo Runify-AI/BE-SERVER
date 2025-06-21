@@ -1,9 +1,9 @@
 package com.example.runity.service;
 
 import com.example.runity.DTO.*;
+import com.example.runity.DTO.runningTS.RunningPerformanceDTO;
 import com.example.runity.domain.DailyRunningRecord;
 import com.example.runity.domain.RealTimeRunning;
-import com.example.runity.domain.Route;
 import com.example.runity.domain.User;
 import com.example.runity.repository.DailyRunningRecordRepository;
 import com.example.runity.repository.RealTimeRunningRepository;

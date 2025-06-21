@@ -1,6 +1,8 @@
 package com.example.runity.service;
 
 import com.example.runity.DTO.*;
+import com.example.runity.DTO.runningTS.RunningCompleteRequest;
+import com.example.runity.DTO.runningTS.RunningPathDTO;
 import com.example.runity.domain.*;
 //import com.example.runity.domain.RunningPathTS;
 import com.example.runity.repository.*;
@@ -11,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.time.*;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
