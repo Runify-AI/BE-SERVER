@@ -53,6 +53,10 @@ public class Route {
     @Setter
     @Column(nullable = false)
     private LocalDateTime createdAt;
+    // 선택된 path의 아이디
+    @Setter
+    private Long selectedPathId;
+
     // 중복 저장 허용
     @Builder.Default
     @Setter

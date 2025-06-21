@@ -4,6 +4,7 @@ import com.example.runity.DTO.PreferenceRequestDTO;
 import com.example.runity.DTO.PreferenceResponseDTO;
 
 public interface PreferenceService {
+
     // 선호도 생성
     void createPreference(String token, PreferenceRequestDTO preferenceRequestDTO);
     // 선호도 조회

@@ -13,4 +13,6 @@ public interface DailyRunningRecordRepository extends JpaRepository<DailyRunning
     List<DailyRunningRecord> findByUserIdAndDateBetween(Long userId, LocalDate start, LocalDate end);
 
     List<DailyRunningRecord> findTop3ByUserIdOrderByDateDesc(Long userId);
+
+    List<DailyRunningRecord> findTop2ByUserIdOrderByDateDesc(Long userId);
 }

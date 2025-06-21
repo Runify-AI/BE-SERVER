@@ -23,6 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Preference {
+
     // 선호도 ID
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

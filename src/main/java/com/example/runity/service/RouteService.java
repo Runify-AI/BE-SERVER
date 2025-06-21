@@ -1,12 +1,12 @@
 package com.example.runity.service;
 
-import com.example.runity.DTO.RouteRequestDTO;
-import com.example.runity.DTO.RouteResponseDTO;
-import com.example.runity.domain.Route;
+import com.example.runity.DTO.route.RouteRequestDTO;
+import com.example.runity.DTO.route.RouteResponseDTO;
 
 import java.util.List;
 
 public interface RouteService {
+
     // 경로 생성
     RouteResponseDTO createRoute(String token, RouteRequestDTO routeRequestDTO);
     // 유저 ID로 경로 리스트 조회

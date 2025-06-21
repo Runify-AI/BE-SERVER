@@ -29,7 +29,7 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     private final DailyRunningRecordRepository dailyRunningRecordRepository;
     private final RealTimeRunningRepository realTimeRunningRepository;
     private final RunningPathTSRepository runningPathTSRepository;
-    private final RunningSettingServiceImpl runningSettingServiceImpl;
+    //private final RunningSettingServiceImpl runningSettingServiceImpl;
     private final RouteRepository routeRepository;
     private final JwtUtil jwtUtil;
 
@@ -104,6 +104,7 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                     throw new RuntimeException("routeId is null for RealTimeRunning.sessionId = " + sessionId);
                 }
 
+                /*
                 RunningSettingsResponse settings = null;
                 try {
                     settings = runningSettingServiceImpl.getRunningSettings(routeId);
@@ -112,6 +113,8 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                     e.printStackTrace();
                     continue;
                 }
+
+                 */
 
                 // 4. 경로 시간 기반 세부 이력 정보 조회
                 System.out.println("sessionId: " + sessionId);
@@ -160,7 +163,7 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
 
                 // 6. 최종 세션 DTO 구성
                 RunningSessionDTO sessionDTO = RunningSessionDTO.builder()
-                        .runningSettingsResponse(settings)
+                //        .runningSettingsResponse(settings)
                         .runningHistoryDTO(history)
                         .build();
 

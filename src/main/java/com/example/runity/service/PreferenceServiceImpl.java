@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class PreferenceServiceImpl  implements PreferenceService {
+
     private final PreferenceRepository preferenceRepository;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
