@@ -12,7 +12,7 @@ import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -119,22 +119,22 @@ public class RecommendationService {
         // 3. 러닝 기록
         List<DailyRunningRecord> recentRecords = dailyRunningRecordRepository.findTop2ByUserIdOrderByDateDesc(userId);
         List<RecommendationRequestDTO.HistoryDTO> historyList = recentRecords.stream()
-                .map(r -> {
+                .flatMap(r -> {
                     RunningSessionSummaryDTO summary = runningHistoryService.getDailyRecord(userId, r.getDate());
                     return summary.getRunningSessionDTO().stream()
                             .map(RunningSessionDTO::getRunningHistoryDTO)
                             .map(dto -> RecommendationRequestDTO.HistoryDTO.builder()
                                     .routeId(dto.getRouteId())
-                                    .date(r.getDate())
+                                    .date(r.getDate())  // 여기서 날짜 유지
                                     .totalDistance(dto.getTotalDistance())
                                     .averagePace(dto.getAveragePace())
                                     .effortLevel(dto.getEffortLevel())
                                     .comment(dto.getComment())
                                     .runningTrackPoint(dto.getRunningTrackPoint())
-                                    .build())
-                            .toList();
+                                    .build());
                 })
-                .flatMap(List::stream)
+                .sorted(Comparator.comparing(RecommendationRequestDTO.HistoryDTO::getDate).reversed())
+                .limit(2)
                 .collect(Collectors.toList());
 
         return RecommendationRequestDTO.builder()
