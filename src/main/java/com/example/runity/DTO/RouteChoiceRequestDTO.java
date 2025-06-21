@@ -19,4 +19,7 @@ public class RouteChoiceRequestDTO {
 
     @NotNull
     private Boolean avoidCrowdedAreas;
+
+    @NotNull
+    private Boolean cycle;
 }

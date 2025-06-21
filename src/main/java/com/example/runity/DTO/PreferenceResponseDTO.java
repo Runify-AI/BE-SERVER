@@ -26,10 +26,14 @@ public class PreferenceResponseDTO {
     private LocalDateTime updateAt;
 
     public PreferenceResponseDTO(Preference preference) {
+        this.preferenceId = preference.getPreferenceId();
+        this.userId = preference.getUser().getUserId();
         this.preferencePlaces = preference.getPreferencePlaces();
         this.preferenceRoutes = preference.getPreferenceRoutes();
         this.preferenceAvoids = preference.getPreferenceAvoids();
         this.preferenceEtcs = preference.getPreferenceEtcs();
+        this.createAt = preference.getCreatedAt();
+        this.updateAt = preference.getUpdatedAt();
     }
 
     public PreferenceResponseDTO(Long preferenceId, Long userId,

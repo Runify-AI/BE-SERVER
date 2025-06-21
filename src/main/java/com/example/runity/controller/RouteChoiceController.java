@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/routes/choices")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "경로 설정", description = "< 경로 설정 > API")
 public class RouteChoiceController {
@@ -35,7 +35,7 @@ public class RouteChoiceController {
             @ApiResponse(responseCode = "400",description = "잘못된 요청"),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @PostMapping("/{routeId}")
+    @PostMapping("/routechoices-create/{routeId}")
     public ResponseEntity<ReturnCodeDTO> createRouteChoice(
             @PathVariable Long routeId,
             @RequestBody @Valid RouteChoiceRequestDTO routeChoiceRequestDTO) {
@@ -46,6 +46,7 @@ public class RouteChoiceController {
                 .usePublicTransport(saved.isUsePublicTransport())
                 .preferSafePath(saved.isPreferSafePath())
                 .avoidCrowdedAreas(saved.isAvoidCrowdedAreas())
+                .cycle(saved.isCycle())
                 .build();
 
         return ResponseEntity.status(SuccessCode.SUCCESS_PREFERENCE_CREATE.getStatus())
@@ -63,7 +64,7 @@ public class RouteChoiceController {
             @ApiResponse(responseCode = "404",description = "설정 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @GetMapping("/{routeId}")
+    @GetMapping("/routechoices-list/{routeId}")
     public ResponseEntity<ReturnCodeDTO> getRouteChoice(@PathVariable Long routeId) {
         List<RouteChoice> routeChoices = routeChoiceService.getChoiceByRouteId(routeId);
 
@@ -73,6 +74,7 @@ public class RouteChoiceController {
                         .usePublicTransport(pref.isUsePublicTransport())
                         .preferSafePath(pref.isPreferSafePath())
                         .avoidCrowdedAreas(pref.isAvoidCrowdedAreas())
+                        .cycle(pref.isCycle())
                         .build())
                 .collect(Collectors.toList());
 

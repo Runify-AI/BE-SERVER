@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/preferences")
+@RequestMapping("/api")
 @Tag(name = "사용자 선호도", description = "< 선호도 설정 > API")
 public class PreferenceController {
     private final PreferenceService preferenceService;
@@ -30,7 +30,7 @@ public class PreferenceController {
             @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @PostMapping
+    @PostMapping("/preferences-create")
     public ResponseEntity<ReturnCodeDTO> createPreference(@RequestHeader("Authorization")String token, @RequestBody PreferenceRequestDTO preferenceRequestDTO){
         preferenceService.createPreference(token, preferenceRequestDTO);
         return ResponseEntity.status(SuccessCode.SUCCESS_PREFERENCE_CREATE.getStatus())
@@ -46,7 +46,7 @@ public class PreferenceController {
             @ApiResponse(responseCode = "404", description = "선호도 없음", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @GetMapping
+    @GetMapping("/preferences-list")
     public ResponseEntity<PreferenceResponseDTO> getPreference(
             @RequestHeader("Authorization") String token) {
         PreferenceResponseDTO preferenceResponseDTO = preferenceService.getPreference(token);
@@ -60,7 +60,7 @@ public class PreferenceController {
             @ApiResponse(responseCode = "404", description = "선호도 없음", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @PutMapping
+    @PutMapping("/preferences-update")
     public ResponseEntity<ReturnCodeDTO> updatePreference(
             @RequestHeader("Authorization") String token,
             @RequestBody PreferenceRequestDTO preferenceRequestDTO) {
@@ -71,20 +71,20 @@ public class PreferenceController {
         ));
     }
 
-    @Operation(summary = "유저의 선호도를 삭제한느 API 입니다. [담당자] : 정현아")
+    @Operation(summary = "유저의 선호도를 삭제하는 API 입니다. [담당자] : 정현아")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "선호도 삭 성공"),
+            @ApiResponse(responseCode = "200", description = "선호도 삭제 성공"),
             @ApiResponse(responseCode = "404", description = "선호도 없음", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
-    @DeleteMapping
+    @DeleteMapping("/preferences-delete")
     public ResponseEntity<ReturnCodeDTO> deletePreference(
             @RequestHeader("Authorization") String token) {
         preferenceService.deletePreference(token);
         return ResponseEntity.ok(
                 new ReturnCodeDTO(
                         SuccessCode.SUCCESS_PREFERENCE_DELETE.getStatus(),
-                        SuccessCode.SUCCESS_PREFERENCE_UPDATE.getMessage()
+                        SuccessCode.SUCCESS_PREFERENCE_DELETE.getMessage()
                 )
         );
     }
