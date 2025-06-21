@@ -43,7 +43,8 @@ public class RouteServiceImpl implements RouteService {
             throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
         }
 
-        Time estimatedTime = routeRequestDTO.getEstimatedTime();
+        LocalDateTime estimatedTime = routeRequestDTO.getEstimatedTime();
+
 
         Route route = Route.builder()
                 .user(user)
@@ -109,7 +110,7 @@ public class RouteServiceImpl implements RouteService {
             throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
         }
 
-        Time estimatedTime = routeRequestDTO.getEstimatedTime();
+        LocalDateTime estimatedTime = routeRequestDTO.getEstimatedTime();
 
         route.update(
                 routeRequestDTO.getStartPoint(),

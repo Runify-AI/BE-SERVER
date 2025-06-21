@@ -1,6 +1,7 @@
 package com.example.runity.repository;
 
 import com.example.runity.domain.User;
+import com.example.runity.enums.RunningType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
@@ -8,6 +9,6 @@ public interface UserRepository extends JpaRepository<User, Long>{ // Email로 �
     Optional<User> findByUserId(Long userId);
 
     Optional<User> findByEmail(String email);
-    // 이메일 존재 여부 확인 메서드
-    boolean existsByEmail(String email);
+
+    Optional<User> findBynickNameAndRunningType(String nickName, RunningType runningType);
 }

@@ -3,17 +3,13 @@ package com.example.runity.service;
 import com.example.runity.DTO.RouteCoordinateDTO;
 import com.example.runity.DTO.RunningSettingsResponse;
 import com.example.runity.domain.Route;
-import com.example.runity.domain.RouteCoordinate;
-import com.example.runity.repository.RouteChoiceRepository;
 import com.example.runity.repository.RouteCoordinateRepository;
 import com.example.runity.repository.RouteRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,7 +59,7 @@ public class RunningSettingServiceImpl implements RunningSettingService {
                 .build();
     }
 
-    private String formatDuration(Time time) {
+    private String formatDuration(LocalDateTime time) {
         return time.toString(); // 혹은 원하는 형식으로 포맷
     }
 }

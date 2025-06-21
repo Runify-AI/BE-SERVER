@@ -44,7 +44,7 @@ public class Route {
     // 예상시간
     @Setter
     @Column(nullable = false)
-    private Time estimatedTime;
+    private LocalDateTime estimatedTime;
     // 거리
     @Setter
     @Column(nullable = false)
@@ -95,7 +95,7 @@ public class Route {
         }
     }
 
-    public Route(User user, String startPoint, String endPoint, Time estimatedTime, Float distance) {
+    public Route(User user, String startPoint, String endPoint, LocalDateTime estimatedTime, Float distance) {
         this.user = user;
         this.startPoint = startPoint;
         this.endPoint = endPoint;
@@ -104,7 +104,7 @@ public class Route {
         //this.createdAt = LocalDateTime.now();
     }
 
-    public void update(String startPoint, String endPoint, Time estimatedTime, Float distance) {
+    public void update(String startPoint, String endPoint, LocalDateTime estimatedTime, Float distance) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
         this.estimatedTime = estimatedTime;
