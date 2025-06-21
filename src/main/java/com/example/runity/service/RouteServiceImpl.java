@@ -1,10 +1,11 @@
 package com.example.runity.service;
 
-import com.example.runity.DTO.route.RouteResponseDTO;
-import com.example.runity.DTO.route.RoutineResponseDTO;
+import com.example.runity.DTO.RunningSettingResponseDTO;
+import com.example.runity.DTO.route.*;
+import com.example.runity.domain.Path;
+import com.example.runity.repository.PathRepository;
+import com.example.runity.repository.RoutineRepository;
 import com.example.runity.util.JwtUtil;
-import com.example.runity.DTO.route.RouteRequestDTO;
-import com.example.runity.DTO.route.RouteChoiceRequestDTO;
 import com.example.runity.constants.ErrorCode;
 import com.example.runity.domain.Route;
 import com.example.runity.domain.RouteChoice;
@@ -28,6 +29,8 @@ import java.util.stream.Collectors;
 public class RouteServiceImpl implements RouteService {
     private final RouteRepository routeRepository;
     private final UserRepository userRepository;
+    private final PathRepository pathRepository;
+    private final RoutineRepository routineRepository;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -51,6 +54,7 @@ public class RouteServiceImpl implements RouteService {
                 .estimatedTime(routeRequestDTO.getEstimatedTime())
                 .distance(routeRequestDTO.getDistance())
                 .createdAt(LocalDateTime.now())
+                .routine(routineRepository.findByRoutineId(routeRequestDTO.getRoutineId()))
                 .build();
 
         /*
@@ -83,21 +87,22 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RouteResponseDTO> getRouteByUser(String token) {
+    public List<RunningSettingResponseDTO> getRouteByUser(String token) {
         Long userId = jwtUtil.getUserId(token);
         List<Route> routes = routeRepository.findByUserUserId(userId);
+
         return routes.stream()
-                .map(route -> new RouteResponseDTO(route, RoutineResponseDTO.from(route.getRoutine()), route.getRouteChoices()))
+                .map(this::buildRunningSettingResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public RouteResponseDTO getRouteById(Long routeId){
+    public RunningSettingResponseDTO getRouteById(Long routeId) {
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROUTE_NOT_FOUND, ErrorCode.ROUTE_NOT_FOUND.getMessage()));
 
-        return new RouteResponseDTO(route, RoutineResponseDTO.from(route.getRoutine()), route.getRouteChoices());
+        return buildRunningSettingResponseDTO(route);
     }
 
     @Override
@@ -162,5 +167,25 @@ public class RouteServiceImpl implements RouteService {
             throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
         }
         routeRepository.deleteById(routeId);
+    }
+
+    private RunningSettingResponseDTO buildRunningSettingResponseDTO(Route route) {
+        RoutineResponseDTO routineDTO = RoutineResponseDTO.from(route.getRoutine());
+
+        List<RecommendationResponseDTO> recommendations = pathRepository.findAllByRoute_RouteId(route.getRouteId())
+                .stream()
+                .map(Path::toRecommendationDTO)
+                .toList();
+
+        Long selectedPathId = route.getSelectedPathId();
+        boolean completed = route.isCompleted();
+
+        return RunningSettingResponseDTO.builder()
+                .routeId(route.getRouteId())
+                .routineResponseDTO(routineDTO)
+                .completed(completed)
+                .selectedPath(selectedPathId)
+                .paths(recommendations)
+                .build();
     }
 }

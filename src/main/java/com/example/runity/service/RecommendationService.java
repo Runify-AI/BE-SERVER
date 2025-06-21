@@ -12,6 +12,7 @@ import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,14 +42,13 @@ public class RecommendationService {
 
         for (RecommendationResponseDTO dto : recommendations) {
             Path path = Path.builder()
-                    .originLat(dto.getCoord().get(0).get(0))
-                    .originLon(dto.getCoord().get(0).get(1))
-                    .destinationLat(dto.getCoord().get(dto.getCoord().size() - 1).get(0))
-                    .destinationLon(dto.getCoord().get(dto.getCoord().size() - 1).get(1))
-                    .length(dto.getRecommend().getFinal_score())
-                    .duration(dto.getRecommend().getExpected_time())
-                    .targetPace(dto.getRecommend().getRecommended_pace())
-                    .recommendScore((int)(dto.getRecommend().getFinal_score() * 100))
+                    .pathId(dto.getPathId())
+                    .similarity(dto.getRecommend().getSimilarity())
+                    .paceScore(dto.getRecommend().getPace_score())
+                    .finalScore(dto.getRecommend().getFinal_score())
+                    .recommendedPace(dto.getRecommend().getRecommended_pace())
+                    .expectedTime(dto.getRecommend().getExpected_time())
+                    .route(route)
                     .build();
             pathRepository.save(path);
 

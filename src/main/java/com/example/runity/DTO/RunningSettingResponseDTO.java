@@ -1,0 +1,24 @@
+package com.example.runity.DTO;
+
+import com.example.runity.DTO.route.RecommendationResponseDTO;
+import com.example.runity.DTO.route.RoutineResponseDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RunningSettingResponseDTO {
+
+    private Long routeId;  // 입력받은 route_id 그대로
+    private RoutineResponseDTO routineResponseDTO;  // 추천된 루틴 정보
+    private boolean completed;  // 루틴 완료 여부
+    private Long selectedPath;  // 선택된 경로 (e.g. 추천된 pathId 중 하나)
+    private List<RecommendationResponseDTO> paths;  // 전체 추천 경로 리스트
+}
+

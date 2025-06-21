@@ -17,6 +17,7 @@ public class RecommendationResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    @Getter
     public static class FeatureDTO {
         private FeatureDetail park;
         private FeatureDetail river;
@@ -28,6 +29,7 @@ public class RecommendationResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    @Getter
     public static class FeatureDetail {
         private int count;
         private double area;

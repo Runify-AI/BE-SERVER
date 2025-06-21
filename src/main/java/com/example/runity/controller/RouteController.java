@@ -1,5 +1,6 @@
 package com.example.runity.controller;
 
+import com.example.runity.DTO.RunningSettingResponseDTO;
 import com.example.runity.DTO.route.RouteRequestDTO;
 import com.example.runity.DTO.ReturnCodeDTO;
 import com.example.runity.DTO.route.RouteResponseDTO;
@@ -51,7 +52,7 @@ public class RouteController {
     })
     @GetMapping("/routes-list")
     public ResponseEntity<ReturnCodeDTO> getRoutesByUser(@RequestHeader("Authorization") String token) {
-        List<RouteResponseDTO> routes = routeService.getRouteByUser(token);
+        List<RunningSettingResponseDTO> routes = routeService.getRouteByUser(token);
         return ResponseEntity.ok()
                 .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_LIST.getStatus(), SuccessCode.SUCCESS_ROUTE_LIST.getMessage(), routes));
     }
@@ -65,7 +66,7 @@ public class RouteController {
     })
     @GetMapping("/routes-one/{routeId}")
     public ResponseEntity<ReturnCodeDTO> getRoute(@PathVariable Long routeId) {
-        RouteResponseDTO route = routeService.getRouteById(routeId);
+        RunningSettingResponseDTO route = routeService.getRouteById(routeId);
         return ResponseEntity.ok()
                 .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_DETAIL.getStatus(), SuccessCode.SUCCESS_ROUTE_DETAIL.getMessage(), route));
     }

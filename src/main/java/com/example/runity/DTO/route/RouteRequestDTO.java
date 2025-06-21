@@ -17,6 +17,7 @@ public class RouteRequestDTO {
     private Float distance;
     private RouteChoiceRequestDTO routeChoiceRequestDTO;
     private List<CoordinateDTO> coordinates;
+    private Long routineId;
 
     @Data
     public static class CoordinateDTO {
