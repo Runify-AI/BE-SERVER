@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.sql.Time;
+import java.time.LocalTime;
 import java.util.*;
 
 @Entity
@@ -39,12 +40,12 @@ public class Route {
     private String startPoint;
     // 목적지점
     @Setter
-    @Column(nullable = false)
+    @Column
     private String endPoint;
     // 예상시간
     @Setter
     @Column(nullable = false)
-    private LocalDateTime estimatedTime;
+    private LocalTime estimatedTime;
     // 거리
     @Setter
     @Column(nullable = false)
@@ -62,11 +63,6 @@ public class Route {
     @Setter
     @OneToMany(mappedBy = "route", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RouteChoice> routeChoices = new ArrayList<>();
-    // 좌표 리스트
-    @Builder.Default
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "route_coordinates", joinColumns = @JoinColumn(name = "route_id"))
-    private Set<Coordinate> coordinates = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "routine_id")
@@ -76,30 +72,7 @@ public class Route {
     }
 
 
-    @Embeddable
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Coordinate {
-        private double latitude;
-        private double longitude;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Coordinate)) return false;
-            Coordinate that = (Coordinate) o;
-            return Double.compare(that.latitude, latitude) == 0 &&
-                    Double.compare(that.longitude, longitude) == 0;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(latitude, longitude);
-        }
-    }
-
-    public Route(User user, String startPoint, String endPoint, LocalDateTime estimatedTime, Float distance) {
+    public Route(User user, String startPoint, String endPoint, LocalTime estimatedTime, Float distance) {
         this.user = user;
         this.startPoint = startPoint;
         this.endPoint = endPoint;
@@ -108,7 +81,7 @@ public class Route {
         //this.createdAt = LocalDateTime.now();
     }
 
-    public void update(String startPoint, String endPoint, LocalDateTime estimatedTime, Float distance) {
+    public void update(String startPoint, String endPoint, LocalTime estimatedTime, Float distance) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
         this.estimatedTime = estimatedTime;
@@ -120,12 +93,5 @@ public class Route {
             routeChoices = new ArrayList<>();
         }
         return routeChoices;
-    }
-
-    public Set<Coordinate> getCoordinates() {
-        if (coordinates == null) {
-            coordinates = new HashSet<>();
-        }
-        return coordinates;
     }
 }

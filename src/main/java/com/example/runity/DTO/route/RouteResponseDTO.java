@@ -25,16 +25,6 @@ public class RouteResponseDTO {
     private String createdAt; // ex) "2025-06-09 00:00"
     private List<RouteChoiceResponseDTO> routeChoiceResponseDTO;
     private RoutineResponseDTO routineResponseDTO;
-    private List<CoordinateDTO> coordinates;
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class CoordinateDTO {
-        private double latitude;
-        private double longitude;
-    }
 
     public RouteResponseDTO(Route route, RoutineResponseDTO routineResponseDTO, List<RouteChoice> routeChoices) {
         this.completed = route.isCompleted();
@@ -48,9 +38,6 @@ public class RouteResponseDTO {
                 .map(RouteChoiceResponseDTO::from)
                 .collect(Collectors.toList());
         this.routineResponseDTO = routineResponseDTO;
-        this.coordinates = route.getCoordinates().stream()
-                .map(coord -> new CoordinateDTO(coord.getLatitude(), coord.getLongitude()))
-                .collect(Collectors.toList());
     }
 
 }

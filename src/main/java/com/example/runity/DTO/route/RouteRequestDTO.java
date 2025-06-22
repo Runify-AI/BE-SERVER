@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
@@ -12,16 +13,9 @@ public class RouteRequestDTO {
     private String startPoint;
     private String endPoint;
     @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime estimatedTime;
+    @JsonFormat(pattern = "HH:mm:ss")
+    private LocalTime estimatedTime;
     private Float distance;
     private RouteChoiceRequestDTO routeChoiceRequestDTO;
-    private List<CoordinateDTO> coordinates;
     private Long routineId;
-
-    @Data
-    public static class CoordinateDTO {
-        private double latitude;
-        private double longitude;
-    }
 }

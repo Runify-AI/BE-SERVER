@@ -15,5 +15,4 @@ public class RunningSettingsResponse {
     private String estimatedEndTime;
     private String startPoint;
     private String endPoint;
-    private String targetPace;   // 추천 페이스 (/km)
 }

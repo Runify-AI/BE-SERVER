@@ -30,7 +30,7 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     private final DailyRunningRecordRepository dailyRunningRecordRepository;
     private final RealTimeRunningRepository realTimeRunningRepository;
     private final RunningPathTSRepository runningPathTSRepository;
-    //private final RunningSettingServiceImpl runningSettingServiceImpl;
+    private final RunningSettingService runningSettingService;
     private final RouteRepository routeRepository;
     private final JwtUtil jwtUtil;
 
@@ -107,27 +107,19 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                     throw new RuntimeException("routeId is null for RealTimeRunning.sessionId = " + sessionId);
                 }
 
-                /*
                 RunningSettingsResponse settings = null;
                 try {
-                    settings = runningSettingServiceImpl.getRunningSettings(routeId);
+                    settings = runningSettingService.getRunningSettings(routeId);
                 } catch (RuntimeException e) {
                     System.out.println("⚠ Route not found for routeId: " + routeId + ", sessionId: " + sessionId);
                     e.printStackTrace();
                     continue;
                 }
 
-                 */
-
                 // 4. 경로 시간 기반 세부 이력 정보 조회
-                System.out.println("sessionId: " + sessionId);
                 List<RunningPathTS> pathList = runningPathTSRepository.findBySessionId(sessionId);
-                System.out.println("RunningPathTS 개수: " + pathList.size());
-                List<RunningHistoryDetailDTO> detailDTOList = new ArrayList<>();
 
-                for (RunningPathTS path : pathList) {
-                    System.out.println("Lat: " + path.getLatitude() + ", Lon: " + path.getLongitude());
-                }
+                List<RunningHistoryDetailDTO> detailDTOList = new ArrayList<>();
 
                 for (RunningPathTS path : pathList) {
                     LocationDTO location = LocationDTO.builder()
@@ -164,7 +156,7 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                                 ? realTime.getEndTime().atZone(java.time.ZoneId.systemDefault()).toLocalTime()
                                 : null)
                         .effortLevel(realTime.getEffortLevel())
-                        .elapsedTime(realTime.getRunTime())
+                        .elapsedTime(realTime.getElapsedTime())
                         .routeId(routeId)
                         .distance(realTime.getDistance())
                         .runningTrackPoint(detailDTOList)
@@ -176,7 +168,7 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
 
                 // 6. 최종 세션 DTO 구성
                 RunningSessionDTO sessionDTO = RunningSessionDTO.builder()
-                //        .runningSettingsResponse(settings)
+                        .runningSettingsResponse(settings)
                         .runningHistoryDTO(history)
                         .build();
 

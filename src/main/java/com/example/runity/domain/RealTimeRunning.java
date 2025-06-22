@@ -3,7 +3,6 @@ package com.example.runity.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -48,7 +47,7 @@ public class RealTimeRunning {
     private Float avgSpeed;
 
     @Column
-    private LocalTime runTime;
+    private LocalTime elapsedTime;
 
 
     // 피드백

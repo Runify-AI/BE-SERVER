@@ -206,7 +206,6 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         LocalTime runTime = LocalTime.ofSecondOfDay(seconds);
         */
 
-
         // 서버에 필요한 통계 계산
         float totalSpeed = 0f;
         int count = 0;
@@ -230,8 +229,11 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         dailyRunningRecordRepository.save(updated);
 
 
-        // 4. 종료 시간: 가장 마지막 timestamp
+        // 4. 종료 시간
         LocalDateTime endTime = request.getCompleteTime();
+
+        // 경과 시간
+        LocalTime elapsedTime = paths.get(paths.size() - 1).getElapsedTime();
 
         /*
         // 4-1. 평균 정지 시간 계산
@@ -273,6 +275,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .endTime(endTime)
                 .isCompleted(true)
                 .avgSpeed(avgSpeed)
+                .elapsedTime(elapsedTime)
                 //.avgPace(avgPace)
                 //.distance(totalDistance)
                 //.runTime(runTime)
@@ -380,8 +383,8 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
         for (RealTimeRunning run : todayRuns) {
             totalDistance += run.getDistance();
-            if (run.getRunTime() != null) {
-                totalRunTime = totalRunTime.plusSeconds(run.getRunTime().toSecondOfDay());
+            if (run.getElapsedTime() != null) {
+                totalRunTime = totalRunTime.plusSeconds(run.getElapsedTime().toSecondOfDay());
             }
             totalSpeed += run.getAvgSpeed();
             count++;

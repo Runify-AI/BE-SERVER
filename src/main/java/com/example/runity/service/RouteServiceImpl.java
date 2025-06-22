@@ -18,9 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.time.LocalTime;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +44,7 @@ public class RouteServiceImpl implements RouteService {
             throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
         }
 
-        LocalDateTime estimatedTime = routeRequestDTO.getEstimatedTime();
+        LocalTime estimatedTime = routeRequestDTO.getEstimatedTime();
 
 
         Route route = Route.builder()
@@ -96,24 +95,32 @@ public class RouteServiceImpl implements RouteService {
                 .map(route -> {
                     // selectedPathId가 null이면 AI 추천 경로 생성 및 저장
                     if (route.getSelectedPathId() == null) {
-                        // [1] 추천 요청 데이터 구성
-                        RecommendationRequestDTO request = recommendationService.generateRecommendations(token, route.getRouteId());
+                        try {
+                            // [1] 추천 요청 데이터 구성
+                            RecommendationRequestDTO request = recommendationService.generateRecommendations(token, route.getRouteId());
 
-                        // [2] AI 호출 (가짜 or 실제)
-                        List<RecommendationResponseDTO> recommendedPaths = recommendationService.generateRecommendation(request);
+                            // [2] AI 호출
+                            List<RecommendationResponseDTO> recommendedPaths = recommendationService.generateRecommendation(request);
 
-                        // [3] 추천 결과 DB 저장 및 Route에 selectedPathId 설정
-                        recommendationService.saveRecommendationResults(route.getRouteId(), recommendedPaths);
+                            // [3] 추천 결과 DB 저장 및 Route에 selectedPathId 설정
+                            recommendationService.saveRecommendationResults(route.getRouteId(), recommendedPaths);
 
-                        // → route 객체가 변경되었으므로 최신 selectedPathId 반영 위해 새로 조회
-                        route = routeRepository.findById(route.getRouteId())
-                                .orElseThrow(() -> new RuntimeException("Route not found after saving recommendations."));
+                            // → route 객체가 변경되었으므로 최신 selectedPathId 반영 위해 새로 조회
+                            route = routeRepository.findById(route.getRouteId())
+                                    .orElseThrow(() -> new RuntimeException("Route not found after saving recommendations."));
+
+                        } catch (Exception e) {
+                            // 로그만 찍고 다음 route 계속 처리
+                            System.out.println(String.format("AI 추천 처리 중 오류 발생 (routeId: %d)",
+                                    route.getRouteId()));
+                        }
                     }
 
                     // [4] DTO 변환
                     return buildRunningSettingResponseDTO(route);
                 })
                 .collect(Collectors.toList());
+
     }
 
 
@@ -137,7 +144,7 @@ public class RouteServiceImpl implements RouteService {
             throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
         }
 
-        LocalDateTime estimatedTime = routeRequestDTO.getEstimatedTime();
+        LocalTime estimatedTime = routeRequestDTO.getEstimatedTime();
 
         route.update(
                 routeRequestDTO.getStartPoint(),
@@ -145,16 +152,6 @@ public class RouteServiceImpl implements RouteService {
                 routeRequestDTO.getEstimatedTime(),
                 routeRequestDTO.getDistance()
         );
-
-        Set<Route.Coordinate> coordinateSet = new HashSet<>();
-        if (routeRequestDTO.getCoordinates() != null) {
-            for (RouteRequestDTO.CoordinateDTO coordinateDTO : routeRequestDTO.getCoordinates()) {
-                coordinateSet.add(new Route.Coordinate(coordinateDTO.getLatitude(), coordinateDTO.getLongitude()));
-            }
-        }
-
-        route.getCoordinates().clear();
-        route.getCoordinates().addAll(coordinateSet);
 
         List<RouteChoice> routeChoices = route.getRouteChoices();
 
@@ -193,13 +190,24 @@ public class RouteServiceImpl implements RouteService {
     private RunningSettingResponseDTO buildRunningSettingResponseDTO(Route route) {
         RoutineResponseDTO routineDTO = RoutineResponseDTO.from(route.getRoutine());
 
-        List<RecommendationResponseDTO> recommendations = pathRepository.findAllByRoute_RouteId(route.getRouteId())
-                .stream()
-                .map(Path::toRecommendationDTO)
-                .toList();
+        List<RecommendationResponseDTO> recommendations;
 
         Long selectedPathId = route.getSelectedPathId();
         boolean completed = route.isCompleted();
+
+        if (selectedPathId != null) {
+            // 선택된 Path만 조회
+            recommendations = pathRepository.findById(selectedPathId)
+                    .map(Path::toRecommendationDTO)
+                    .map(List::of)
+                    .orElse(List.of()); // 선택된 경로가 없을 경우 빈 리스트
+        } else {
+            // 전체 추천 경로 조회
+            recommendations = pathRepository.findAllByRoute_RouteId(route.getRouteId())
+                    .stream()
+                    .map(Path::toRecommendationDTO)
+                    .toList();
+        }
 
         return RunningSettingResponseDTO.builder()
                 .routeId(route.getRouteId())
@@ -209,6 +217,7 @@ public class RouteServiceImpl implements RouteService {
                 .paths(recommendations)
                 .build();
     }
+
 
     @Override
     @Transactional
