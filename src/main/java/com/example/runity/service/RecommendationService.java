@@ -30,6 +30,7 @@ public class RecommendationService {
     private final UserRepository userRepository;
     private final RunningHistoryService runningHistoryService;
     private final DailyRunningRecordRepository dailyRunningRecordRepository;
+    private final PreferenceRepository preferenceRepository;
 
     private final WebClient aiWebClient;
 
@@ -129,16 +130,28 @@ public class RecommendationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid userId: " + userId));
 
-        // 1. user_profile 구성
+        // 1. Preference 가져오기 (user가 Preference를 가지고 있다는 전제)
+        Preference preference = preferenceRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("유저의 선호 설정이 존재하지 않습니다."));
+
+        // 2. user_profile 구성
         RecommendationRequestDTO.UserProfile userProfile = RecommendationRequestDTO.UserProfile.builder()
                 .running_type(user.getRunningType().name())
                 .height(user.getHeight())
                 .weight(user.getWeight())
                 .preferences(RecommendationRequestDTO.Preferences.builder()
-                        .preferencePlace(List.of("park", "amenity")) // TODO: 유저 선호 설정 도입 시 변경
-                        .preferenceRoute(List.of("crowd", "lazy"))
-                        .preferenceAvoid(List.of("speed"))
-                        .preferenceEtc(List.of("morning"))
+                        .preferencePlace(preference.getPreferencePlaces().stream()
+                                .map(Enum::name)
+                                .toList())
+                        .preferenceRoute(preference.getPreferenceRoutes().stream()
+                                .map(Enum::name)
+                                .toList())
+                        .preferenceAvoid(preference.getPreferenceAvoids().stream()
+                                .map(Enum::name)
+                                .toList())
+                        .preferenceEtc(preference.getPreferenceEtcs().stream()
+                                .map(Enum::name)
+                                .toList())
                         .build())
                 .build();
 
