@@ -40,9 +40,13 @@ public class RecommendationService {
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid routeId: " + routeId));
 
+        int nextPathId = pathRepository.findMaxPathIdByRouteId(routeId) != null
+                ? pathRepository.findMaxPathIdByRouteId(routeId) + 1
+                : 1;
+
         for (RecommendationResponseDTO dto : recommendations) {
             Path path = Path.builder()
-                    .pathId(dto.getPathId())
+                    .pathId(nextPathId++)
                     .similarity(dto.getRecommend().getSimilarity())
                     .paceScore(dto.getRecommend().getPace_score())
                     .finalScore(dto.getRecommend().getFinal_score())

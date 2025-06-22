@@ -102,4 +102,17 @@ public class RouteController {
         return ResponseEntity.status(SuccessCode.SUCCESS_ROUTE_DELETE.getStatus())
                 .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_DELETE.getStatus(), SuccessCode.SUCCESS_ROUTE_DELETE.getMessage()));
     }
+
+    @PatchMapping("/{routeId}/select-path/{pathId}")
+    public ResponseEntity<ReturnCodeDTO> selectPath(
+            @PathVariable Long routeId,
+            @PathVariable Long pathId
+    ) {
+        routeService.selectPath(routeId, pathId);
+        return ResponseEntity.ok(
+                new ReturnCodeDTO(SuccessCode.SUCCESS_SELECT_PATH.getStatus(),
+                        SuccessCode.SUCCESS_SELECT_PATH.getMessage(),
+                        null)
+        );
+    }
 }

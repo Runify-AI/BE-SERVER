@@ -188,4 +188,23 @@ public class RouteServiceImpl implements RouteService {
                 .paths(recommendations)
                 .build();
     }
+
+    @Override
+    @Transactional
+    public void selectPath(Long routeId, Long pathId) {
+        Route route = routeRepository.findById(routeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ROUTE_NOT_FOUND, "해당 경로를 찾을 수 없습니다."));
+
+        Path path = pathRepository.findById(pathId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PATH_NOT_FOUND, "해당 추천 경로를 찾을 수 없습니다."));
+
+        // path가 route에 속해 있는지 확인
+        if (!path.getRoute().getRouteId().equals(routeId)) {
+            throw new CustomException(ErrorCode.PATH_ROUTE_MISMATCH, "해당 path는 지정된 route에 속하지 않습니다.");
+        }
+
+        // 검증 통과 → route의 selectedPathId 갱신
+        route.setSelectedPathId(pathId);
+    }
+
 }

@@ -20,6 +20,7 @@ public enum ErrorCode {
     INVALID_ROUTINE_PARAMETER(400,"루틴 요청 값이 올바르지 않습니다."),
     INVALID_PREFERENCE_ENUM_VALUE(400,"유효하지 않은 선호도 값입니다."),
     DUPLICATE_PREFERENCE_EXISTS(400,"이미 등록된 선호도 정보가 존재합니다."),
+    PATH_ROUTE_MISMATCH(400, "해당 path는 지정된 route에 속하지 않습니다."),
 
     //404 NOT_FOUND 잘못된 리소스 접근
     USER_NOT_FOUND(404, "존재하지 않는 회원 ID 입니다."),
@@ -28,6 +29,7 @@ public enum ErrorCode {
     ROUTE_NOT_FOUND(404,"경로를 찾을 수 없습니다."),
     ROUTINE_NOT_FOUND(404, "루틴 정보를 찾을 수 없습니다."),
     PREFERENCE_NOT_FOUND(404,"선호도 정보를 찾을 수 없습니다."),
+    PATH_NOT_FOUND(404, "해당 추천 경로를 찾을 수 없습니다."),
 
     // 409 CONFLICT 중복된 리소스
     EMAIL_CONFLICT(409, "해당 이메일은 이미 등록되어 있습니다."),

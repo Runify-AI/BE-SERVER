@@ -24,6 +24,8 @@ public enum SuccessCode {
     SUCCESS_ROUTINE_DELETE(200,"루틴 삭제가 완료되었습니다."),
     SUCCESS_ROUTE_DELETE(200, "경로 삭제가 완료되었습니다."),
     SUCCESS_PREFERENCE_DELETE(200,"선호도 삭제가 완료되었습니다."),
+    SUCCESS_SELECT_PATH(200, "추천 경로가 성공적으로 선택되었습니다."),
+
     // 201
     SUCCESS_ROUTINE_CREATE(201,"루틴 생성이 완료되었습니다."),
     SUCCESS_ROUTE_CREATE(201, "경로 생성이 완료되었습니다."),

@@ -18,4 +18,6 @@ public interface RouteService {
     void updateRoute(String token, Long routeId, RouteRequestDTO routeRequestDTO);
     // 경로 삭제
     void deleteRoute(String token, Long routeId);
+    // 패스 선택
+    void selectPath(Long routeId, Long pathId);
 }
