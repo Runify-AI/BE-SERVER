@@ -1,6 +1,8 @@
 package com.example.runity.controller;
 
+import com.example.runity.DTO.runningTS.FeedbackSummaryDTO;
 import com.example.runity.DTO.runningTS.RunningCompleteRequest;
+import com.example.runity.DTO.runningTS.RunningFeedbackDTO;
 import com.example.runity.DTO.runningTS.RunningPathDTO;
 import com.example.runity.service.RealtimeRunningService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,11 +63,12 @@ public class RealtimeRunningController {
             @ApiResponse(responseCode = "404", description = "사용자 또는 경로 정보 없음"),
     })
     @PostMapping("/complete")
-    public ResponseEntity<Void> completeRunning(@RequestHeader("Authorization")String token,
+    public ResponseEntity<RunningFeedbackDTO> completeRunning(@RequestHeader("Authorization")String token,
                                                 @Parameter(description = "러닝 완료 요청 데이터", required = true)
                                                     @RequestBody RunningCompleteRequest request) {
-        realtimeRunningService.completeRunning(token, request);
+        Long sessionId = realtimeRunningService.completeRunning(token, request);
+        RunningFeedbackDTO feedbackDTO = realtimeRunningService.analyzeRunningStatistics(token, sessionId);
         realtimeRunningService.updateDailyRunningRecord(token, LocalDate.now());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(feedbackDTO);
     }
 }

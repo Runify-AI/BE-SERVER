@@ -27,7 +27,7 @@ public class RealTimeRunning {
     private Long routeId;
 
     @Column
-    private Instant endTime;
+    private LocalDateTime endTime;
 
     @Column(nullable = false)
     private Boolean isCompleted;
@@ -36,13 +36,7 @@ public class RealTimeRunning {
     private String giveUpReason;
 
     @Column
-    private Integer effortLevel;
-
-    @Column
     private Boolean isRecommended;
-
-    @Column
-    private String comment;
 
     @Column
     private String paceFeedback;
@@ -51,15 +45,40 @@ public class RealTimeRunning {
     private Float avgStopTime;
 
     @Column
-    private Float avgPace;
-
-    @Column
     private Float avgSpeed;
-
-    @Column
-    private float distance;
 
     @Column
     private LocalTime runTime;
 
+
+    // 피드백
+    @Column
+    private float distance;
+
+    @Column
+    private Float duration;
+
+    @Column
+    private Float avgPace;
+
+    @Column
+    private Integer stopCount;
+
+    @Column
+    private String feedback_main;
+
+    @Column
+    private String feedback_advice;
+
+    @Column
+    private Float feedback_earlySpeedDeviation;
+
+    @Column
+    private Integer focusScore;
+
+    @Column
+    private Integer effortLevel;
+
+    @Column
+    private String comment;
 }

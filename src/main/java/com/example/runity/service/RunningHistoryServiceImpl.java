@@ -6,6 +6,7 @@ import com.example.runity.DTO.history.RunningSessionDTO;
 import com.example.runity.DTO.history.RunningSessionSummaryDTO;
 import com.example.runity.DTO.route.LocationDTO;
 import com.example.runity.DTO.route.RunningSettingsResponse;
+import com.example.runity.DTO.runningTS.FeedbackSummaryDTO;
 import com.example.runity.domain.DailyRunningRecord;
 import com.example.runity.domain.RealTimeRunning;
 import com.example.runity.domain.RunningPathTS;
@@ -150,6 +151,12 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                 }
 
                 // 5. 러닝 이력 DTO 생성
+                FeedbackSummaryDTO feedback = FeedbackSummaryDTO.builder()
+                        .main(realTime.getFeedback_main())
+                        .advice(realTime.getFeedback_advice())
+                        .earlySpeedDeviation(realTime.getFeedback_earlySpeedDeviation())
+                        .build();
+
                 RunningHistoryDTO history = RunningHistoryDTO.builder()
                         .averagePace(realTime.getAvgPace())
                         .comment(realTime.getComment())
@@ -159,8 +166,12 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                         .effortLevel(realTime.getEffortLevel())
                         .elapsedTime(realTime.getRunTime())
                         .routeId(routeId)
-                        .totalDistance(realTime.getDistance())
+                        .distance(realTime.getDistance())
                         .runningTrackPoint(detailDTOList)
+                        .duration(realTime.getDuration())
+                        .stopCount(realTime.getStopCount())
+                        .focusScore(realTime.getFocusScore())
+                        .feedbackSummaryDTO(feedback)
                         .build();
 
                 // 6. 최종 세션 DTO 구성
@@ -187,7 +198,7 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
     public RunningHistoryDTO convertToDto(DailyRunningRecord record) {
         return RunningHistoryDTO.builder()
                 .elapsedTime(record.getTotalRunTime())
-                .totalDistance(record.getTotalDistance())
+                .distance(record.getTotalDistance())
                 .runningTrackPoint(Collections.emptyList())
                 .build();
     }

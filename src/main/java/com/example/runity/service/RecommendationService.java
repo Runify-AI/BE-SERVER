@@ -120,7 +120,7 @@ public class RecommendationService {
                 .build();
 
         // 2. 날씨
-        WeatherDTO weather = weatherService.getWeather("Seoul");
+        WeatherDTO weather = weatherService.getWeather("Daegu");
 
         // 3. 러닝 기록
         List<DailyRunningRecord> recentRecords = dailyRunningRecordRepository.findTop2ByUserIdOrderByDateDesc(userId);
@@ -132,11 +132,13 @@ public class RecommendationService {
                             .map(dto -> RecommendationRequestDTO.HistoryDTO.builder()
                                     .routeId(dto.getRouteId())
                                     .date(r.getDate())  // 여기서 날짜 유지
-                                    .totalDistance(dto.getTotalDistance())
+                                    .totalDistance(dto.getDistance())
                                     .averagePace(dto.getAveragePace())
+                                    .stopCount(dto.getStopCount())
+                                    .feedbackSummary(dto.getFeedbackSummaryDTO())
+                                    .focusScore(dto.getFocusScore())
                                     .effortLevel(dto.getEffortLevel())
                                     .comment(dto.getComment())
-                                    .runningTrackPoint(dto.getRunningTrackPoint())
                                     .build());
                 })
                 .sorted(Comparator.comparing(RecommendationRequestDTO.HistoryDTO::getDate).reversed())

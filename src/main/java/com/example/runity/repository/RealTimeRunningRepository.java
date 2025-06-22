@@ -1,6 +1,7 @@
 package com.example.runity.repository;
 
 import com.example.runity.domain.RealTimeRunning;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,6 @@ public interface RealTimeRunningRepository extends JpaRepository<RealTimeRunning
     List<RealTimeRunning> findByRecordId(Long recordId);
 
     Optional<RealTimeRunning> findByRouteIdAndIsCompleted(Long routeId, boolean isCompleted);
+
+    RealTimeRunning findByRunningSessionId(Long runningSessionId);
 }

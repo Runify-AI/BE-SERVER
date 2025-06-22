@@ -1,5 +1,6 @@
 package com.example.runity.service;
 
+import com.example.runity.DTO.runningTS.RunningFeedbackDTO;
 import com.example.runity.DTO.runningTS.RunningPathDTO;
 import com.example.runity.DTO.runningTS.RunningCompleteRequest;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,9 @@ public interface RealtimeRunningService {
 
     void saveRunningStates(String token, Long routeId, List<RunningPathDTO> dto);
 
-    void completeRunning(String token, RunningCompleteRequest request);  // 러닝 완료 시 전체 데이터 저장
+    Long completeRunning(String token, RunningCompleteRequest request);  // 러닝 완료 시 전체 데이터 저장
 
     void updateDailyRunningRecord(String token, LocalDate date);  // 하루 요약 러닝 기록 저장
+
+    RunningFeedbackDTO analyzeRunningStatistics(String token, Long sessionId);
 }

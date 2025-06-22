@@ -1,7 +1,12 @@
 package com.example.runity.service;
 
 import com.example.runity.DTO.*;
+import com.example.runity.DTO.history.RunningHistoryDTO;
+import com.example.runity.DTO.history.RunningHistoryDetailDTO;
+import com.example.runity.DTO.route.LocationDTO;
+import com.example.runity.DTO.runningTS.FeedbackSummaryDTO;
 import com.example.runity.DTO.runningTS.RunningCompleteRequest;
+import com.example.runity.DTO.runningTS.RunningFeedbackDTO;
 import com.example.runity.DTO.runningTS.RunningPathDTO;
 import com.example.runity.domain.*;
 //import com.example.runity.domain.RunningPathTS;
@@ -23,6 +28,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
     private final DailyRunningRecordRepository dailyRunningRecordRepository;
     private final StatisticsRepository statisticsRepository;
     private final WeatherService weatherService;
+    private final RunningHistoryService runningHistoryService;
     private final JwtUtil jwtUtil;
 
     /**
@@ -131,7 +137,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
      * 러닝 종료 시 전체 데이터 저장
      */
     @Override
-    public void completeRunning(String token, RunningCompleteRequest request) {
+    public Long completeRunning(String token, RunningCompleteRequest request) {
         Long userId = jwtUtil.getUserId(token);
 
         List<RunningPathTS> paths = request.getRunningPaths().stream()
@@ -156,7 +162,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 })
                 .collect(Collectors.toList());
 
-        if (paths.isEmpty()) return;
+        if (paths.isEmpty()) return -1L;
 
         // 2. 하루 러닝 기록 찾기 (recordId)
         LocalDate runDate = request.getCompleteTime().toLocalDate(); // 날짜만 추출
@@ -180,25 +186,10 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 });
 
         // 3. 통계 계산
-        float totalPace = 0f;
-        float totalSpeed = 0f;
-        int count = 0;
-
-        for (RunningPathTS path : paths) {
-            totalPace += path.getPace();
-            totalSpeed += path.getSpeed();
-            count++;
-        }
-
+        //float totalPace = 0f;
         // 3-1. 페이스, 속도
-        float avgPace = count > 0 ? totalPace / count : 0f;
-        float avgSpeed = count > 0 ? totalSpeed / count : 0f;
-
-        // 3-2. 거리 합계
-        float totalDistance = paths.stream()
-                .map(RunningPathTS::getDistance)
-                .reduce(0f, Float::sum);
-
+        //float avgPace = count > 0 ? totalPace / count : 0f;
+        /*
         // 3-3. 러닝 시작/종료 시간 기반 시간 계산
         Instant start = paths.stream()
                 .map(RunningPathTS::getTimestamp)
@@ -210,26 +201,39 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .max(Instant::compareTo)
                 .orElse(request.getCompleteTime().atZone(ZoneId.systemDefault()).toInstant());
 
+
         long seconds = Duration.between(start, end).getSeconds();
         LocalTime runTime = LocalTime.ofSecondOfDay(seconds);
+        */
+
+
+        // 서버에 필요한 통계 계산
+        float totalSpeed = 0f;
+        int count = 0;
+
+        for (RunningPathTS path : paths) {
+            //totalPace += path.getPace();
+            totalSpeed += path.getSpeed();
+            count++;
+        }
+
+        float avgSpeed = count > 0 ? totalSpeed / count : 0f;
 
         // 하루 러닝 기록에 합계
         // 기존 값 누적 반영
-        float updatedTotalDistance = record.getTotalDistance() + totalDistance;
+        //float updatedTotalDistance = record.getTotalDistance() + totalDistance;
         DailyRunningRecord updated = record.toBuilder()
-                .totalDistance(updatedTotalDistance)
                 .avgSpeed(avgSpeed)
-                .totalRunTime(runTime)
+                //.totalDistance(updatedTotalDistance)
+                //.totalRunTime(runTime)
                 .build();
         dailyRunningRecordRepository.save(updated);
 
 
         // 4. 종료 시간: 가장 마지막 timestamp
-        Instant endTime = paths.stream()
-                .map(RunningPathTS::getTimestamp)
-                .max(Instant::compareTo)
-                .orElse(request.getCompleteTime().atZone(ZoneId.systemDefault()).toInstant());
+        LocalDateTime endTime = request.getCompleteTime();
 
+        /*
         // 4-1. 평균 정지 시간 계산
         float totalStopTime = 0f;
 
@@ -247,6 +251,8 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         }
 
         float avgStopTime = (seconds > 0) ? totalStopTime / seconds : 0f;
+
+         */
 
         // 5. 실시간 러닝 세션 저장
         Long routeId = request.getRouteId();
@@ -266,11 +272,11 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .effortLevel(request.getEffortLevel())
                 .endTime(endTime)
                 .isCompleted(true)
-                .avgPace(avgPace)
                 .avgSpeed(avgSpeed)
-                .distance(totalDistance)
-                .runTime(runTime)
-                .avgStopTime(avgStopTime)
+                //.avgPace(avgPace)
+                //.distance(totalDistance)
+                //.runTime(runTime)
+                //.avgStopTime(avgStopTime)
                 .build();
 
         // 실시간 경로 저장
@@ -281,8 +287,77 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
         System.out.println("sessionId: " + session.getRunningSessionId());
 
+        return sessionId;
     }
 
+    /**
+     * 통계 AI 호출
+     */
+    @Override
+    public RunningFeedbackDTO analyzeRunningStatistics(String token, Long sessionId) {
+        Long userId = jwtUtil.getUserId(token);
+
+        // [1] 임시 RunningHistoryDTO 생성 (실제로는 DB에서 생성 or AI 호출 직전 DTO로 구성)
+        RunningHistoryDTO history = RunningHistoryDTO.builder()
+                .averagePace(0.1f)
+                .comment("string")
+                .completedTime(LocalTime.of(14, 30))
+                .effortLevel(5)
+                .elapsedTime(LocalTime.of(0, 30))
+                .routeId(1234L)
+                .distance(0.1f)
+                .runningTrackPoint(List.of(
+                        RunningHistoryDetailDTO.builder()
+                                .distance(0.1f)
+                                .elapsedTime(LocalTime.of(0, 30))
+                                .pace(0.1f)
+                                .timeStamp(LocalTime.of(14, 30))
+                                .location(new LocationDTO(0.1, 0.1))
+                                .typeEta(0.1f)
+                                .typePace(0.1f)
+                                .typeStop(0.1f)
+                                .build()
+                ))
+                .build();
+
+        // [2] TODO: AI 분석기 호출 - 실제로는 외부 API 호출이지만, 지금은 mock 반환
+        RunningFeedbackDTO result = mockAIAnalyze(history);
+
+        // 3. DB 저장
+        RealTimeRunning session = realTimeRunningRepository.findByRunningSessionId(sessionId);
+        if (session == null) {
+            throw new RuntimeException("해당 sessionId를 가진 러닝 세션을 찾을 수 없습니다.");
+        }
+
+        session = session.toBuilder()
+                .distance(result.getDistance())
+                .duration((float) result.getDuration())
+                .avgPace(result.getAvgPace())
+                .stopCount(result.getStopCount())
+                .feedback_main(result.getFeedbackSummary().getMain())
+                .feedback_advice(result.getFeedbackSummary().getAdvice())
+                .feedback_earlySpeedDeviation(result.getFeedbackSummary().getEarlySpeedDeviation())
+                .focusScore(result.getFocusScore())
+                .build();
+
+        realTimeRunningRepository.save(session);  // 수정된 session 저장
+
+        return result;
+    }
+    private RunningFeedbackDTO mockAIAnalyze(RunningHistoryDTO dto) {
+        return RunningFeedbackDTO.builder()
+                .distance(3.21f)
+                .duration(25)
+                .avgPace(7.6f)
+                .stopCount(3)
+                .focusScore(78)
+                .feedbackSummary(FeedbackSummaryDTO.builder()
+                        .main("초반과 후반 속도 차이가 있어요.")
+                        .advice("다음엔 초반 속도를 더 조절해보세요.")
+                        .earlySpeedDeviation(1.2f)
+                        .build())
+                .build();
+    }
 
 
     /**
