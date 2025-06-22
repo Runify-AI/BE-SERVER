@@ -413,7 +413,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 .totalRunTime(totalRunTime)
                 .runCount(count)
                 .avgSpeed(avgSpeed)
-                .weather(weather.getWeather())
+                .weather(weather.getCondition())
                 .temperature(weather.getTemperature().floatValue())
                 .humidity(weather.getHumidity().floatValue())
                 .build();

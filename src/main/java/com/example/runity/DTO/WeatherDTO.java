@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class WeatherDTO {
-    private String weather;
     private Double temperature;
     private Double humidity;
+    private String condition;
 }

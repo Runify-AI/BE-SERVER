@@ -44,8 +44,6 @@ public class RouteServiceImpl implements RouteService {
             throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
         }
 
-        LocalTime estimatedTime = routeRequestDTO.getEstimatedTime();
-
 
         Route route = Route.builder()
                 .user(user)
@@ -100,7 +98,9 @@ public class RouteServiceImpl implements RouteService {
                             RecommendationRequestDTO request = recommendationService.generateRecommendations(token, route.getRouteId());
 
                             // [2] AI 호출
-                            List<RecommendationResponseDTO> recommendedPaths = recommendationService.generateRecommendation(request);
+                            String startAddr = route.getStartPoint();
+                            String endAddr = route.getEndPoint();
+                            List<RecommendationResponseDTO> recommendedPaths = recommendationService.generateRecommendation(startAddr, endAddr, request);
 
                             // [3] 추천 결과 DB 저장 및 Route에 selectedPathId 설정
                             recommendationService.saveRecommendationResults(route.getRouteId(), recommendedPaths);
@@ -111,8 +111,9 @@ public class RouteServiceImpl implements RouteService {
 
                         } catch (Exception e) {
                             // 로그만 찍고 다음 route 계속 처리
-                            System.out.println(String.format("AI 추천 처리 중 오류 발생 (routeId: %d)",
-                                    route.getRouteId()));
+                            System.out.println(String.format("AI 추천 처리 중 오류 발생 (routeId: %d)", route.getRouteId()));
+                            System.out.println("오류 메시지: " + e.getMessage());
+                            e.printStackTrace();  // 콘솔에 전체 스택 트레이스 출력
                         }
                     }
 

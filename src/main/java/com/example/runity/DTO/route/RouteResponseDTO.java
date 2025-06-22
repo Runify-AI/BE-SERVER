@@ -31,7 +31,7 @@ public class RouteResponseDTO {
         this.routeId = route.getRouteId();
         this.startPoint = route.getStartPoint();
         this.endPoint = route.getEndPoint();
-        this.estimatedTime = route.getEstimatedTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        this.estimatedTime = route.getEstimatedTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         this.distance = route.getDistance();
         this.createdAt = route.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         this.routeChoiceResponseDTO = routeChoices.stream()

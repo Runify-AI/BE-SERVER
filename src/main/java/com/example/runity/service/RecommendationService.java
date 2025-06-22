@@ -33,11 +33,24 @@ public class RecommendationService {
 
     private final WebClient aiWebClient;
 
-    public List<RecommendationResponseDTO> generateRecommendation(RecommendationRequestDTO request) {
+    public List<RecommendationResponseDTO> generateRecommendation(String startAddr, String endAddr, RecommendationRequestDTO request) {
         return aiWebClient.post()
-                .uri("/recommend")
+                .uri(uriBuilder -> uriBuilder
+                        .path("/route/")
+                        .queryParam("start_address", startAddr)
+                        .queryParam("end_address", endAddr)
+                        .build())
                 .bodyValue(request)
                 .retrieve()
+                .onStatus(status -> status.isError(), response ->
+                        response.bodyToMono(String.class)
+                                .map(errorBody -> {
+                                    System.out.println("[AI 요청 실패]");
+                                    System.out.println("상태 코드: " + response.statusCode());
+                                    System.out.println("에러 본문: " + errorBody);
+                                    return new RuntimeException("AI 서버 오류: " + response.statusCode() + " - " + errorBody);
+                                })
+                )
                 .bodyToFlux(RecommendationResponseDTO.class)
                 .collectList()
                 .block();
@@ -118,11 +131,14 @@ public class RecommendationService {
 
         // 1. user_profile 구성
         RecommendationRequestDTO.UserProfile userProfile = RecommendationRequestDTO.UserProfile.builder()
-                .running_level(user.getRunningType().name())
+                .running_type(user.getRunningType().name())
+                .height(user.getHeight())
+                .weight(user.getWeight())
                 .preferences(RecommendationRequestDTO.Preferences.builder()
-                        .location(List.of("park", "amenity")) // TODO: 유저 선호 설정 도입 시 변경
-                        .avoid(List.of("crowd", "lazy"))
-                        .path(List.of("speed"))
+                        .preferencePlace(List.of("park", "amenity")) // TODO: 유저 선호 설정 도입 시 변경
+                        .preferenceRoute(List.of("crowd", "lazy"))
+                        .preferenceAvoid(List.of("speed"))
+                        .preferenceEtc(List.of("morning"))
                         .build())
                 .build();
 
@@ -139,7 +155,7 @@ public class RecommendationService {
                             .map(dto -> RecommendationRequestDTO.HistoryDTO.builder()
                                     .routeId(dto.getRouteId())
                                     .date(r.getDate())  // 여기서 날짜 유지
-                                    .totalDistance(dto.getDistance())
+                                    .distance(dto.getDistance())
                                     .averagePace(dto.getAveragePace())
                                     .stopCount(dto.getStopCount())
                                     .feedbackSummary(dto.getFeedbackSummaryDTO())

@@ -34,10 +34,10 @@ public class WeatherService {
             double temp = root.path("main").path("temp").asDouble();
             double humidity = root.path("main").path("humidity").asDouble();
 
-            return new WeatherDTO(weather, temp, humidity);
+            return new WeatherDTO(temp, humidity, weather);
         } catch (Exception e) {
             e.printStackTrace();
-            return new WeatherDTO("정보 없음", null, null);
+            return new WeatherDTO(null, null, "정보 없음");
         }
     }
 }
