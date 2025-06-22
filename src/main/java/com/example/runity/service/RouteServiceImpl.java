@@ -31,6 +31,7 @@ public class RouteServiceImpl implements RouteService {
     private final UserRepository userRepository;
     private final PathRepository pathRepository;
     private final RoutineRepository routineRepository;
+    private final RecommendationService recommendationService;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -92,9 +93,29 @@ public class RouteServiceImpl implements RouteService {
         List<Route> routes = routeRepository.findByUserUserId(userId);
 
         return routes.stream()
-                .map(this::buildRunningSettingResponseDTO)
+                .map(route -> {
+                    // selectedPathId가 null이면 AI 추천 경로 생성 및 저장
+                    if (route.getSelectedPathId() == null) {
+                        // [1] 추천 요청 데이터 구성
+                        RecommendationRequestDTO request = recommendationService.generateRecommendations(token, route.getRouteId());
+
+                        // [2] AI 호출 (가짜 or 실제)
+                        List<RecommendationResponseDTO> recommendedPaths = recommendationService.generateRecommendation(request);
+
+                        // [3] 추천 결과 DB 저장 및 Route에 selectedPathId 설정
+                        recommendationService.saveRecommendationResults(route.getRouteId(), recommendedPaths);
+
+                        // → route 객체가 변경되었으므로 최신 selectedPathId 반영 위해 새로 조회
+                        route = routeRepository.findById(route.getRouteId())
+                                .orElseThrow(() -> new RuntimeException("Route not found after saving recommendations."));
+                    }
+
+                    // [4] DTO 변환
+                    return buildRunningSettingResponseDTO(route);
+                })
                 .collect(Collectors.toList());
     }
+
 
     @Override
     @Transactional(readOnly = true)

@@ -11,8 +11,8 @@ import com.example.runity.repository.*;
 import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,9 +31,16 @@ public class RecommendationService {
     private final RunningHistoryService runningHistoryService;
     private final DailyRunningRecordRepository dailyRunningRecordRepository;
 
+    private final WebClient aiWebClient;
+
     public List<RecommendationResponseDTO> generateRecommendation(RecommendationRequestDTO request) {
-        // TODO: AI 추천 생성 로직 구현
-        return List.of();
+        return aiWebClient.post()
+                .uri("/recommend")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToFlux(RecommendationResponseDTO.class)
+                .collectList()
+                .block();
     }
 
     public void saveRecommendationResults(Long routeId, List<RecommendationResponseDTO> recommendations) {
