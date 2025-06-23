@@ -19,29 +19,32 @@ public class Path {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;  // 경로 고유 ID
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "routeId")
-    private Route route;
+    private Route route;  // 이 경로가 속한 Route 엔티티
 
     @Column(name = "indexId")
-    private int indexId;
+    private int indexId;  // 경로 인덱스 번호
 
-    private double similarity;
-    private double paceScore;
-    private double finalScore;
-    private double recommendedPace;
-    private int expectedTime;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "path", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PathCoordinate> coordinates = new ArrayList<>();;
+    private double similarity;      // 유사도 점수
+    private double paceScore;       // 페이스 점수
+    private double finalScore;      // 최종 점수
+    private double recommendedPace; // 추천 페이스
+    private int expectedTime;       // 예상 소요 시간(초)
 
     @Builder.Default
     @OneToMany(mappedBy = "path", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PathFeature> features = new ArrayList<>();;
+    private List<PathCoordinate> coordinates = new ArrayList<>();  // 경로 좌표 리스트
 
+    @Builder.Default
+    @OneToMany(mappedBy = "path", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PathFeature> features = new ArrayList<>();  // 경로 관련 특성 리스트
+
+    /**
+     * Path 엔티티를 RecommendedPathsDTO로 변환
+     */
     public RecommendedPathsDTO toRecommendationDTO() {
         return RecommendedPathsDTO.builder()
                 .pathId(this.indexId)
@@ -60,6 +63,9 @@ public class Path {
                 .build();
     }
 
+    /**
+     * PathFeature 리스트를 RecommendedPathsDTO.FeatureDTO로 변환
+     */
     private RecommendedPathsDTO.FeatureDTO buildFeatureDTO(List<PathFeature> features) {
         RecommendedPathsDTO.FeatureDTO.FeatureDTOBuilder builder = RecommendedPathsDTO.FeatureDTO.builder();
 

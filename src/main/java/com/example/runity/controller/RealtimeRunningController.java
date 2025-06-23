@@ -51,13 +51,13 @@ public class RealtimeRunningController {
             @ApiResponse(responseCode = "200", description = "러닝 상태 저장 완료"),
             @ApiResponse(responseCode = "400", description = "입력값 형식 오류")
     })
-    @PostMapping("/states")
+    @PostMapping("/states/{routeId}")
     public ResponseEntity<Void> saveRunningStates(
             @Parameter(description = "인증 토큰", required = true, example = "Bearer {token}")
             @RequestHeader("Authorization") String token,
 
             @Parameter(description = "경로 ID", required = true, example = "10")
-            @RequestHeader("routeId") Long routeId,
+            @PathVariable("routeId") Long routeId,
 
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "러닝 상태 데이터 리스트",

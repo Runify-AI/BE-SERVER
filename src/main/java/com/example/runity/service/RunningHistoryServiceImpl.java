@@ -141,8 +141,11 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
             FeedbackSummary feedback = FeedbackSummary.builder()
                     .main(realTime.getFeedback_main())
                     .advice(realTime.getFeedback_advice())
-                    .early_speed_deviation(realTime.getFeedback_earlySpeedDeviation())
-                    .build();
+                    .early_speed_deviation(
+                            realTime.getFeedback_earlySpeedDeviation() != null
+                                    ? realTime.getFeedback_earlySpeedDeviation()
+                                    : 0.0
+                    )                    .build();
 
             RunningHistoryDTO history = RunningHistoryDTO.builder()
                     .averagePace(realTime.getAvgPace())
