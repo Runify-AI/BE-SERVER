@@ -221,8 +221,10 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         // 하루 러닝 기록에 합계
         // 기존 값 누적 반영
         //float updatedTotalDistance = record.getTotalDistance() + totalDistance;
+        float dailyAvgSpeed = record.getAvgSpeed() > 0 ? (totalSpeed + record.getAvgSpeed()) / (count + 1) : 0f;
+
         DailyRunningRecord updated = record.toBuilder()
-                .avgSpeed(avgSpeed)
+                .avgSpeed(dailyAvgSpeed)
                 //.totalDistance(updatedTotalDistance)
                 //.totalRunTime(runTime)
                 .build();
@@ -386,11 +388,14 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
             if (run.getElapsedTime() != null) {
                 totalRunTime = totalRunTime.plusSeconds(run.getElapsedTime().toSecondOfDay());
             }
-            totalSpeed += run.getAvgSpeed();
+            if (run.getAvgSpeed() != null) {
+                totalSpeed += run.getAvgSpeed();
+                count++;
+            }
             count++;
         }
 
-        float avgSpeed = totalSpeed / count;
+        float avgSpeed = (count > 0) ? totalSpeed / count : 0f;
 
         // 3. DailyRunningRecord 저장 또는 업데이트
 

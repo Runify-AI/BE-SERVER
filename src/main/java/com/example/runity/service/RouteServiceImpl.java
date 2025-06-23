@@ -2,14 +2,11 @@ package com.example.runity.service;
 
 import com.example.runity.DTO.RunningSettingResponseDTO;
 import com.example.runity.DTO.route.*;
-import com.example.runity.domain.Path;
+import com.example.runity.domain.*;
 import com.example.runity.repository.PathRepository;
 import com.example.runity.repository.RoutineRepository;
 import com.example.runity.util.JwtUtil;
 import com.example.runity.constants.ErrorCode;
-import com.example.runity.domain.Route;
-import com.example.runity.domain.RouteChoice;
-import com.example.runity.domain.User;
 import com.example.runity.error.CustomException;
 import com.example.runity.repository.RouteRepository;
 import com.example.runity.repository.UserRepository;
@@ -84,49 +81,68 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public List<RunningSettingResponseDTO> getRouteByUser(String token) {
         Long userId = jwtUtil.getUserId(token);
         List<Route> routes = routeRepository.findByUserUserId(userId);
 
         return routes.stream()
                 .map(route -> {
-                    // selectedPathId가 null이면 AI 추천 경로 생성 및 저장
+                    List<RecommendedPathsDTO> paths = List.of();  // 추천 경로 리스트 초기화
+
                     if (route.getSelectedPathId() == null) {
                         try {
-                            // [1] 추천 요청 데이터 구성
                             RecommendationRequestDTO request = recommendationService.generateRecommendations(token, route.getRouteId());
-
-                            // [2] AI 호출
                             String startAddr = route.getStartPoint();
                             String endAddr = route.getEndPoint();
-                            List<RecommendationResponseDTO> recommendedPaths = recommendationService.generateRecommendation(startAddr, endAddr, request);
 
-                            // [3] 추천 결과 DB 저장 및 Route에 selectedPathId 설정
+                            RecommendationResponseDTO recommendedPaths = recommendationService.generateRecommendation(startAddr, endAddr, request);
+
+                            if (recommendedPaths.getPaths() == null) {
+                                System.out.println("AI 추천 결과가 null입니다.");
+                            } else {
+                                System.out.println("AI 추천 결과가 성공적으로 수신되었습니다.");
+                            }
+
+                            // 저장
                             recommendationService.saveRecommendationResults(route.getRouteId(), recommendedPaths);
 
-                            // → route 객체가 변경되었으므로 최신 selectedPathId 반영 위해 새로 조회
+                            // route 재조회
                             route = routeRepository.findById(route.getRouteId())
                                     .orElseThrow(() -> new RuntimeException("Route not found after saving recommendations."));
 
+                            // 추천 결과 리스트로 변환 (RecommendedPathsDTO 리스트 구성)
+                            paths = recommendedPaths.getPaths();
+
                         } catch (Exception e) {
-                            // 로그만 찍고 다음 route 계속 처리
                             System.out.println(String.format("AI 추천 처리 중 오류 발생 (routeId: %d)", route.getRouteId()));
                             System.out.println("오류 메시지: " + e.getMessage());
-                            e.printStackTrace();  // 콘솔에 전체 스택 트레이스 출력
+                            e.printStackTrace();
                         }
+                    } else {
+                        // 이미 저장된 추천 경로들을 DB에서 불러오기
+                        paths = pathRepository.findById(route.getSelectedPathId()).stream()
+                                .map(Path::toRecommendationDTO)
+                                .collect(Collectors.toList());
                     }
 
-                    // [4] DTO 변환
-                    return buildRunningSettingResponseDTO(route);
+                    Routine routine = route.getRoutine();
+
+                    return RunningSettingResponseDTO.builder()
+                            .routeId(route.getRouteId())
+                            .routineResponseDTO(RoutineResponseDTO.from(routine))
+                            .completed(route.isCompleted())
+                            .selectedPath(route.getSelectedPathId())
+                            .paths(paths)
+                            .build();
                 })
                 .collect(Collectors.toList());
-
     }
 
 
+
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public RunningSettingResponseDTO getRouteById(Long routeId) {
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROUTE_NOT_FOUND, ErrorCode.ROUTE_NOT_FOUND.getMessage()));
@@ -191,7 +207,7 @@ public class RouteServiceImpl implements RouteService {
     private RunningSettingResponseDTO buildRunningSettingResponseDTO(Route route) {
         RoutineResponseDTO routineDTO = RoutineResponseDTO.from(route.getRoutine());
 
-        List<RecommendationResponseDTO> recommendations;
+        List<RecommendedPathsDTO> recommendations;
 
         Long selectedPathId = route.getSelectedPathId();
         boolean completed = route.isCompleted();

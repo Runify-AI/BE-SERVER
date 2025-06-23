@@ -34,14 +34,18 @@ public class RecommendationService {
 
     private final WebClient aiWebClient;
 
-    public List<RecommendationResponseDTO> generateRecommendation(String startAddr, String endAddr, RecommendationRequestDTO request) {
+    public RecommendationResponseDTO generateRecommendation(String startAddr, String endAddr, RecommendationRequestDTO payload) {
+        System.out.println("[AI 요청 시작]");
+        System.out.println("시작 주소: " + startAddr);
+        System.out.println("종료 주소: " + endAddr);
+        System.out.println("Payload: " + payload);
         return aiWebClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path("/route/")
                         .queryParam("start_address", startAddr)
                         .queryParam("end_address", endAddr)
                         .build())
-                .bodyValue(request)
+                .bodyValue(payload)
                 .retrieve()
                 .onStatus(status -> status.isError(), response ->
                         response.bodyToMono(String.class)
@@ -51,13 +55,19 @@ public class RecommendationService {
                                     System.out.println("에러 본문: " + errorBody);
                                     return new RuntimeException("AI 서버 오류: " + response.statusCode() + " - " + errorBody);
                                 })
+                                .doOnNext(json -> {
+                                    System.out.println("[AI 응답 원문]");
+                                    System.out.println(json);
+                                })
                 )
-                .bodyToFlux(RecommendationResponseDTO.class)
-                .collectList()
+                .bodyToMono(RecommendationResponseDTO.class)
                 .block();
+
     }
 
-    public void saveRecommendationResults(Long routeId, List<RecommendationResponseDTO> recommendations) {
+    public void saveRecommendationResults(Long routeId, RecommendationResponseDTO response) {
+         List<RecommendedPathsDTO> recommendations = response.getPaths();
+
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid routeId: " + routeId));
 
@@ -65,9 +75,14 @@ public class RecommendationService {
                 ? pathRepository.findMaxPathIdByRouteId(routeId) + 1
                 : 1;
 
-        for (RecommendationResponseDTO dto : recommendations) {
+        for (RecommendedPathsDTO dto : recommendations) {
+            // Null check guard
+            if (dto.getRecommend() == null || dto.getCoord() == null || dto.getFeture() == null) {
+                continue; // 이 항목은 건너뜀
+            }
+
             Path path = Path.builder()
-                    .pathId(nextPathId++)
+                    .indexId(nextPathId++)
                     .similarity(dto.getRecommend().getSimilarity())
                     .paceScore(dto.getRecommend().getPace_score())
                     .finalScore(dto.getRecommend().getFinal_score())
@@ -102,7 +117,8 @@ public class RecommendationService {
         }
     }
 
-    private PathFeature buildFeature(Path path, FeatureType type, RecommendationResponseDTO.FeatureDetail detail) {
+
+    private PathFeature buildFeature(Path path, FeatureType type, RecommendedPathsDTO.FeatureDetail detail) {
         return PathFeature.builder()
                 .path(path)
                 .featureType(type)

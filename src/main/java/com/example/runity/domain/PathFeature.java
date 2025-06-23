@@ -26,7 +26,7 @@ public class PathFeature {
 
     private Double area;
 
-    private Double ratio;
+    private String ratio;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "path_id", nullable = false)

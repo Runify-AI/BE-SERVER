@@ -1,9 +1,10 @@
 package com.example.runity.domain;
 
-import com.example.runity.DTO.route.RecommendationResponseDTO;
+import com.example.runity.DTO.route.RecommendedPathsDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -24,24 +25,28 @@ public class Path {
     @JoinColumn(name = "routeId")
     private Route route;
 
-    private int pathId;
+    @Column(name = "indexId")
+    private int indexId;
+
     private double similarity;
     private double paceScore;
     private double finalScore;
     private double recommendedPace;
     private int expectedTime;
 
+    @Builder.Default
     @OneToMany(mappedBy = "path", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PathCoordinate> coordinates;
+    private List<PathCoordinate> coordinates = new ArrayList<>();;
 
+    @Builder.Default
     @OneToMany(mappedBy = "path", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PathFeature> features;
+    private List<PathFeature> features = new ArrayList<>();;
 
-    public RecommendationResponseDTO toRecommendationDTO() {
-        return RecommendationResponseDTO.builder()
-                .pathId(this.pathId)
+    public RecommendedPathsDTO toRecommendationDTO() {
+        return RecommendedPathsDTO.builder()
+                .pathId(this.indexId)
                 .feture(buildFeatureDTO(this.features))
-                .recommend(RecommendationResponseDTO.RecommendDTO.builder()
+                .recommend(RecommendedPathsDTO.RecommendDTO.builder()
                         .similarity(this.similarity)
                         .pace_score(this.paceScore)
                         .final_score(this.finalScore)
@@ -55,21 +60,23 @@ public class Path {
                 .build();
     }
 
-    private RecommendationResponseDTO.FeatureDTO buildFeatureDTO(List<PathFeature> features) {
-        RecommendationResponseDTO.FeatureDTO.FeatureDTOBuilder builder = RecommendationResponseDTO.FeatureDTO.builder();
+    private RecommendedPathsDTO.FeatureDTO buildFeatureDTO(List<PathFeature> features) {
+        RecommendedPathsDTO.FeatureDTO.FeatureDTOBuilder builder = RecommendedPathsDTO.FeatureDTO.builder();
 
-        for (PathFeature feature : features) {
-            RecommendationResponseDTO.FeatureDetail detail = new RecommendationResponseDTO.FeatureDetail(
-                    feature.getCount(),
-                    feature.getArea() != null ? feature.getArea() : 0.0,
-                    feature.getRatio() != null ? feature.getRatio() : 0.0
-            );
+        if(features != null) {
+            for (PathFeature feature : features) {
+                RecommendedPathsDTO.FeatureDetail detail = new RecommendedPathsDTO.FeatureDetail(
+                        feature.getCount(),
+                        feature.getArea() != null ? feature.getArea() : 0.0,
+                        feature.getRatio() != null ? feature.getRatio() : "0.0"
+                );
 
-            switch (feature.getFeatureType()) {
-                case PARK -> builder.park(detail);
-                case RIVER -> builder.river(detail);
-                case AMENITY -> builder.amenity(detail);
-                case CROSS -> builder.cross(detail);
+                switch (feature.getFeatureType()) {
+                    case PARK -> builder.park(detail);
+                    case RIVER -> builder.river(detail);
+                    case AMENITY -> builder.amenity(detail);
+                    case CROSS -> builder.cross(detail);
+                }
             }
         }
 

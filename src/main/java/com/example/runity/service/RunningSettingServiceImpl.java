@@ -46,6 +46,7 @@ public class RunningSettingServiceImpl implements RunningSettingService {
                     .map(pc -> new RouteCoordinateDTO(pc.getLat(), pc.getLon()))
                     .collect(Collectors.toList());
         }
+        //
 
         // [2] 현재 시간
         LocalTime now = LocalTime.now();

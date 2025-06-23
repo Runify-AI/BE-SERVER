@@ -1,6 +1,6 @@
 package com.example.runity.controller;
 
-import com.example.runity.DTO.route.RecommendationResponseDTO;
+import com.example.runity.DTO.route.RecommendedPathsDTO;
 import com.example.runity.DTO.route.*;
 import com.example.runity.service.RecommendationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,8 +33,8 @@ public class RecommendationController {
             description = "AI 예측 결과를 DB에 저장하는 API 입니다. [담당자] : 최효정"
     )
     @PostMapping("/save")
-    public ResponseEntity<Void> save(@RequestHeader Long routeId, @RequestBody List<RecommendationResponseDTO> recommendations) {
-        recommendationService.saveRecommendationResults(routeId, recommendations);
+    public ResponseEntity<Void> save(@RequestHeader Long routeId, @RequestBody RecommendationResponseDTO responseDTO) {
+        recommendationService.saveRecommendationResults(routeId, responseDTO);
         return ResponseEntity.ok().build();
     }
 }
