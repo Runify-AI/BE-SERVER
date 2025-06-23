@@ -1,7 +1,6 @@
 package com.example.runity.DTO.history;
 
-import com.example.runity.DTO.route.RecommendationRequestDTO;
-import com.example.runity.DTO.runningTS.FeedbackSummaryDTO;
+import com.example.runity.DTO.runningTS.FeedbackSummary;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +16,7 @@ public class RunningHistoryDTO {
     private Float duration;
     private Float averagePace;                       // 평균 페이스
     private Integer stopCount;
-    private FeedbackSummaryDTO feedbackSummaryDTO;
+    private FeedbackSummary feedbackSummaryDTO;
     private Integer focusScore;
     private Integer effortLevel;                      // 힘듦 정도
     private String comment;

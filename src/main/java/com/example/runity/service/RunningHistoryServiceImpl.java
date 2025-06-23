@@ -6,7 +6,7 @@ import com.example.runity.DTO.history.RunningSessionDTO;
 import com.example.runity.DTO.history.RunningSessionSummaryDTO;
 import com.example.runity.DTO.route.LocationDTO;
 import com.example.runity.DTO.route.RunningSettingsResponse;
-import com.example.runity.DTO.runningTS.FeedbackSummaryDTO;
+import com.example.runity.DTO.runningTS.FeedbackSummary;
 import com.example.runity.domain.DailyRunningRecord;
 import com.example.runity.domain.RealTimeRunning;
 import com.example.runity.domain.RunningPathTS;
@@ -143,10 +143,10 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
                 }
 
                 // 5. 러닝 이력 DTO 생성
-                FeedbackSummaryDTO feedback = FeedbackSummaryDTO.builder()
+                FeedbackSummary feedback = FeedbackSummary.builder()
                         .main(realTime.getFeedback_main())
                         .advice(realTime.getFeedback_advice())
-                        .earlySpeedDeviation(realTime.getFeedback_earlySpeedDeviation())
+                        .early_speed_deviation(realTime.getFeedback_earlySpeedDeviation())
                         .build();
 
                 RunningHistoryDTO history = RunningHistoryDTO.builder()

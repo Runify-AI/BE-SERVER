@@ -70,7 +70,7 @@ public class RealTimeRunning {
     private String feedback_advice;
 
     @Column
-    private Float feedback_earlySpeedDeviation;
+    private Double feedback_earlySpeedDeviation;
 
     @Column
     private Integer focusScore;

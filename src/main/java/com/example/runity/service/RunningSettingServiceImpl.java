@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,13 +41,21 @@ public class RunningSettingServiceImpl implements RunningSettingService {
         Long selectedPathId = route.getSelectedPathId();
         List<RouteCoordinateDTO> routePoints = List.of();
 
+        AtomicReference<String> targetPaceRef = new AtomicReference<>(null);
         if (selectedPathId != null) {
+            // path 좌표
             routePoints = pathCoordinateRepository.findAllByPathIdOrderBySequenceAsc(selectedPathId)
                     .stream()
                     .map(pc -> new RouteCoordinateDTO(pc.getLat(), pc.getLon()))
                     .collect(Collectors.toList());
+
+            // recommendedPace 조회
+            pathRepository.findById(selectedPathId).ifPresent(path -> {
+                Double pace = path.getRecommendedPace();
+                targetPaceRef.set(pace != null ? String.format("%.2f", pace) : null);
+            });
         }
-        //
+        String targetPace = targetPaceRef.get();
 
         // [2] 현재 시간
         LocalTime now = LocalTime.now();
@@ -72,6 +81,7 @@ public class RunningSettingServiceImpl implements RunningSettingService {
                 .estimatedEndTime(estimatedEndTime != null ? estimatedEndTime.toString() : null)
                 .startPoint(route.getStartPoint())
                 .endPoint(route.getEndPoint())
+                .targetPace(targetPace)
                 .build();
     }
 

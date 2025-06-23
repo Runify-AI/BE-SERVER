@@ -1,7 +1,7 @@
 package com.example.runity.DTO.route;
 
 import com.example.runity.DTO.WeatherDTO;
-import com.example.runity.DTO.runningTS.FeedbackSummaryDTO;
+import com.example.runity.DTO.runningTS.FeedbackSummary;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -27,7 +27,7 @@ public class RecommendationRequestDTO {
         private Float duration;
         private Float averagePace;                       // 평균 페이스
         private Integer stopCount;
-        private FeedbackSummaryDTO feedbackSummary;
+        private FeedbackSummary feedbackSummary;
         private Integer focusScore;
         private Integer effortLevel;                      // 힘듦 정도
         private String comment;

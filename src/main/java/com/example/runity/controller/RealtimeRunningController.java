@@ -1,7 +1,7 @@
 package com.example.runity.controller;
 
 import com.example.runity.DTO.runningTS.RunningCompleteRequest;
-import com.example.runity.DTO.runningTS.RunningFeedbackDTO;
+import com.example.runity.DTO.runningTS.Statics;
 import com.example.runity.DTO.runningTS.RunningPathDTO;
 import com.example.runity.service.RealtimeRunningService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Tag(name = "실시간 러닝 관련", description = "< 러닝 중 위치 저장 / 완료 기록 처리 >")
 @CrossOrigin(origins = "*")
@@ -65,7 +64,7 @@ public class RealtimeRunningController {
                     required = true,
                     content = @Content(schema = @Schema(implementation = RunningPathDTO.class))
             )
-            @RequestBody List<RunningPathDTO> dto) {
+            @RequestBody RunningPathDTO dto) {
         realtimeRunningService.saveRunningStates(token, routeId, dto);
         return ResponseEntity.ok().build();
     }
@@ -77,7 +76,7 @@ public class RealtimeRunningController {
             @ApiResponse(responseCode = "404", description = "사용자 또는 경로 정보 없음"),
     })
     @PostMapping("/complete")
-    public ResponseEntity<RunningFeedbackDTO> completeRunning(
+    public ResponseEntity<Statics> completeRunning(
             @Parameter(description = "인증 토큰", required = true, example = "Bearer {token}")
             @RequestHeader("Authorization") String token,
 
@@ -89,7 +88,7 @@ public class RealtimeRunningController {
             @RequestBody RunningCompleteRequest request) {
 
         Long sessionId = realtimeRunningService.completeRunning(token, request);
-        RunningFeedbackDTO feedbackDTO = realtimeRunningService.analyzeRunningStatistics(token, sessionId);
+        Statics feedbackDTO = realtimeRunningService.analyzeRunningStatistics(token, sessionId);
         realtimeRunningService.updateDailyRunningRecord(token, LocalDate.now());
 
         return ResponseEntity.ok(feedbackDTO);

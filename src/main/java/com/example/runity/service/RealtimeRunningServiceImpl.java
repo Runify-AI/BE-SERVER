@@ -1,18 +1,13 @@
 package com.example.runity.service;
 
 import com.example.runity.DTO.*;
-import com.example.runity.DTO.history.RunningHistoryDTO;
-import com.example.runity.DTO.history.RunningHistoryDetailDTO;
-import com.example.runity.DTO.route.LocationDTO;
-import com.example.runity.DTO.route.RecommendationResponseDTO;
-import com.example.runity.DTO.runningTS.FeedbackSummaryDTO;
-import com.example.runity.DTO.runningTS.RunningCompleteRequest;
-import com.example.runity.DTO.runningTS.RunningFeedbackDTO;
-import com.example.runity.DTO.runningTS.RunningPathDTO;
+import com.example.runity.DTO.runningTS.*;
 import com.example.runity.domain.*;
 //import com.example.runity.domain.RunningPathTS;
 import com.example.runity.repository.*;
 import com.example.runity.util.JwtUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -43,19 +38,12 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
     public void saveRunningState(Long userId, RunningPathDTO dto) {
         //Long userId = jwtUtil.getUserId(token);
 
-        String coordinateStr = dto.getCoordinate(); // 예: "37.1234,127.5678"
-        String[] parts = coordinateStr.split(",");
-        double latitude = Double.parseDouble(parts[0].trim());
-        double longitude = Double.parseDouble(parts[1].trim());
-        //Instant timestamp = Instant.ofEpochMilli(Long.parseLong(dto.getTimestamp()));
-
-
         RunningPathTS path = RunningPathTS.builder()
                 .pace(dto.getPace().floatValue())
                 .distance(dto.getDistance().floatValue())
                 .speed(dto.getSpeed().floatValue())
-                .latitude(latitude)
-                .longitude(longitude)
+                .latitude(dto.getCoordinate().getLatitude())
+                .longitude(dto.getCoordinate().getLongitude())
                 .elapsedTime(dto.getElapsedTime())
                 .typeEta(dto.getTypeEta())
                 .typePace(dto.getTypePace())
@@ -68,30 +56,27 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
     }
 
     @Override
-    public void saveRunningStates(String token, Long routeId, List<RunningPathDTO> runningPathsDTO) {
+    public void saveRunningStates(String token, Long routeId, RunningPathDTO dto) {
         Long userId = jwtUtil.getUserId(token);
 
-        List<RunningPathTS> paths = runningPathsDTO.stream()
-                .map(dto -> {
-                    String[] parts = dto.getCoordinate().split(",");
-                    double latitude = Double.parseDouble(parts[0].trim());
-                    double longitude = Double.parseDouble(parts[1].trim());
-                    Instant ts = dto.getTimestamp();
+        if (dto == null) return; // 방어 코드
 
-                    return RunningPathTS.builder()
-                            .timestamp(ts)
-                            .latitude(latitude)
-                            .longitude(longitude)
-                            .pace(dto.getPace().floatValue())
-                            .distance(dto.getDistance().floatValue())
-                            .speed(dto.getSpeed().floatValue())
-                            .elapsedTime(dto.getElapsedTime())
-                            .typeEta(dto.getTypeEta())
-                            .typePace(dto.getTypePace())
-                            .typeStop(dto.getTypeStop())
-                            .build();
-                })
-                .collect(Collectors.toList());
+        Instant ts = dto.getTimestamp();
+
+        RunningPathTS path = RunningPathTS.builder()
+                .timestamp(ts)
+                .latitude(dto.getCoordinate().getLatitude())
+                .longitude(dto.getCoordinate().getLongitude())
+                .pace(dto.getPace().floatValue())
+                .distance(dto.getDistance().floatValue())
+                .speed(dto.getSpeed().floatValue())
+                .elapsedTime(dto.getElapsedTime())
+                .typeEta(dto.getTypeEta())
+                .typePace(dto.getTypePace())
+                .typeStop(dto.getTypeStop())
+                .build();
+
+        List<RunningPathTS> paths = List.of(path);
 
         // 2) 비어 있으면 종료
         if (paths.isEmpty()) {
@@ -129,12 +114,14 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                             .build();
                     return realTimeRunningRepository.save(newSession);
                 });
+
         // 실시간 경로 저장
         Long sessionId = session.getRunningSessionId();
         runningPathRepository.saveAllWithCheck(sessionId, paths);
 
         System.out.println("sessionId: " + session.getRunningSessionId());
     }
+
 
 
 
@@ -147,15 +134,12 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
 
         List<RunningPathTS> paths = request.getRunningPaths().stream()
                 .map(dto -> {
-                    String[] parts = dto.getCoordinate().split(",");
-                    double latitude = Double.parseDouble(parts[0].trim());
-                    double longitude = Double.parseDouble(parts[1].trim());
                     Instant ts = dto.getTimestamp();
 
                     return RunningPathTS.builder()
                             .timestamp(ts)
-                            .latitude(latitude)
-                            .longitude(longitude)
+                            .latitude(dto.getCoordinate().getLatitude())
+                            .longitude(dto.getCoordinate().getLongitude())
                             .pace(dto.getPace().floatValue())
                             .distance(dto.getDistance().floatValue())
                             .speed(dto.getSpeed().floatValue())
@@ -304,34 +288,41 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
      * 통계 AI 호출
      */
     @Override
-    public RunningFeedbackDTO analyzeRunningStatistics(String token, Long sessionId) {
+    public Statics analyzeRunningStatistics(String token, Long sessionId) {
         Long userId = jwtUtil.getUserId(token);
 
-        // [1] 임시 RunningHistoryDTO 생성 (실제로는 DB에서 생성 or AI 호출 직전 DTO로 구성)
-        RunningHistoryDTO history = RunningHistoryDTO.builder()
-                .averagePace(0.1f)
-                .comment("string")
-                .completedTime(LocalTime.of(14, 30))
-                .effortLevel(5)
-                .elapsedTime(LocalTime.of(0, 30))
-                .routeId(1234L)
-                .distance(0.1f)
-                .runningTrackPoint(List.of(
-                        RunningHistoryDetailDTO.builder()
-                                .distance(0.1f)
-                                .elapsedTime(LocalTime.of(0, 30))
-                                .pace(0.1f)
-                                .timeStamp(LocalTime.of(14, 30))
-                                .location(new LocationDTO(0.1, 0.1))
-                                .typeEta(0.1f)
-                                .typePace(0.1f)
-                                .typeStop(0.1f)
-                                .build()
-                ))
+        // [1] sessionId로 RunningPathTS 전체 조회
+        List<RunningPathTS> pathList = runningPathRepository.findBySessionId(sessionId);
+
+        if (pathList.isEmpty()) {
+            throw new RuntimeException("러닝 경로 데이터가 존재하지 않습니다.");
+        }
+
+        // [1-2] RunningPathTS → StaticsHistoryDTO 리스트로 변환
+        List<StaticsHistoryRequestDTO.StaticsHistoryDTO> historyList = pathList.stream()
+                .map(p -> StaticsHistoryRequestDTO.StaticsHistoryDTO.builder()
+                        .distance(p.getDistance())
+                        .elapsedTime(p.getElapsedTime() != null ? p.getElapsedTime().toSecondOfDay() : 0)
+                        .pace(p.getPace())
+                        .build())
+                .collect(Collectors.toList());
+
+        // [1-3] DTO 감싸기
+        StaticsHistoryRequestDTO history = StaticsHistoryRequestDTO.builder()
+                .history(historyList)
                 .build();
 
-        // [2] TODO: AI 분석기 호출 - 실제로는 외부 API 호출이지만, 지금은 mock 반환
-        RunningFeedbackDTO result = mockAIAnalyze(history);
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            String json = objectMapper.writeValueAsString(history);
+            System.out.println(json);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace(); // 또는 로그 처리
+        }
+
+        // [2] AI 분석기 호출
+        FeedbackStaticsResponse result = mockAIAnalyze(history);
 
         // 3. DB 저장
         RealTimeRunning session = realTimeRunningRepository.findByRunningSessionId(sessionId);
@@ -339,23 +330,34 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
             throw new RuntimeException("해당 sessionId를 가진 러닝 세션을 찾을 수 없습니다.");
         }
 
+        Statics statics = result.getStatics();
+
+        if (statics == null) {
+            throw new IllegalStateException("AI 분석 결과가 null입니다. (Statics 객체 없음)");
+        }
+
+        FeedbackSummary feedback = statics.getFeedback_summary();
+        String main = feedback != null ? feedback.getMain() : null;
+        String advice = feedback != null ? feedback.getAdvice() : null;
+        double earlySpeedDeviation = feedback != null ? feedback.getEarly_speed_deviation() : 0.0;
+
         session = session.toBuilder()
-                .distance(result.getDistance())
-                .duration((float) result.getDuration())
-                .avgPace(result.getAvgPace())
-                .stopCount(result.getStopCount())
-                .feedback_main(result.getFeedbackSummary().getMain())
-                .feedback_advice(result.getFeedbackSummary().getAdvice())
-                .feedback_earlySpeedDeviation(result.getFeedbackSummary().getEarlySpeedDeviation())
-                .focusScore(result.getFocusScore())
+                .distance(statics.getDistance())
+                .duration((float) statics.getDuration())
+                .avgPace(statics.getAveragePace())
+                .stopCount(statics.getStopCount())
+                .feedback_main(main)
+                .feedback_advice(advice)
+                .feedback_earlySpeedDeviation(earlySpeedDeviation)
+                .focusScore(statics.getFocus_score())
                 .build();
 
         realTimeRunningRepository.save(session);  // 수정된 session 저장
 
-        return result;
+        return statics;
     }
-    private RunningFeedbackDTO mockAIAnalyze(RunningHistoryDTO dto) {
-        // /*
+    private FeedbackStaticsResponse mockAIAnalyze(StaticsHistoryRequestDTO dto) {
+         /*
         return RunningFeedbackDTO.builder()
                 .distance(3.21f)
                 .duration(25)
@@ -369,14 +371,14 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                         .build())
                 .build();
 
-         // */
+          */
 
-        /*
+        // /*
         System.out.println("[통계 AI 요청 시작]");
         System.out.println("Payload: " + dto);
         return aiWebClient.post()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/temp/")
+                        .path("/statics/")
                         .build())
                 .bodyValue(dto)
                 .retrieve()
@@ -393,10 +395,10 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                                     System.out.println(json);
                                 })
                 )
-                .bodyToMono(RunningFeedbackDTO.class)
+                .bodyToMono(FeedbackStaticsResponse.class)
                 .block();
 
-         */
+         // */
 
     }
 
