@@ -18,6 +18,9 @@ public class WeatherService {
     private final WeatherProperties weatherProperties;
     private final RestTemplate restTemplate = new RestTemplate();
 
+    /**
+     * 주어진 위치에 대한 날씨 정보를 OpenWeatherMap API로부터 조회
+     */
     public WeatherDTO getWeather(String location) {
         String url = String.format("%s?q=%s&appid=%s&units=%s",
                 weatherProperties.getBaseUrl(),

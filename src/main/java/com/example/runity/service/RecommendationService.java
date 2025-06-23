@@ -1,4 +1,3 @@
-// RecommendationService.java
 package com.example.runity.service;
 
 import com.example.runity.DTO.WeatherDTO;
@@ -34,11 +33,15 @@ public class RecommendationService {
 
     private final WebClient aiWebClient;
 
+    /**
+     * AI 경로 추천 요청
+     */
     public RecommendationResponseDTO generateRecommendation(String startAddr, String endAddr, RecommendationRequestDTO payload) {
         System.out.println("[AI 요청 시작]");
         System.out.println("시작 주소: " + startAddr);
         System.out.println("종료 주소: " + endAddr);
         System.out.println("Payload: " + payload);
+
         return aiWebClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path("/route/")
@@ -62,11 +65,13 @@ public class RecommendationService {
                 )
                 .bodyToMono(RecommendationResponseDTO.class)
                 .block();
-
     }
 
+    /**
+     * AI 추천 경로 저장
+     */
     public void saveRecommendationResults(Long routeId, RecommendationResponseDTO response) {
-         List<RecommendedPathsDTO> recommendations = response.getPaths();
+        List<RecommendedPathsDTO> recommendations = response.getPaths();
 
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid routeId: " + routeId));
@@ -76,9 +81,8 @@ public class RecommendationService {
                 : 1;
 
         for (RecommendedPathsDTO dto : recommendations) {
-            // Null check guard
             if (dto.getRecommend() == null || dto.getCoord() == null || dto.getFeture() == null) {
-                continue; // 이 항목은 건너뜀
+                continue;
             }
 
             Path path = Path.builder()
@@ -109,7 +113,7 @@ public class RecommendationService {
                     buildFeature(path, FeatureType.CROSS, dto.getFeture().getCross())
             ));
 
-            // 초기 선택된 pathId 저장
+            // 기본 선택 경로 설정
             if (dto.getPathId() == 0) {
                 route.setSelectedPathId(path.getId());
                 routeRepository.save(route);
@@ -117,7 +121,9 @@ public class RecommendationService {
         }
     }
 
-
+    /**
+     * 경로별 요소(Feature) 정보 저장
+     */
     private PathFeature buildFeature(Path path, FeatureType type, RecommendedPathsDTO.FeatureDetail detail) {
         return PathFeature.builder()
                 .path(path)
@@ -128,53 +134,52 @@ public class RecommendationService {
                 .build();
     }
 
+    /**
+     * 유저가 선택한 추천 경로 저장
+     */
     public void selectRecommendedPath(String token, Long routeId, Long selectedPathId) {
         Long userId = jwtUtil.getUserId(token);
+
         Route route = routeRepository.findById(routeId)
                 .filter(r -> r.getUser().getUserId().equals(userId))
                 .orElseThrow(() -> new IllegalArgumentException("권한이 없거나 존재하지 않는 경로입니다."));
+
         route.setSelectedPathId(selectedPathId);
         routeRepository.save(route);
     }
 
+    /**
+     * AI 추천 요청용 DTO 생성
+     */
     public RecommendationRequestDTO generateRecommendations(String token, Long routeId) {
-        //Long userId = jwtUtil.getUserId(token);
-
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid routeId: " + routeId));
         Long userId = route.getUser().getUserId();
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid userId: " + userId));
 
-        // 1. Preference 가져오기 (user가 Preference를 가지고 있다는 전제)
+        // 유저 선호 정보 조회
         Preference preference = preferenceRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("유저의 선호 설정이 존재하지 않습니다."));
 
-        // 2. user_profile 구성
+        // 유저 프로필 생성
         RecommendationRequestDTO.UserProfile userProfile = RecommendationRequestDTO.UserProfile.builder()
                 .running_type(user.getRunningType().name())
                 .height(user.getHeight())
                 .weight(user.getWeight())
                 .preferences(RecommendationRequestDTO.Preferences.builder()
-                        .preferencePlace(preference.getPreferencePlaces().stream()
-                                .map(Enum::name)
-                                .toList())
-                        .preferenceRoute(preference.getPreferenceRoutes().stream()
-                                .map(Enum::name)
-                                .toList())
-                        .preferenceAvoid(preference.getPreferenceAvoids().stream()
-                                .map(Enum::name)
-                                .toList())
-                        .preferenceEtc(preference.getPreferenceEtcs().stream()
-                                .map(Enum::name)
-                                .toList())
+                        .preferencePlace(preference.getPreferencePlaces().stream().map(Enum::name).toList())
+                        .preferenceRoute(preference.getPreferenceRoutes().stream().map(Enum::name).toList())
+                        .preferenceAvoid(preference.getPreferenceAvoids().stream().map(Enum::name).toList())
+                        .preferenceEtc(preference.getPreferenceEtcs().stream().map(Enum::name).toList())
                         .build())
                 .build();
 
-        // 2. 날씨
+        // 날씨 정보
         WeatherDTO weather = weatherService.getWeather("Daegu");
 
-        // 3. 러닝 기록
+        // 최근 러닝 기록 2일치 수집
         List<DailyRunningRecord> recentRecords = dailyRunningRecordRepository.findTop2ByUserIdOrderByDateDesc(userId);
         List<RecommendationRequestDTO.HistoryDTO> historyList = recentRecords.stream()
                 .flatMap(r -> {
@@ -183,7 +188,7 @@ public class RecommendationService {
                             .map(RunningSessionDTO::getRunningHistoryDTO)
                             .map(dto -> RecommendationRequestDTO.HistoryDTO.builder()
                                     .routeId(dto.getRouteId())
-                                    .date(r.getDate())  // 여기서 날짜 유지
+                                    .date(r.getDate())
                                     .distance(dto.getDistance())
                                     .averagePace(dto.getAveragePace())
                                     .stopCount(dto.getStopCount())
@@ -197,6 +202,7 @@ public class RecommendationService {
                 .limit(2)
                 .collect(Collectors.toList());
 
+        // 최종 요청 객체 구성
         return RecommendationRequestDTO.builder()
                 .user_profile(userProfile)
                 .weather(weather)

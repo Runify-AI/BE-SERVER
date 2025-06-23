@@ -59,9 +59,7 @@ public class RouteServiceImpl implements RouteService {
                 coordinateSet.add(new Route.Coordinate(coordinateDTO.getLatitude(), coordinateDTO.getLongitude()));
             }
         }
-
         route.getCoordinates().addAll(coordinateSet);
-
          */
 
         RouteChoice routeChoice = RouteChoice.builder()
@@ -88,14 +86,17 @@ public class RouteServiceImpl implements RouteService {
 
         return routes.stream()
                 .map(route -> {
-                    List<RecommendedPathsDTO> paths = List.of();  // 추천 경로 리스트 초기화
+                    List<RecommendedPathsDTO> paths = List.of(); // 추천 경로 리스트 초기화
 
+                    // 추천 경로가 아직 선택되지 않은 경우
                     if (route.getSelectedPathId() == null) {
                         try {
+                            // AI 추천 요청용 DTO 생성
                             RecommendationRequestDTO request = recommendationService.generateRecommendations(token, route.getRouteId());
                             String startAddr = route.getStartPoint();
                             String endAddr = route.getEndPoint();
 
+                            // AI 서버에 추천 요청
                             RecommendationResponseDTO recommendedPaths = recommendationService.generateRecommendation(startAddr, endAddr, request);
 
                             if (recommendedPaths.getPaths() == null) {
@@ -104,14 +105,14 @@ public class RouteServiceImpl implements RouteService {
                                 System.out.println("AI 추천 결과가 성공적으로 수신되었습니다.");
                             }
 
-                            // 저장
+                            // 추천 결과 저장
                             recommendationService.saveRecommendationResults(route.getRouteId(), recommendedPaths);
 
-                            // route 재조회
+                            // 추천 결과 저장 후 route 재조회
                             route = routeRepository.findById(route.getRouteId())
                                     .orElseThrow(() -> new RuntimeException("Route not found after saving recommendations."));
 
-                            // 추천 결과 리스트로 변환 (RecommendedPathsDTO 리스트 구성)
+                            // 추천 결과 리스트 구성
                             paths = recommendedPaths.getPaths();
 
                         } catch (Exception e) {
@@ -120,7 +121,7 @@ public class RouteServiceImpl implements RouteService {
                             e.printStackTrace();
                         }
                     } else {
-                        // 이미 저장된 추천 경로들을 DB에서 불러오기
+                        // 이미 저장된 추천 경로 불러오기
                         paths = pathRepository.findById(route.getSelectedPathId()).stream()
                                 .map(Path::toRecommendationDTO)
                                 .collect(Collectors.toList());
@@ -128,6 +129,7 @@ public class RouteServiceImpl implements RouteService {
 
                     Routine routine = route.getRoutine();
 
+                    // 응답 DTO 구성
                     return RunningSettingResponseDTO.builder()
                             .routeId(route.getRouteId())
                             .routineResponseDTO(RoutineResponseDTO.from(routine))
@@ -138,8 +140,6 @@ public class RouteServiceImpl implements RouteService {
                 })
                 .collect(Collectors.toList());
     }
-
-
 
     @Override
     @Transactional(readOnly = false)
@@ -217,7 +217,7 @@ public class RouteServiceImpl implements RouteService {
             recommendations = pathRepository.findById(selectedPathId)
                     .map(Path::toRecommendationDTO)
                     .map(List::of)
-                    .orElse(List.of()); // 선택된 경로가 없을 경우 빈 리스트
+                    .orElse(List.of()); // 선택된 경로가 없을 경우 빈 리스트 반환
         } else {
             // 전체 추천 경로 조회
             recommendations = pathRepository.findAllByRoute_RouteId(route.getRouteId())
@@ -235,7 +235,6 @@ public class RouteServiceImpl implements RouteService {
                 .build();
     }
 
-
     @Override
     @Transactional
     public void selectPath(Long routeId, Long pathId) {
@@ -245,12 +244,12 @@ public class RouteServiceImpl implements RouteService {
         Path path = pathRepository.findById(pathId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PATH_NOT_FOUND, "해당 추천 경로를 찾을 수 없습니다."));
 
-        // path가 route에 속해 있는지 확인
+        // path가 해당 route에 속하는지 검증
         if (!path.getRoute().getRouteId().equals(routeId)) {
             throw new CustomException(ErrorCode.PATH_ROUTE_MISMATCH, "해당 path는 지정된 route에 속하지 않습니다.");
         }
 
-        // 검증 통과 → route의 selectedPathId 갱신
+        // 검증 완료 → 선택된 경로로 설정
         route.setSelectedPathId(pathId);
     }
 
