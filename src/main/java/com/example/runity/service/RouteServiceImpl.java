@@ -84,7 +84,7 @@ public class RouteServiceImpl implements RouteService {
     @Transactional(readOnly = false)
     public List<RunningSettingResponseDTO> getRouteByUser(String token) {
         Long userId = jwtUtil.getUserId(token);
-        List<Route> routes = routeRepository.findByUserUserId(userId);
+        List<Route> routes = routeRepository.findByUserUserIdAndCompletedFalse(userId);
 
         return routes.stream()
                 .map(route -> {
@@ -198,7 +198,7 @@ public class RouteServiceImpl implements RouteService {
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROUTE_NOT_FOUND, ErrorCode.ROUTE_NOT_FOUND.getMessage()));
 
-        if (!route.getUser().getUserId().equals(userId)) {
+        if (!route.getUser().getUserId().equals(userId) || route.isCompleted()) {
             throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
         }
         routeRepository.deleteById(routeId);

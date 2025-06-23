@@ -4,6 +4,7 @@ import com.example.runity.DTO.*;
 import com.example.runity.DTO.history.RunningHistoryDTO;
 import com.example.runity.DTO.history.RunningHistoryDetailDTO;
 import com.example.runity.DTO.route.LocationDTO;
+import com.example.runity.DTO.route.RecommendationResponseDTO;
 import com.example.runity.DTO.runningTS.FeedbackSummaryDTO;
 import com.example.runity.DTO.runningTS.RunningCompleteRequest;
 import com.example.runity.DTO.runningTS.RunningFeedbackDTO;
@@ -14,6 +15,7 @@ import com.example.runity.repository.*;
 import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.*;
 import java.util.List;
@@ -29,7 +31,10 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
     private final StatisticsRepository statisticsRepository;
     private final WeatherService weatherService;
     private final RunningHistoryService runningHistoryService;
+    private final RouteRepository routeRepository;
     private final JwtUtil jwtUtil;
+
+    private final WebClient aiWebClient;
 
     /**
      * 실시간 러닝 상태 저장
@@ -350,6 +355,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         return result;
     }
     private RunningFeedbackDTO mockAIAnalyze(RunningHistoryDTO dto) {
+        // /*
         return RunningFeedbackDTO.builder()
                 .distance(3.21f)
                 .duration(25)
@@ -362,6 +368,36 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                         .earlySpeedDeviation(1.2f)
                         .build())
                 .build();
+
+         // */
+
+        /*
+        System.out.println("[통계 AI 요청 시작]");
+        System.out.println("Payload: " + dto);
+        return aiWebClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/temp/")
+                        .build())
+                .bodyValue(dto)
+                .retrieve()
+                .onStatus(status -> status.isError(), response ->
+                        response.bodyToMono(String.class)
+                                .map(errorBody -> {
+                                    System.out.println("[AI 요청 실패]");
+                                    System.out.println("상태 코드: " + response.statusCode());
+                                    System.out.println("에러 본문: " + errorBody);
+                                    return new RuntimeException("AI 서버 오류: " + response.statusCode() + " - " + errorBody);
+                                })
+                                .doOnNext(json -> {
+                                    System.out.println("[AI 응답 원문]");
+                                    System.out.println(json);
+                                })
+                )
+                .bodyToMono(RunningFeedbackDTO.class)
+                .block();
+
+         */
+
     }
 
 
@@ -393,6 +429,11 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 count++;
             }
             count++;
+
+            routeRepository.findById(run.getRouteId()).ifPresent(route -> {
+                route.setCompleted(true);
+                routeRepository.save(route);
+            });
         }
 
         float avgSpeed = (count > 0) ? totalSpeed / count : 0f;

@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RouteRepository extends JpaRepository<Route, Long> {
-    List<Route> findByUserUserId(Long userId);
+    List<Route> findByUserUserIdAndCompletedFalse(Long userId);
     Optional<Route> findByRouteId(Long routeId);
 }
