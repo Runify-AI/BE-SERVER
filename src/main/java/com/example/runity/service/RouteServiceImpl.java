@@ -46,8 +46,6 @@ public class RouteServiceImpl implements RouteService {
                 .user(user)
                 .startPoint(routeRequestDTO.getStartPoint())
                 .endPoint(routeRequestDTO.getEndPoint())
-                .estimatedTime(routeRequestDTO.getEstimatedTime())
-                .distance(routeRequestDTO.getDistance())
                 .createdAt(LocalDateTime.now())
                 .routine(routineRepository.findByRoutineId(routeRequestDTO.getRoutineId()))
                 .build();
@@ -89,7 +87,7 @@ public class RouteServiceImpl implements RouteService {
                     List<RecommendedPathsDTO> paths = List.of(); // 추천 경로 리스트 초기화
 
                     // 추천 경로가 아직 선택되지 않은 경우
-                    if (route.getSelectedPathId() == null) {
+                    if (route.getSelectedPathId() == null ) {
                         try {
                             // AI 추천 요청용 DTO 생성
                             RecommendationRequestDTO request = recommendationService.generateRecommendations(token, route.getRouteId());
@@ -161,13 +159,9 @@ public class RouteServiceImpl implements RouteService {
             throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
         }
 
-        LocalTime estimatedTime = routeRequestDTO.getEstimatedTime();
-
         route.update(
                 routeRequestDTO.getStartPoint(),
-                routeRequestDTO.getEndPoint(),
-                routeRequestDTO.getEstimatedTime(),
-                routeRequestDTO.getDistance()
+                routeRequestDTO.getEndPoint()
         );
 
         List<RouteChoice> routeChoices = route.getRouteChoices();

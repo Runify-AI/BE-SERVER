@@ -44,11 +44,11 @@ public class Route {
     private String endPoint;
     // 예상시간
     @Setter
-    @Column(nullable = false)
+    @Column
     private LocalTime estimatedTime;
     // 거리
     @Setter
-    @Column(nullable = false)
+    @Column
     private Float distance;
     // 경로 생성
     @Setter
@@ -72,20 +72,15 @@ public class Route {
     }
 
 
-    public Route(User user, String startPoint, String endPoint, LocalTime estimatedTime, Float distance) {
+    public Route(User user, String startPoint, String endPoint) {
         this.user = user;
         this.startPoint = startPoint;
         this.endPoint = endPoint;
-        this.estimatedTime = estimatedTime;
-        this.distance = distance;
-        //this.createdAt = LocalDateTime.now();
     }
 
-    public void update(String startPoint, String endPoint, LocalTime estimatedTime, Float distance) {
+    public void update(String startPoint, String endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
-        this.estimatedTime = estimatedTime;
-        this.distance = distance;
     }
 
     public List<RouteChoice> getRouteChoices() {

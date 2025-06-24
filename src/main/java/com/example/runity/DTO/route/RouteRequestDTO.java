@@ -12,10 +12,6 @@ import java.util.List;
 public class RouteRequestDTO {
     private String startPoint;
     private String endPoint;
-    @NotNull
-    @JsonFormat(pattern = "HH:mm:ss")
-    private LocalTime estimatedTime;
-    private Float distance;
     private RouteChoiceRequestDTO routeChoiceRequestDTO;
     private Long routineId;
 }
