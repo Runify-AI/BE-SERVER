@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 @EnableJpaRepositories
 public interface PathRepository extends JpaRepository<Path, Long> {
@@ -14,4 +15,10 @@ public interface PathRepository extends JpaRepository<Path, Long> {
 
     @Query("SELECT MAX(p.indexId) FROM Path p WHERE p.route.routeId = :routeId")
     Integer findMaxPathIdByRouteId(@Param("routeId") Long routeId);
+
+    Optional<Path> findByRoute_RouteIdAndIndexId(Long routeId, Integer indexId);
+
+    @Query("SELECT MAX(p.indexId) FROM Path p WHERE p.route.routeId = :routeId")
+    Integer findMaxIndexIdByRouteId(@Param("routeId") Long routeId);
+    Integer findMaxIndexIdByRoute_RouteId(Long routeId);
 }

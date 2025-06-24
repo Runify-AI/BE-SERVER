@@ -76,7 +76,7 @@ public class RecommendationService {
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid routeId: " + routeId));
 
-        int nextPathId = pathRepository.findMaxPathIdByRouteId(routeId) != null
+        int nextIndexId = pathRepository.findMaxIndexIdByRouteId(routeId) != null
                 ? pathRepository.findMaxPathIdByRouteId(routeId) + 1
                 : 1;
 
@@ -86,7 +86,7 @@ public class RecommendationService {
             }
 
             Path path = Path.builder()
-                    .indexId(nextPathId++)
+                    .indexId(nextIndexId++)
                     .similarity(dto.getRecommend().getSimilarity())
                     .paceScore(dto.getRecommend().getPace_score())
                     .finalScore(dto.getRecommend().getFinal_score())
@@ -115,7 +115,7 @@ public class RecommendationService {
 
             // 기본 선택 경로 설정
             if (dto.getPathId() == 0) {
-                route.setSelectedPathId(path.getId());
+                route.setSelectedPathId(path.getIndexId());
                 routeRepository.save(route);
             }
         }
@@ -137,7 +137,7 @@ public class RecommendationService {
     /**
      * 유저가 선택한 추천 경로 저장
      */
-    public void selectRecommendedPath(String token, Long routeId, Long selectedPathId) {
+    public void selectRecommendedPath(String token, Long routeId, int selectedPathId) {
         Long userId = jwtUtil.getUserId(token);
 
         Route route = routeRepository.findById(routeId)

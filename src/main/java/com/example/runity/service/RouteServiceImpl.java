@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,16 +49,6 @@ public class RouteServiceImpl implements RouteService {
                 .routine(routineRepository.findByRoutineId(routeRequestDTO.getRoutineId()))
                 .build();
 
-        /*
-        Set<Route.Coordinate> coordinateSet = new HashSet<>();
-        if (routeRequestDTO.getCoordinates() != null) {
-            for (RouteRequestDTO.CoordinateDTO coordinateDTO : routeRequestDTO.getCoordinates()) {
-                coordinateSet.add(new Route.Coordinate(coordinateDTO.getLatitude(), coordinateDTO.getLongitude()));
-            }
-        }
-        route.getCoordinates().addAll(coordinateSet);
-         */
-
         RouteChoice routeChoice = RouteChoice.builder()
                 .usePublicTransport(choiceDTO.getUsePublicTransport())
                 .preferSafePath(choiceDTO.getPreferSafePath())
@@ -87,7 +76,7 @@ public class RouteServiceImpl implements RouteService {
                     List<RecommendedPathsDTO> paths = List.of(); // 추천 경로 리스트 초기화
 
                     // 추천 경로가 아직 선택되지 않은 경우
-                    if (route.getSelectedPathId() == null ) {
+                    if (route.getSelectedPathId() == null) {
                         try {
                             // AI 추천 요청용 DTO 생성
                             RecommendationRequestDTO request = recommendationService.generateRecommendations(token, route.getRouteId());
@@ -120,16 +109,18 @@ public class RouteServiceImpl implements RouteService {
                         }
                     } else {
                         // 이미 저장된 추천 경로 불러오기
-                        paths = pathRepository.findById(route.getSelectedPathId()).stream()
+                        paths = pathRepository.findByRoute_RouteIdAndIndexId(route.getRouteId(), route.getSelectedPathId()).stream()
                                 .map(Path::toRecommendationDTO)
                                 .collect(Collectors.toList());
-                    }
+                    } // 이미 저장된 추천 경로 불러오기
 
                     Routine routine = route.getRoutine();
 
                     // 응답 DTO 구성
                     return RunningSettingResponseDTO.builder()
                             .routeId(route.getRouteId())
+                            .startPoint(route.getStartPoint())
+                            .endPoint(route.getEndPoint())
                             .routineResponseDTO(RoutineResponseDTO.from(routine))
                             .completed(route.isCompleted())
                             .selectedPath(route.getSelectedPathId())
@@ -203,9 +194,10 @@ public class RouteServiceImpl implements RouteService {
 
         List<RecommendedPathsDTO> recommendations;
 
-        Long selectedPathId = route.getSelectedPathId();
+        Integer selectedPathId = route.getSelectedPathId();
         boolean completed = route.isCompleted();
 
+        /*
         if (selectedPathId != null) {
             // 선택된 Path만 조회
             recommendations = pathRepository.findById(selectedPathId)
@@ -220,8 +212,17 @@ public class RouteServiceImpl implements RouteService {
                     .toList();
         }
 
+         */
+        // 전체 추천 경로 조회
+        recommendations = pathRepository.findAllByRoute_RouteId(route.getRouteId())
+                .stream()
+                .map(Path::toRecommendationDTO)
+                .toList();
+
         return RunningSettingResponseDTO.builder()
                 .routeId(route.getRouteId())
+                .startPoint(route.getStartPoint())
+                .endPoint(route.getEndPoint())
                 .routineResponseDTO(routineDTO)
                 .completed(completed)
                 .selectedPath(selectedPathId)
@@ -231,11 +232,11 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     @Transactional
-    public void selectPath(Long routeId, Long pathId) {
+    public void selectPath(Long routeId, Integer indexId) {
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROUTE_NOT_FOUND, "해당 경로를 찾을 수 없습니다."));
 
-        Path path = pathRepository.findById(pathId)
+        Path path = pathRepository.findByRoute_RouteIdAndIndexId(routeId, indexId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PATH_NOT_FOUND, "해당 추천 경로를 찾을 수 없습니다."));
 
         // path가 해당 route에 속하는지 검증
@@ -244,7 +245,7 @@ public class RouteServiceImpl implements RouteService {
         }
 
         // 검증 완료 → 선택된 경로로 설정
-        route.setSelectedPathId(pathId);
+        route.setSelectedPathId(indexId);
     }
 
 }

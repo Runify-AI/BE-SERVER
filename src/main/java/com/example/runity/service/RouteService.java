@@ -24,5 +24,5 @@ public interface RouteService {
     void deleteRoute(String token, Long routeId);
 
     // 추천 경로 선택
-    void selectPath(Long routeId, Long pathId);
+    void selectPath(Long routeId, Integer indexId);
 }

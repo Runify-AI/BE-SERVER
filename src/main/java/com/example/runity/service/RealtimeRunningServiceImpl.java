@@ -175,12 +175,13 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                         RealTimeRunning.builder()
                                 .recordId(record.getRecordId())
                                 .routeId(routeId)
-                                .isCompleted(false)
+                                .isCompleted(true)
                                 .build()
                 ));
 
         // 세션 업데이트
         session = session.toBuilder()
+                .routeId(routeId)
                 .comment(request.getComment())
                 .effortLevel(request.getEffortLevel())
                 .endTime(endTime)
@@ -227,7 +228,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
             e.printStackTrace();
         }
 
-        // AI 호출
+        // 통계 AI 호출
         FeedbackStaticsResponse result = mockAIAnalyze(history);
 
         // 결과 저장
@@ -300,12 +301,6 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
                 totalSpeed += run.getAvgSpeed();
             }
             count++;
-
-            // 해당 루트 완료 처리
-            routeRepository.findById(run.getRouteId()).ifPresent(route -> {
-                route.setCompleted(true);
-                routeRepository.save(route);
-            });
         }
 
         float avgSpeed = (count > 0) ? totalSpeed / count : 0f;

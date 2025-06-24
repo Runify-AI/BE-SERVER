@@ -41,37 +41,39 @@ public class RunningSettingServiceImpl implements RunningSettingService {
                     .build();
         }
 
-        Long selectedPathId = route.getSelectedPathId();
+        Integer selectedPathId = route.getSelectedPathId();
         List<RouteCoordinateDTO> routePoints = List.of();
 
         AtomicReference<String> targetPaceRef = new AtomicReference<>(null);
+        AtomicReference<Integer> expectedTimeRef = new AtomicReference<>(null);
+        AtomicReference<Long> pathIdRef = new AtomicReference<>();
         if (selectedPathId != null) {
+            // 추천 페이스 조회
+            pathRepository.findByRoute_RouteIdAndIndexId(route.getRouteId(), selectedPathId).ifPresent(path -> {
+                Double pace = path.getRecommendedPace();
+                targetPaceRef.set(pace != null ? String.format("%.2f", pace) : null);
+                expectedTimeRef.set(path.getExpectedTime());
+                pathIdRef.set(path.getId());
+            });
+
             // 선택된 path의 좌표 조회
-            routePoints = pathCoordinateRepository.findAllByPathIdOrderBySequenceAsc(selectedPathId)
+            routePoints = pathCoordinateRepository.findAllByPathIdOrderBySequenceAsc(pathIdRef.get())
                     .stream()
                     .map(pc -> new RouteCoordinateDTO(pc.getLat(), pc.getLon()))
                     .collect(Collectors.toList());
-
-            // 추천 페이스 조회
-            pathRepository.findById(selectedPathId).ifPresent(path -> {
-                Double pace = path.getRecommendedPace();
-                targetPaceRef.set(pace != null ? String.format("%.2f", pace) : null);
-            });
         }
         String targetPace = targetPaceRef.get();
+        Integer expectedTime = expectedTimeRef.get();
 
         // 현재 시간 구하기
         LocalTime now = LocalTime.now();
         String startTime = now.toString();
 
-        // duration 문자열 가져오기 (null 가능)
-        String duration = route.getEstimatedTime() != null ? route.getEstimatedTime().toString() : null;
-
         // 예상 종료 시간 계산
         String estimatedEndTime = null;
-        if (duration != null) {
+        if (expectedTime != null) {
             try {
-                estimatedEndTime = now.plusSeconds(parseDurationToSeconds(duration)).toString();
+                estimatedEndTime = now.plusSeconds(expectedTime*60).toString();
             } catch (Exception e) {
                 // 파싱 실패 시 무시
             }
@@ -80,9 +82,7 @@ public class RunningSettingServiceImpl implements RunningSettingService {
         // 응답 DTO 생성 및 반환
         return RunningSettingsResponse.builder()
                 .routePoints(routePoints)
-                .duration(duration)
                 .startTime(startTime)
-                .estimatedEndTime(estimatedEndTime != null ? estimatedEndTime : null)
                 .startPoint(route.getStartPoint())
                 .endPoint(route.getEndPoint())
                 .targetPace(targetPace)

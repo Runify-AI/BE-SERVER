@@ -56,7 +56,7 @@ public class Route {
     private LocalDateTime createdAt;
     // 선택된 path의 아이디
     @Setter
-    private Long selectedPathId;
+    private Integer selectedPathId;
 
     // 중복 저장 허용
     @Builder.Default

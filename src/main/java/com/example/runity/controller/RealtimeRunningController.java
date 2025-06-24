@@ -46,7 +46,7 @@ public class RealtimeRunningController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "러닝 상태 리스트 저장", description = "3분 주기로 사용자 상태 좌표 리스트를 저장합니다.")
+    @Operation(summary = "러닝 상태 리스트 저장", description = "3분 주기로 사용자 상태 좌표를 저장합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "러닝 상태 저장 완료"),
             @ApiResponse(responseCode = "400", description = "입력값 형식 오류")
@@ -55,12 +55,10 @@ public class RealtimeRunningController {
     public ResponseEntity<Void> saveRunningStates(
             @Parameter(description = "인증 토큰", required = true, example = "Bearer {token}")
             @RequestHeader("Authorization") String token,
-
             @Parameter(description = "경로 ID", required = true, example = "10")
             @PathVariable("routeId") Long routeId,
-
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "러닝 상태 데이터 리스트",
+                    description = "러닝 상태 데이터",
                     required = true,
                     content = @Content(schema = @Schema(implementation = RunningPathDTO.class))
             )

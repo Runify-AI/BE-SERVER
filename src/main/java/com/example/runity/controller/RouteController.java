@@ -103,10 +103,10 @@ public class RouteController {
                 .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_DELETE.getStatus(), SuccessCode.SUCCESS_ROUTE_DELETE.getMessage()));
     }
 
-    @PatchMapping("/{routeId}/select-path/{pathId}")
+    @GetMapping("/{routeId}/select-path/{pathId}")
     public ResponseEntity<ReturnCodeDTO> selectPath(
             @PathVariable Long routeId,
-            @PathVariable Long pathId
+            @PathVariable Integer pathId
     ) {
         routeService.selectPath(routeId, pathId);
         return ResponseEntity.ok(

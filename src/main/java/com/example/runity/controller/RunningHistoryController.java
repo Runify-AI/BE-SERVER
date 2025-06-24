@@ -55,23 +55,4 @@ public class RunningHistoryController {
                                                                       @RequestParam LocalDate date) {
         return ResponseEntity.ok(runningHistoryService.getDailyRecord(token, date));
     }
-
-    /*
-    @GetMapping("/period")
-    public ResponseEntity<List<RunningHistoryDetailDTO>> getPeriodRecord(@RequestHeader("Authorization") String token,
-                                                                         @RequestParam LocalDate start,
-                                                                   @RequestParam LocalDate end) {
-        List<RunningHistoryDetailDTO> result = new ArrayList<>();
-
-        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
-            try {
-                RunningHistoryDetailDTO dto = runningHistoryService.getDailyRecord(token, date);
-                result.add(dto);
-            } catch (RuntimeException e) {
-                // 기록 없는 날짜는 무시
-            }
-        }
-        return ResponseEntity.ok(result);
-    }
-    */
 }
