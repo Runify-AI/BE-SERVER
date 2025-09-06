@@ -1,0 +1,99 @@
+package com.example.runity.controller;
+
+import com.example.runity.DTO.RouteRequestDTO;
+import com.example.runity.DTO.ReturnCodeDTO;
+import com.example.runity.constants.SuccessCode;
+import com.example.runity.domain.Route;
+import com.example.runity.service.RouteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java. util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/routes")
+@Tag(name = "경로", description = "< 경로 > API")
+public class RouteController {
+    private final RouteService routeService;
+
+    @Operation(summary = "경로를 생성하는 API 입니다. [담당자] : 정현아")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "경로 생성 성공",
+                    content = @Content(schema = @Schema(implementation = ReturnCodeDTO.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
+    })
+    @PostMapping
+    public ResponseEntity<ReturnCodeDTO> createRoute(@RequestBody RouteRequestDTO routeRequestDTO) {
+        routeService.createRoute(routeRequestDTO);
+        return ResponseEntity.status(SuccessCode.SUCCESS_ROUTE_CREATE.getStatus())
+                .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_CREATE.getStatus(), SuccessCode.SUCCESS_ROUTE_CREATE.getMessage()));
+    }
+
+    @Operation(summary = "유저의 경로 목록을 조회하는 API 입니다. [담당자] : 정현아")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "경로 조회 성공",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Route.class)))),
+            @ApiResponse(responseCode = "404", description = "경로 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
+    })
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getRoutesByUser(@PathVariable Long userId) {
+        List<Route> routes = routeService.getRouteByUser(userId);
+        return ResponseEntity.ok()
+                .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_LIST.getStatus(), SuccessCode.SUCCESS_ROUTE_LIST.getMessage(), routes));
+    }
+
+    @Operation(summary = "하나의 경로를 조회하는 API 입니다. [담당자] : 정현아", description = "경로 ID로 하나의 경로를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "하나의 경로 조회 성공",
+                    content = @Content(schema = @Schema(implementation = Route.class))),
+            @ApiResponse(responseCode = "404", description = "경로 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
+    })
+    @GetMapping("/{routeId}")
+    public ResponseEntity<ReturnCodeDTO> getRoute(@PathVariable Long routeId) {
+        Route route = routeService.getRouteById(routeId);
+        return ResponseEntity.ok()
+                .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_DETAIL.getStatus(), SuccessCode.SUCCESS_ROUTE_DETAIL.getMessage(), route));
+    }
+    @Operation(summary = "경로를 수정하는 API 입니다. [담당자] : 정현아", description = "경로 ID로 경로를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "경로 수정 성공",
+                    content = @Content(schema = @Schema(implementation = ReturnCodeDTO.class))),
+            @ApiResponse(responseCode = "404", description = "경로 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
+    })
+    @PutMapping("/{routeId}")
+    public ResponseEntity<ReturnCodeDTO> updateRoute(
+            @PathVariable Long routeId,
+            @RequestBody RouteRequestDTO routeRequestDTO) {
+
+        routeService.updateRoute(routeId, routeRequestDTO);
+        return ResponseEntity.ok()
+                .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_UPDATE.getStatus(), SuccessCode.SUCCESS_ROUTE_UPDATE.getMessage()));
+    }
+
+    @Operation(summary = "경로를 삭제하는 API 입니다. [담당자] : 정현아", description = "경로 ID로 경로를 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "경로 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "경로 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
+    })
+    @DeleteMapping("/{routeId}")
+    public ResponseEntity<ReturnCodeDTO> deleteRoute(@PathVariable Long routeId) {
+        routeService.deleteRoute(routeId);
+        return ResponseEntity.status(SuccessCode.SUCCESS_ROUTE_DELETE.getStatus())
+                .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_DELETE.getStatus(), SuccessCode.SUCCESS_ROUTE_DELETE.getMessage()));
+    }
+}

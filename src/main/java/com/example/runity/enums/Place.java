@@ -1,7 +1,5 @@
 package com.example.runity.enums;
 
-import com.example.runity.constants.ErrorCode;
-import com.example.runity.error.CustomException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,18 +12,18 @@ public enum Place {
     HOME("집"),
     ETC("기타");
 
-    private final String placeName;
-
-    public static Place fromString(String placeName) {
+    private final String places;
+    // 한글 -> 영어
+    public static Place fromString(String places) {
         for (Place place : Place.values()) {
-            if (place.getPlaceName().equalsIgnoreCase(placeName)) {
+            if (place.getPlaces().equalsIgnoreCase(places)) {
                 return place;
             }
         }
-        throw new CustomException(ErrorCode.INVALID_PLACE, "유효하지 않은 장소 값입니다: " + placeName);
+        return null;
     }
-
+    // 영어 -> 한글
     public static String toString(Place place) {
-        return place.getPlaceName();
+        return place.getPlaces();
     }
 }
