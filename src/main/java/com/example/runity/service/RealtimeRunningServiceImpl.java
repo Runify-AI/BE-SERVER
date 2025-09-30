@@ -34,22 +34,6 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
     /**
      * 실시간 러닝 상태 저장
      */
-    @Override
-    public void saveRunningState(Long userId, RunningPathDTO dto) {
-        RunningPathTS path = RunningPathTS.builder()
-                .pace(dto.getPace().floatValue())
-                .distance(dto.getDistance().floatValue())
-                .speed(dto.getSpeed().floatValue())
-                .latitude(dto.getCoordinate().getLatitude())
-                .longitude(dto.getCoordinate().getLongitude())
-                .elapsedTime(dto.getElapsedTime())
-                .typeEta(dto.getTypeEta())
-                .typePace(dto.getTypePace())
-                .typeStop(dto.getTypeStop())
-                .build();
-
-        runningPathRepository.saveRunningPoint(userId, path);
-    }
 
     @Override
     public void saveRunningStates(String token, Long routeId, RunningPathDTO dto) {

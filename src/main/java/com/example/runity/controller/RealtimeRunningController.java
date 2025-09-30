@@ -26,26 +26,6 @@ public class RealtimeRunningController {
 
     private final RealtimeRunningService realtimeRunningService;
 
-    @Operation(summary = "단일 러닝 상태 저장", description = "데모 버전에서 사용하지 않는 API입니다. 러닝 상태 리스트 저장을 이용해주세요!")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "러닝 상태 저장 완료"),
-            @ApiResponse(responseCode = "400", description = "입력값 형식 오류")
-    })
-    @PostMapping("/state")
-    public ResponseEntity<Void> saveRunningState(
-            @Parameter(description = "사용자 ID", required = true, example = "1")
-            @RequestHeader("userId") Long userId,
-
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "단일 러닝 상태 데이터",
-                    required = true,
-                    content = @Content(schema = @Schema(implementation = RunningPathDTO.class))
-            )
-            @RequestBody RunningPathDTO dto) {
-        realtimeRunningService.saveRunningState(userId, dto);
-        return ResponseEntity.ok().build();
-    }
-
     @Operation(summary = "러닝 상태 리스트 저장", description = "3분 주기로 사용자 상태 좌표를 저장합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "러닝 상태 저장 완료"),

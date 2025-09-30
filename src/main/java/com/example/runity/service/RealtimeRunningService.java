@@ -9,8 +9,6 @@ import java.time.LocalDate;
 
 @Service
 public interface RealtimeRunningService {
-    // 실시간 경로 저장 (개별 저장)
-    void saveRunningState(Long userId, RunningPathDTO dto);
 
     // 실시간 경로 저장 (토큰 + 경로 기반)
     void saveRunningStates(String token, Long routeId, RunningPathDTO dto);
