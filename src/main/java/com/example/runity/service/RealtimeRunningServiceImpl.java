@@ -3,7 +3,6 @@ package com.example.runity.service;
 import com.example.runity.DTO.*;
 import com.example.runity.DTO.runningTS.*;
 import com.example.runity.domain.*;
-//import com.example.runity.domain.RunningPathTS;
 import com.example.runity.repository.*;
 import com.example.runity.util.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -220,7 +219,7 @@ public class RealtimeRunningServiceImpl implements RealtimeRunningService {
         if (session == null) throw new RuntimeException("해당 sessionId를 가진 러닝 세션을 찾을 수 없습니다.");
 
         Statics statics = result.getStatics();
-        if (statics == null) throw new IllegalStateException("AI 분석 결과가 null입니다.");
+        if (statics == null) throw new IllegalStateException("AI 분석 결과가 null 입니다.");
 
         FeedbackSummary feedback = statics.getFeedback_summary();
         session = session.toBuilder()

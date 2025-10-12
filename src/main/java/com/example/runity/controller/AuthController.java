@@ -113,9 +113,9 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
     @PostMapping("/find-email")
-    public ResponseEntity<?> findBynickNameAndRunningType(@RequestBody @Valid EmailLoookupRequestDTO emailLoookupRequestDTO) {
+    public ResponseEntity<?> findByNickNameAndRunningType(@RequestBody @Valid EmailLoookupRequestDTO emailLoookupRequestDTO) {
         try {
-            EmailLookupResponseDTO emailLookupResponseDTO = emailLookupService.findBynickNameAndRunningType(
+            EmailLookupResponseDTO emailLookupResponseDTO = emailLookupService.findByNickNameAndRunningType(
                     emailLoookupRequestDTO.getNickName(), emailLoookupRequestDTO.getRunningType());
             return ResponseEntity.ok(emailLookupResponseDTO);
         } catch (CustomException e) {

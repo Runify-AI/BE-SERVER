@@ -48,7 +48,7 @@ public class Path {
     public RecommendedPathsDTO toRecommendationDTO() {
         return RecommendedPathsDTO.builder()
                 .pathId(this.indexId)
-                .feture(buildFeatureDTO(this.features))
+                .feature(buildFeatureDTO(this.features))
                 .recommend(RecommendedPathsDTO.RecommendDTO.builder()
                         .similarity(this.similarity)
                         .pace_score(this.paceScore)

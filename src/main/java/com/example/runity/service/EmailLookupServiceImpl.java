@@ -14,8 +14,8 @@ public class EmailLookupServiceImpl implements EmailLookupService {
     private final UserRepository  userRepository;
 
     @Override
-    public EmailLookupResponseDTO findBynickNameAndRunningType (String nickName, RunningType runningType) {
-        return userRepository.findBynickNameAndRunningType(nickName, runningType)
+    public EmailLookupResponseDTO findByNickNameAndRunningType (String nickName, RunningType runningType) {
+        return userRepository.findByNickNameAndRunningType(nickName, runningType)
                 .map(user -> new EmailLookupResponseDTO(user.getEmail()))
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND, "해당 정보로 가입된 사용자가 없습니다."));
     }

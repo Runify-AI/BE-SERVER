@@ -4,7 +4,6 @@ import com.example.runity.DTO.runningTS.Statics;
 import com.example.runity.DTO.runningTS.RunningPathDTO;
 import com.example.runity.DTO.runningTS.RunningCompleteRequest;
 import org.springframework.stereotype.Service;
-//import com.example.runity.DTO.EvaluationResult;
 import java.time.LocalDate;
 
 @Service

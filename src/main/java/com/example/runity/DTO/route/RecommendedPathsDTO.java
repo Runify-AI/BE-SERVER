@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 public class RecommendedPathsDTO {
     private int pathId;
-    private FeatureDTO feture;
+    private FeatureDTO feature;
     private RecommendDTO recommend;
     private List<List<Double>> coord;
 

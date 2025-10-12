@@ -81,7 +81,7 @@ public class RecommendationService {
                 : 1;
 
         for (RecommendedPathsDTO dto : recommendations) {
-            if (dto.getRecommend() == null || dto.getCoord() == null || dto.getFeture() == null) {
+            if (dto.getRecommend() == null || dto.getCoord() == null || dto.getFeature() == null) {
                 continue;
             }
 
@@ -107,10 +107,10 @@ public class RecommendationService {
             pathCoordinateRepository.saveAll(coordinates);
 
             pathFeatureRepository.saveAll(List.of(
-                    buildFeature(path, FeatureType.PARK, dto.getFeture().getPark()),
-                    buildFeature(path, FeatureType.RIVER, dto.getFeture().getRiver()),
-                    buildFeature(path, FeatureType.AMENITY, dto.getFeture().getAmenity()),
-                    buildFeature(path, FeatureType.CROSS, dto.getFeture().getCross())
+                    buildFeature(path, FeatureType.PARK, dto.getFeature().getPark()),
+                    buildFeature(path, FeatureType.RIVER, dto.getFeature().getRiver()),
+                    buildFeature(path, FeatureType.AMENITY, dto.getFeature().getAmenity()),
+                    buildFeature(path, FeatureType.CROSS, dto.getFeature().getCross())
             ));
 
             // 기본 선택 경로 설정

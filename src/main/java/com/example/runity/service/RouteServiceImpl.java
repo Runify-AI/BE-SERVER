@@ -87,7 +87,7 @@ public class RouteServiceImpl implements RouteService {
                             RecommendationResponseDTO recommendedPaths = recommendationService.generateRecommendation(startAddr, endAddr, request);
 
                             if (recommendedPaths.getPaths() == null) {
-                                System.out.println("AI 추천 결과가 null입니다.");
+                                System.out.println("AI 추천 결과가 null 입니다.");
                             } else {
                                 System.out.println("AI 추천 결과가 성공적으로 수신되었습니다.");
                             }
