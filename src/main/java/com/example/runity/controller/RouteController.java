@@ -60,7 +60,7 @@ public class RouteController {
     @Operation(summary = "하나의 경로를 조회하는 API 입니다. [담당자] : 정현아, 최효정", description = "경로 ID로 하나의 경로를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "하나의 경로 조회 성공",
-                    content = @Content(schema = @Schema(implementation = Route.class))),
+                    content = @Content(schema = @Schema(implementation = RunningSettingResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "경로 없음", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
@@ -70,6 +70,8 @@ public class RouteController {
         return ResponseEntity.ok()
                 .body(new ReturnCodeDTO(SuccessCode.SUCCESS_ROUTE_DETAIL.getStatus(), SuccessCode.SUCCESS_ROUTE_DETAIL.getMessage(), route));
     }
+
+
     @Operation(summary = "경로를 수정하는 API 입니다. [담당자] : 정현아", description = "경로 ID로 경로를 수정합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "경로 수정 성공",
