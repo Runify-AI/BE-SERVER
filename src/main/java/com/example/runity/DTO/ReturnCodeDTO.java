@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 public class ReturnCodeDTO<T> {
     private int status;
     private String message;
-    private Object data;
     private T data;
 
     public ReturnCodeDTO(int status, String message, T data) {
