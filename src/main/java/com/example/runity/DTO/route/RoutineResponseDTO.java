@@ -18,7 +18,7 @@ import java.util.List;
 public class RoutineResponseDTO {
     private Long routineId;
     private Place place;
-    private String destination;
+    private DestinationDTO destination;
     private String time;
     private List<Day> day;
     // 오늘 날짜에 해당하는 루트 ID

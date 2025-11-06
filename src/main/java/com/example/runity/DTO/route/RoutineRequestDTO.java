@@ -22,8 +22,9 @@ public class RoutineRequestDTO {
     private Place place;
     // 도착지
     @NotNull
-    @Size(min = 1, max = 100, message = "도착지는 1~100자 이하로 입력해주세요.")
-    private String destination;
+    //@Size(min = 1, max = 100, message = "도착지는 1~100자 이하로 입력해주세요.")
+    //private String destination;
+    private DestinationDTO destination;
     // 시간
     @NotNull
     @Pattern(regexp = "^([01]\\d|2[0-3]):([0-5]\\d)$",

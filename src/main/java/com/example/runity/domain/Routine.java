@@ -1,5 +1,6 @@
 package com.example.runity.domain;
 
+import com.example.runity.DTO.route.DestinationDTO;
 import com.example.runity.enums.Day;
 import com.example.runity.enums.Place;
 import jakarta.persistence.*;
@@ -27,8 +28,14 @@ public class Routine {
     @Column(nullable = false)
     private Place place;
     // 도착지
-    @Column(nullable = false)
-    private String destination;
+    @Embedded
+    @AttributeOverrides({
+            // JPA가 DestinationDTO의 필드와 컬럼 이름을 매핑할 때 충돌을 피하기 위해 이름을 재정의
+            @AttributeOverride(name = "latitude", column = @Column(name = "dest_latitude", nullable = false)),
+            @AttributeOverride(name = "longitude", column = @Column(name = "dest_longitude", nullable = false)),
+            @AttributeOverride(name = "name", column = @Column(name = "destination_name", nullable = false))
+    })
+    private DestinationDTO destination;
     // 시간
     @Column(nullable = false)
     private LocalTime time;
@@ -39,7 +46,7 @@ public class Routine {
     @Column(name = "day", nullable = false)
     private List<Day> day;
 
-    public void update(Place place, LocalTime time, List<Day> day, String destination) {
+    public void update(Place place, LocalTime time, List<Day> day, DestinationDTO destination) {
         this.place = place;
         this.time = time;
         this.day = day;
