@@ -21,6 +21,8 @@ public class RoutineResponseDTO {
     private String destination;
     private String time;
     private List<Day> day;
+    // 오늘 날짜에 해당하는 루트 ID
+    private Long todayRouteId;
 
     public static RoutineResponseDTO from(Routine routine) {
         if (routine == null) return null;
