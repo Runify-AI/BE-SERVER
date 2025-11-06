@@ -1,6 +1,6 @@
 package com.example.runity.DTO.history;
 
-import com.example.runity.DTO.route.LocationDTO;
+import com.example.runity.DTO.route.RouteCoordinateDTO;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,7 +13,7 @@ public class RunningHistoryDetailDTO {
     private LocalTime elapsedTime;
     private Float pace;               // 페이스
     private LocalTime timeStamp;      // 타임스탬프
-    private LocationDTO location;     // 좌표
+    private RouteCoordinateDTO location;     // 좌표
     private Float typeEta;
     private Float typePace;
     private Float typeStop;

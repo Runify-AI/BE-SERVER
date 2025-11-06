@@ -4,7 +4,7 @@ import com.example.runity.DTO.history.RunningHistoryDTO;
 import com.example.runity.DTO.history.RunningHistoryDetailDTO;
 import com.example.runity.DTO.history.RunningSessionDTO;
 import com.example.runity.DTO.history.RunningSessionSummaryDTO;
-import com.example.runity.DTO.route.LocationDTO;
+import com.example.runity.DTO.route.RouteCoordinateDTO;
 import com.example.runity.DTO.route.RunningSettingsResponse;
 import com.example.runity.DTO.runningTS.FeedbackSummary;
 import com.example.runity.domain.DailyRunningRecord;
@@ -12,7 +12,6 @@ import com.example.runity.domain.RealTimeRunning;
 import com.example.runity.domain.RunningPathTS;
 import com.example.runity.repository.DailyRunningRecordRepository;
 import com.example.runity.repository.RealTimeRunningRepository;
-import com.example.runity.repository.RouteRepository;
 import com.example.runity.repository.RunningPathTSRepository;
 import com.example.runity.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -118,9 +117,9 @@ public class RunningHistoryServiceImpl implements RunningHistoryService {
             List<RunningHistoryDetailDTO> detailDTOList = new ArrayList<>();
 
             for (RunningPathTS path : pathList) {
-                LocationDTO location = LocationDTO.builder()
-                        .lat(path.getLatitude())
-                        .lon(path.getLongitude())
+                RouteCoordinateDTO location = RouteCoordinateDTO.builder()
+                        .latitude(path.getLatitude())
+                        .longitude(path.getLongitude())
                         .build();
 
                 RunningHistoryDetailDTO detail = RunningHistoryDetailDTO.builder()
