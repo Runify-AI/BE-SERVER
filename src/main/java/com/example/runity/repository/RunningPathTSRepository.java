@@ -26,11 +26,13 @@ import java.util.Map;
 public class RunningPathTSRepository {
 
     private final InfluxDBClient influxDBClient;
-    private final String org = "myorg";
-    private final String bucket = "running_data";
+    private final String org;
+    private final String bucket;
 
-    public RunningPathTSRepository(InfluxDBClient influxDBClient) {
+    public RunningPathTSRepository(InfluxDBClient influxDBClient, String influxOrg, String influxBucket) {
         this.influxDBClient = influxDBClient;
+        this.org = influxOrg;
+        this.bucket = influxBucket;
     }
 
     // ----------------------러닝 좌표 저장 ---------------------- //
