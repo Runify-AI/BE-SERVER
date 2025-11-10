@@ -1,22 +1,21 @@
 package com.example.runity.controller;
 
 import com.example.runity.DTO.RunningSettingResponseDTO;
+import com.example.runity.DTO.route.RouteListResponseSchema;
 import com.example.runity.DTO.route.RouteRequestDTO;
 import com.example.runity.DTO.ReturnCodeDTO;
 import com.example.runity.DTO.route.RouteResponseDTO;
 import com.example.runity.constants.SuccessCode;
-import com.example.runity.domain.Route;
 import com.example.runity.service.RouteService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
 
 import java. util.List;
 
@@ -46,7 +45,10 @@ public class RouteController {
     @Operation(summary = "경로 목록을 조회하는 API 입니다. [담당자] : 정현아, 최효정")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "경로 조회 성공",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Route.class)))),
+                    content = @Content(
+                            // 구현체를 RouteListResponseSchema로 변경
+                            schema = @Schema(implementation = RouteListResponseSchema.class)
+                    )),
             @ApiResponse(responseCode = "404", description = "경로 없음", content = @Content),
             @ApiResponse(responseCode = "500", description = "서버 오류", content = {@Content(mediaType = "string")})
     })
