@@ -12,6 +12,10 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class RecommendationRequestDTO {
+    // 시작점, 도착점
+    private DestinationDTO startAddr;
+    private DestinationDTO endAddr;
+
     private UserProfile user_profile;
     private List<HistoryDTO> history;
     private WeatherDTO weather;

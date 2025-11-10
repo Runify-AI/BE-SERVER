@@ -96,8 +96,8 @@ public class RouteServiceImpl implements RouteService {
                         try {
                             // AI 추천 요청용 DTO 생성
                             RecommendationRequestDTO request = recommendationService.generateRecommendations(token, route.getRouteId());
-                            String startAddr = route.getStartPoint();
-                            String endAddr = route.getEndPoint();
+                            DestinationDTO startAddr = route.getStartPoint();
+                            DestinationDTO endAddr = route.getEndPoint();
 
                             // AI 서버에 추천 요청
                             RecommendationResponseDTO recommendedPaths = recommendationService.generateRecommendation(startAddr, endAddr, request);

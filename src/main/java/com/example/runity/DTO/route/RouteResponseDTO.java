@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 public class RouteResponseDTO {
     private boolean completed;
     private Long routeId;
-    private String startPoint;
-    private String endPoint;
+    private DestinationDTO startPoint;
+    private DestinationDTO endPoint;
     private String createdAt; // ex) "2025-06-09 00:00"
     private List<RouteChoiceResponseDTO> routeChoiceResponseDTO;
     private RoutineResponseDTO routineResponseDTO;

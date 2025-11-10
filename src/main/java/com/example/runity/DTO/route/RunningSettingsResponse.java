@@ -13,7 +13,7 @@ public class RunningSettingsResponse {
     private String duration;
     private String startTime;
     private String estimatedEndTime;
-    private String startPoint;
-    private String endPoint;
+    private DestinationDTO startPoint;
+    private DestinationDTO endPoint;
     private String targetPace;
 }

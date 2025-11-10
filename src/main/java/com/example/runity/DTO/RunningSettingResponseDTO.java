@@ -1,5 +1,6 @@
 package com.example.runity.DTO;
 
+import com.example.runity.DTO.route.DestinationDTO;
 import com.example.runity.DTO.route.RecommendedPathsDTO;
 import com.example.runity.DTO.route.RoutineResponseDTO;
 import lombok.AllArgsConstructor;
@@ -16,8 +17,8 @@ import java.util.List;
 public class RunningSettingResponseDTO {
 
     private Long routeId;  // 입력받은 route_id 그대로
-    private String startPoint;
-    private String endPoint;
+    private DestinationDTO startPoint;
+    private DestinationDTO endPoint;
     private RoutineResponseDTO routineResponseDTO;  // 추천된 루틴 정보
     private boolean completed;  // 루틴 완료 여부
     private Integer selectedPath;  // 선택된 경로 (e.g. 추천된 pathId 중 하나)

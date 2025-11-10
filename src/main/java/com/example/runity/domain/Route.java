@@ -1,5 +1,6 @@
 package com.example.runity.domain;
 
+import com.example.runity.DTO.route.DestinationDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -36,12 +37,23 @@ public class Route {
     private User user;
     // 출발지점
     @Setter
-    @Column(nullable = false)
-    private String startPoint;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "latitude", column = @Column(name = "start_latitude", nullable = false)),
+            @AttributeOverride(name = "longitude", column = @Column(name = "start_longitude", nullable = false)),
+            @AttributeOverride(name = "name", column = @Column(name = "start_name", nullable = false))
+    })
+    private DestinationDTO startPoint;
+
     // 목적지점
     @Setter
-    @Column
-    private String endPoint;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "latitude", column = @Column(name = "end_latitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "end_longitude")),
+            @AttributeOverride(name = "name", column = @Column(name = "end_name"))
+    })
+    private DestinationDTO endPoint;
     // 예상시간
     @Setter
     @Column
@@ -72,13 +84,15 @@ public class Route {
     }
 
 
-    public Route(User user, String startPoint, String endPoint) {
+    // 생성자
+    public Route(User user, DestinationDTO startPoint, DestinationDTO endPoint) {
         this.user = user;
         this.startPoint = startPoint;
         this.endPoint = endPoint;
     }
 
-    public void update(String startPoint, String endPoint) {
+    // update 메서드
+    public void update(DestinationDTO startPoint, DestinationDTO endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
     }

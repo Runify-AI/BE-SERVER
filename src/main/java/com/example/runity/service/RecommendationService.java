@@ -36,17 +36,18 @@ public class RecommendationService {
     /**
      * AI 경로 추천 요청
      */
-    public RecommendationResponseDTO generateRecommendation(String startAddr, String endAddr, RecommendationRequestDTO payload) {
+    public RecommendationResponseDTO generateRecommendation(DestinationDTO startAddr, DestinationDTO endAddr, RecommendationRequestDTO payload) {
         System.out.println("[AI 요청 시작]");
-        System.out.println("시작 주소: " + startAddr);
-        System.out.println("종료 주소: " + endAddr);
+        System.out.println("시작 주소: " + startAddr.getLatitude() + ", " + startAddr.getLongitude());
+        System.out.println("종료 주소: " + endAddr.getLatitude() + ", " + endAddr.getLongitude());
+        // DTO에 시작점/끝점 정보 설정
+        payload.setStartAddr(startAddr);
+        payload.setEndAddr(endAddr);
         System.out.println("Payload: " + payload);
 
         return aiWebClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path("/route/")
-                        .queryParam("start_address", startAddr)
-                        .queryParam("end_address", endAddr)
                         .build())
                 .bodyValue(payload)
                 .retrieve()
