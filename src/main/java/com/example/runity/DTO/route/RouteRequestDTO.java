@@ -12,6 +12,5 @@ import java.util.List;
 public class RouteRequestDTO {
     private String startPoint;
     private String endPoint;
-    private RouteChoiceRequestDTO routeChoiceRequestDTO;
     private Long routineId;
 }

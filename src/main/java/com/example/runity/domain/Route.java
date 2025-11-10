@@ -65,7 +65,7 @@ public class Route {
     private List<RouteChoice> routeChoices = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "routine_id")
+    @JoinColumn(name = "routine_id", nullable = true)
     private Routine routine;
     public Routine getRoutine() {
         return routine;

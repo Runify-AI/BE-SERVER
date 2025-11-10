@@ -32,23 +32,31 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public RouteResponseDTO createRoute(String token, RouteRequestDTO routeRequestDTO){
         Long userId = jwtUtil.getUserId(token);
+
+        // User 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->new CustomException(ErrorCode.USER_NOT_FOUND, ErrorCode.USER_NOT_FOUND.getMessage()));
 
-        RouteChoiceRequestDTO choiceDTO = routeRequestDTO.getRouteChoiceRequestDTO();
-        if (choiceDTO == null) {
-            throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
+        // Routine 조건부 조회
+        Routine routine = null;
+        Long routineId = routeRequestDTO.getRoutineId();
+
+        if (routineId != null) {
+            // routineId가 있다면, 해당 루틴이 존재하는지 확인
+            routine = routineRepository.findById(routineId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.ROUTINE_NOT_FOUND, ErrorCode.ROUTINE_NOT_FOUND.getMessage()));
         }
 
-
+        // Route 객체 생성
         Route route = Route.builder()
                 .user(user)
                 .startPoint(routeRequestDTO.getStartPoint())
                 .endPoint(routeRequestDTO.getEndPoint())
                 .createdAt(LocalDateTime.now())
-                .routine(routineRepository.findByRoutineId(routeRequestDTO.getRoutineId()))
+                .routine(routine)
                 .build();
 
+        /*
         RouteChoice routeChoice = RouteChoice.builder()
                 .usePublicTransport(choiceDTO.getUsePublicTransport())
                 .preferSafePath(choiceDTO.getPreferSafePath())
@@ -58,10 +66,18 @@ public class RouteServiceImpl implements RouteService {
                 .build();
 
         route.getRouteChoices().add(routeChoice);
-        
-        Route savedRoute = routeRepository.save(route);
-        RoutineResponseDTO routineResponseDTO = RoutineResponseDTO.from(savedRoute.getRoutine());
+         */
 
+        // Route 저장
+        Route savedRoute = routeRepository.save(route);
+
+        // 5. 응답 DTO 생성
+        RoutineResponseDTO routineResponseDTO = null;
+        if (savedRoute.getRoutine() != null) {
+            routineResponseDTO = RoutineResponseDTO.from(savedRoute.getRoutine());
+        }
+
+        // RouteChoice 로직이 제거되었으므로, getRouteChoices()는 비어있는 리스트
         return new RouteResponseDTO(savedRoute, routineResponseDTO, savedRoute.getRouteChoices());
     }
 
@@ -142,19 +158,26 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public void updateRoute(String token,Long routeId, RouteRequestDTO routeRequestDTO){
         Long userId = jwtUtil.getUserId(token);
+
+        // Route 조회
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROUTE_NOT_FOUND, ErrorCode.ROUTE_NOT_FOUND.getMessage()));
 
+        /*
         RouteChoiceRequestDTO choiceDTO = routeRequestDTO.getRouteChoiceRequestDTO();
         if (choiceDTO == null) {
             throw new CustomException(ErrorCode.INVALID_ROUTE_PARAMETER, ErrorCode.INVALID_ROUTE_PARAMETER.getMessage());
         }
 
+         */
+
+        // Route 기본 정보 업데이트
         route.update(
                 routeRequestDTO.getStartPoint(),
                 routeRequestDTO.getEndPoint()
         );
 
+        /*
         List<RouteChoice> routeChoices = route.getRouteChoices();
 
         if (!routeChoices.isEmpty()) {
@@ -174,6 +197,9 @@ public class RouteServiceImpl implements RouteService {
             routeChoices.add(newChoice);
         }
 
+         */
+
+        // 변경된 Route 저장
         routeRepository.save(route);
     }
 
