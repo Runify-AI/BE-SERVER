@@ -166,14 +166,14 @@ public class RecommendationService {
 
         // 유저 프로필 생성
         RecommendationRequestDTO.UserProfile userProfile = RecommendationRequestDTO.UserProfile.builder()
-                .running_type(user.getRunningType().name())
+                .runningType(user.getRunningType().name())
                 .height(user.getHeight())
                 .weight(user.getWeight())
                 .preferences(RecommendationRequestDTO.Preferences.builder()
-                        .preferencePlace(preference.getPreferencePlaces().stream().map(Enum::name).toList())
-                        .preferenceRoute(preference.getPreferenceRoutes().stream().map(Enum::name).toList())
-                        .preferenceAvoid(preference.getPreferenceAvoids().stream().map(Enum::name).toList())
-                        .preferenceEtc(preference.getPreferenceEtcs().stream().map(Enum::name).toList())
+                        .preferencePlaces(preference.getPreferencePlaces().stream().map(Enum::name).toList())
+                        .preferenceRoutes(preference.getPreferenceRoutes().stream().map(Enum::name).toList())
+                        .preferenceAvoids(preference.getPreferenceAvoids().stream().map(Enum::name).toList())
+                        .preferenceEtcs(preference.getPreferenceEtcs().stream().map(Enum::name).toList())
                         .build())
                 .build();
 

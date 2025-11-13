@@ -2,6 +2,7 @@ package com.example.runity.DTO.route;
 
 import com.example.runity.DTO.WeatherDTO;
 import com.example.runity.DTO.runningTS.FeedbackSummary;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ public class RecommendationRequestDTO {
     private DestinationDTO startAddr;
     private DestinationDTO endAddr;
 
+    @JsonProperty("user_profile")
     private UserProfile user_profile;
     private List<HistoryDTO> history;
     private WeatherDTO weather;
@@ -42,7 +44,7 @@ public class RecommendationRequestDTO {
     @AllArgsConstructor
     @Builder
     public static class UserProfile {
-        private String running_type;
+        private String runningType;
         private Double height;
         private Double weight;
         private Preferences preferences;
@@ -53,9 +55,9 @@ public class RecommendationRequestDTO {
     @AllArgsConstructor
     @Builder
     public static class Preferences {
-        private List<String> preferencePlace;
-        private List<String> preferenceRoute;
-        private List<String> preferenceAvoid;
-        private List<String> preferenceEtc;
+        private List<String> preferencePlaces;
+        private List<String> preferenceRoutes;
+        private List<String> preferenceAvoids;
+        private List<String> preferenceEtcs;
     }
 }
