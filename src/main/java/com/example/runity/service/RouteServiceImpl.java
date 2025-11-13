@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,7 +87,13 @@ public class RouteServiceImpl implements RouteService {
     @Transactional(readOnly = false)
     public List<RunningSettingResponseDTO> getRouteByUser(String token) {
         Long userId = jwtUtil.getUserId(token);
-        List<Route> routes = routeRepository.findByUserUserIdAndCompletedFalse(userId);
+
+        // 오늘 날짜의 시작과 끝 시간 계산
+        LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX);
+
+        // 오늘 생성된 루트만 조회하는 Repository 메서드 호출
+        List<Route> routes = routeRepository.findRoutesCreatedTodayWithDetails(userId, startOfToday, endOfToday);
 
         return routes.stream()
                 .map(route -> {
